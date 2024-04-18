@@ -6,11 +6,3 @@ I'll continue working on this project for as long as I feel inspired to do so, e
 
 ## Why Java?
 It's the language I know inside out and have been working with for a long time. I might dabble in other languages along the way, but for now, Java is the main game plan.
-
-## Inspiration
-[This guy](https://www.youtube.com/@tokyospliff)</br>
-[Undertale](https://store.steampowered.com/app/391540/Undertale/)</br>
-[NieR: Automata](https://store.steampowered.com/app/524220/NieRAutomata/)</br>
-
-“There is no truth. There is only perception.”
-― Gustave Flaubert 
