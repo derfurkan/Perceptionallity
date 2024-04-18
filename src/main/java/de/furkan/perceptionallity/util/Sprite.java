@@ -9,22 +9,21 @@ import lombok.Getter;
 
 @Getter
 public class Sprite {
-    
-    private Image rawImage;
-    private final JLabel rawComponent;
-    
-    protected Sprite(URL resource, Dimension dimension, int scaling) {
-        
-        try {
-            rawImage = ImageIO.read(resource).getScaledInstance(dimension.width,dimension.height,scaling);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
-        this.rawComponent = new JLabel();
-        this.rawComponent.setIcon(new ImageIcon(this.rawImage));
-        this.rawComponent.setBounds(0, 0, dimension.width,dimension.height);
+  private final JLabel rawComponent;
+  private Image rawImage;
+
+  protected Sprite(URL resource, Dimension dimension, int scaling) {
+
+    try {
+      rawImage =
+          ImageIO.read(resource).getScaledInstance(dimension.width, dimension.height, scaling);
+    } catch (IOException e) {
+      e.printStackTrace();
     }
 
-
+    this.rawComponent = new JLabel();
+    this.rawComponent.setIcon(new ImageIcon(this.rawImage));
+    this.rawComponent.setBounds(0, 0, dimension.width, dimension.height);
+  }
 }
