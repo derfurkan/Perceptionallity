@@ -1,8 +1,8 @@
-package de.furkan.perceptionallity.util;
+package de.furkan.perceptionallity.util.sprite;
 
 import java.awt.*;
+import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import lombok.Getter;
@@ -13,7 +13,7 @@ public class Sprite {
   private final JLabel rawComponent;
   private Image rawImage;
 
-  protected Sprite(URL resource, Dimension dimension, int scaling) {
+  protected Sprite(File resource, Dimension dimension, int scaling) {
 
     try {
       rawImage =
