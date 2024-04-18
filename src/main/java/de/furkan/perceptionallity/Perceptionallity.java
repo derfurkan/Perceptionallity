@@ -4,7 +4,8 @@ import de.furkan.perceptionallity.logger.CustomLogFormatter;
 import de.furkan.perceptionallity.menu.MenuManager;
 import de.furkan.perceptionallity.menu.menus.MainMenu;
 import de.furkan.perceptionallity.resources.ResourceManager;
-import de.furkan.perceptionallity.util.SpriteBuilder;
+import de.furkan.perceptionallity.util.font.GameFont;
+import de.furkan.perceptionallity.util.sprite.SpriteBuilder;
 import java.awt.*;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Handler;
@@ -48,6 +49,8 @@ public class Perceptionallity {
             "main_menu_background.png",
             "menu",
             "backgrounds"));
+    resourceManager.registerResource(
+        "menu_font", new GameFont(Font.TRUETYPE_FONT, "dpcomic.ttf", "font"));
   }
 
   private static void buildLogger() {

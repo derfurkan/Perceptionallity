@@ -1,14 +1,14 @@
-package de.furkan.perceptionallity.util;
+package de.furkan.perceptionallity.util.sprite;
 
+import de.furkan.perceptionallity.Perceptionallity;
 import java.awt.*;
-import javax.swing.*;
 
 public class SpriteBuilder {
 
   public Sprite buildSprite(
       Dimension dimension, int scaling, String spriteKey, String... spritePath) {
     return new Sprite(
-        getClass().getResource("/" + String.join("/", spritePath) + "/" + spriteKey),
+        Perceptionallity.getResourceManager().getResourceFile(spriteKey, spritePath),
         dimension,
         scaling);
   }
