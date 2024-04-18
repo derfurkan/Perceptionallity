@@ -1,16 +1,18 @@
 package de.furkan.perceptionallity.menu.menus;
 
-
-import de.furkan.perceptionallity.Perceptionallity;
 import de.furkan.perceptionallity.menu.Menu;
+import de.furkan.perceptionallity.util.Sprite;
 
 public class MainMenu extends Menu {
 
-    @Override
-    public void init() {
+  @Override
+  public String getMenuName() {
+    return "Main";
+  }
 
-        addComponent(Perceptionallity.getResourceHelper().getMAIN_MENU_BACKGROUND().getRawComponent());
-
-
-    }
+  @Override
+  public void init() {
+    addComponent(
+        getResourceManager().getResource("main_menu_background", Sprite.class).getRawComponent());
+  }
 }

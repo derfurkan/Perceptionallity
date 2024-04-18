@@ -5,9 +5,11 @@ import javax.swing.*;
 
 public class SpriteBuilder {
 
-    public Sprite buildSprite(Dimension dimension, int scaling, String resourceKey, String ...resourcePath) {
-        return new Sprite(getClass().getResource("/"+String.join("/",resourcePath)+"/"+resourceKey),dimension,scaling);
-    }
-
+  public Sprite buildSprite(
+      Dimension dimension, int scaling, String spriteKey, String... spritePath) {
+    return new Sprite(
+        getClass().getResource("/" + String.join("/", spritePath) + "/" + spriteKey),
+        dimension,
+        scaling);
+  }
 }
-
