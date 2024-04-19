@@ -9,6 +9,10 @@ import java.awt.*;
 
 public class MainMenu extends Menu {
 
+  private final ValueIterator titleAnimation =
+      new ValueIterator(-90, 20, 10, InterpolationType.SMOOTH_END);
+  private MenuLabel title;
+
   public MainMenu(int msPerUpdate) {
     super(msPerUpdate);
   }
@@ -18,28 +22,29 @@ public class MainMenu extends Menu {
     return "Main";
   }
 
-  private MenuLabel title;
-  private final ValueIterator titleAnimation = new ValueIterator(-90,20,10, InterpolationType.SMOOTH_END);
-
-
-    @Override
-  public void init() {
-       addSteadyComponent(
-           getResourceManager().getResource("main_menu_background",
-     Sprite.class).getRawComponent(),0);
-
+  @Override
+  public void onInit() {
+    addSteadyComponent(
+        getResourceManager().getResource("main_menu_background", Sprite.class).getRawComponent(),
+        0);
   }
 
-
   @Override
-  public void update() {
+  public void onUpdate() {
     if (!titleAnimation.isFinished()) {
-        Dimension titleDimension = new Dimension(590, 90);
-        int[] centerTitle = centerLocation(titleDimension);
-        title = new MenuLabel(centerTitle[0], titleAnimation.retrieveCurrentAndUpdateValue(), titleDimension, "Perceptionallity", 100, Color.WHITE);
-        addTempComponent(title.getLabel(), 1);
+      Dimension titleDimension = new Dimension(590, 90);
+      int[] centerTitle = centerLocation(titleDimension);
+      title =
+          new MenuLabel(
+              centerTitle[0],
+              titleAnimation.retrieveCurrentAndUpdateValue(),
+              titleDimension,
+              "Perceptionallity",
+              100,
+              Color.WHITE);
+      addTempComponent(title.getLabel(), 1);
     } else {
-      addSteadyComponent(title.getLabel(),1);
+      addSteadyComponent(title.getLabel(), 1);
     }
   }
 }
