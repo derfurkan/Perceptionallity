@@ -47,10 +47,11 @@ public class Perceptionallity {
         "main_menu_background",
         spriteBuilder.buildSprite(
             new Dimension(menuManager.getWINDOW_WIDTH(), menuManager.getWINDOW_HEIGHT()),
-            Image.SCALE_DEFAULT,
+
             "main_menu_background.png",
             "menu",
             "backgrounds"));
+
     resourceManager.registerResource(
         "menu_font", new GameFont(Font.TRUETYPE_FONT, "dpcomic.ttf", "font"));
   }

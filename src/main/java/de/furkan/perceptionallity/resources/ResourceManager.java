@@ -28,8 +28,6 @@ public class ResourceManager {
 
   @SuppressWarnings("unchecked")
   public <T> T getResource(String resourceKey, Class<T> type) {
-    Perceptionallity.getLogger()
-        .info("Retrieving resource: " + resourceKey + " (" + type.getSimpleName() + ")");
     Resource<?> resource = resources.get(resourceKey);
     if (resource == null || !type.isInstance(resource.data())) {
       throw new IllegalArgumentException("Invalid or unloaded resource key: " + resourceKey);

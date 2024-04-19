@@ -6,10 +6,10 @@ import java.awt.*;
 public class SpriteBuilder {
 
   public Sprite buildSprite(
-      Dimension dimension, int scaling, String spriteKey, String... spritePath) {
+      Dimension dimension, String spriteKey, String... spritePath) {
     return new Sprite(
         Perceptionallity.getResourceManager().getResourceFile(spriteKey, spritePath),
         dimension,
-        scaling);
+        Image.SCALE_DEFAULT);
   }
 }
