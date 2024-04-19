@@ -23,7 +23,7 @@ public class MenuManager {
     mainFrame = new JFrame("Perceptionallity");
     mainFrame.setResizable(false);
     mainFrame.setContentPane(mainPanel);
-    mainFrame.setBounds(50, 50, WINDOW_WIDTH, WINDOW_HEIGHT);
+    mainFrame.setBounds(50, 50, WINDOW_WIDTH, WINDOW_HEIGHT+30);
     mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
   }
 
