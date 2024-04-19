@@ -15,6 +15,8 @@ import lombok.Getter;
 
 public class Perceptionallity {
 
+  public final static boolean DEBUG_MODE = true;
+
   @Getter private static MenuManager menuManager;
 
   @Getter private static ResourceManager resourceManager;
@@ -36,7 +38,7 @@ public class Perceptionallity {
     loadResources();
     logger.info("Finished loading resources.");
 
-    menuManager.setCurrentMenu(mainMenu = new MainMenu());
+    menuManager.setCurrentMenu(mainMenu = new MainMenu(50));
     menuManager.drawCurrentMenu();
   }
 
