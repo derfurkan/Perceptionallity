@@ -83,7 +83,6 @@ public abstract class Menu {
 
   public void addSteadyComponent(Component component, int order) {
     if(steadyComponents.contains(component)) {
-      getLogger().warning("This component was already added as a steady component. Please make sure to add it once or use addTempComponent instead. ("+component.getClass().getSimpleName()+")");
       return;
     }
     steadyComponents.add(component);
@@ -112,4 +111,12 @@ public abstract class Menu {
               / 2) // TODO: investigate why this calculation is not working as intended
     };
   }
+
+  public int[] cornerLocation(Dimension dimension) {
+    return new int[] {
+            (Perceptionallity.getMenuManager().getWINDOW_WIDTH()) - (dimension.width+20),
+            (Perceptionallity.getMenuManager().getWINDOW_HEIGHT()) - (dimension.height+15) // TODO: investigate why this calculation is not working as intended
+    };
+  }
+
 }

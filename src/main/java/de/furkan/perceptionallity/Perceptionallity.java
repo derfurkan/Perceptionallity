@@ -15,7 +15,8 @@ import lombok.Getter;
 
 public class Perceptionallity {
 
-  public static final boolean DEBUG_MODE = true;
+  public static final boolean DEBUG_MODE = false;
+  public static final double BUILD = 0.01;
 
   @Getter private static MenuManager menuManager;
 
@@ -24,21 +25,22 @@ public class Perceptionallity {
   @Getter private static SpriteBuilder spriteBuilder;
 
   @Getter private static Logger logger;
-
+  
   // In case we need this for later.
   @Getter private static MainMenu mainMenu;
 
   public static void main(String[] args) {
     buildLogger();
+    resourceManager = new ResourceManager();
     menuManager = new MenuManager();
     spriteBuilder = new SpriteBuilder();
-    resourceManager = new ResourceManager();
+
 
     // Load resources
     loadResources();
     logger.info("Finished loading resources.");
-
-    menuManager.setCurrentMenu(mainMenu = new MainMenu(50));
+    menuManager.initialize();
+    menuManager.setCurrentMenu(mainMenu = new MainMenu(70));
     menuManager.drawCurrentMenu();
   }
 
@@ -52,7 +54,9 @@ public class Perceptionallity {
             "backgrounds"));
 
     resourceManager.registerResource(
-        "menu_font", new GameFont(Font.TRUETYPE_FONT, "dpcomic.ttf", "font"));
+        "menu_font", new GameFont(Font.TRUETYPE_FONT, "joystixmonospace.otf", "font"));
+
+    resourceManager.registerResource("game_icon", spriteBuilder.buildSprite(new Dimension(150,150),"game_icon.png","menu","icon"));
   }
 
   private static void buildLogger() {

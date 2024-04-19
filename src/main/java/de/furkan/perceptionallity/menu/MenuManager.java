@@ -1,5 +1,8 @@
 package de.furkan.perceptionallity.menu;
 
+import de.furkan.perceptionallity.Perceptionallity;
+import de.furkan.perceptionallity.resources.ResourceManager;
+import de.furkan.perceptionallity.util.sprite.Sprite;
 import javax.swing.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,15 +20,22 @@ public class MenuManager {
 
   public MenuManager() {
     this.mainPanel = new MenuPanel();
-
+    this.mainFrame = new JFrame("Perceptionallity");
+  }
+  
+  public void initialize() {
     mainPanel.setLayout(null);
-
-    mainFrame = new JFrame("Perceptionallity");
     mainFrame.setResizable(false);
     mainFrame.setContentPane(mainPanel);
     mainFrame.setBounds(50, 50, WINDOW_WIDTH, WINDOW_HEIGHT + 30);
     mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    mainFrame.setIconImage(getResourceManager().getResource("game_icon", Sprite.class).getRawImage());
   }
+  
+  public ResourceManager getResourceManager() {
+    return Perceptionallity.getResourceManager();
+  }
+
 
   public void drawCurrentMenu() {
     if (currentMenu == null) {
