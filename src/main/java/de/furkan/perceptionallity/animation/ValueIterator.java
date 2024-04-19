@@ -1,14 +1,20 @@
 package de.furkan.perceptionallity.animation;
 
+import lombok.Getter;
+import lombok.Setter;
+
 public class ValueIterator {
 
-  private final int targetValue;
+  @Setter
+  @Getter
+  private float targetValue;
   private final InterpolationType interpolationType;
-  private int currentValue;
-  private int step;
+  @Setter
+  private float currentValue;
+  private float step;
 
   public ValueIterator(
-      int initialValue, int targetValue, int step, InterpolationType interpolationType) {
+      float initialValue, float targetValue, float step, InterpolationType interpolationType) {
     this.currentValue = initialValue;
     this.targetValue = targetValue;
     this.step = step;
@@ -16,27 +22,38 @@ public class ValueIterator {
   }
 
   public boolean isFinished() {
-    return currentValue >= targetValue;
+    return currentValue == targetValue;
   }
 
-  public int retrieveCurrentAndUpdateValue() {
-    if (currentValue >= targetValue) {
+  public float retrieveCurrentAndUpdateValue() {
+    if (currentValue == targetValue) {
       return targetValue;
     }
 
-    int value = currentValue;
-    int remainingDistance = targetValue - currentValue;
-    int effectiveStep = Math.min(step, remainingDistance);
+    float value = currentValue;
+    float remainingDistance = currentValue > targetValue ? currentValue - targetValue : targetValue - currentValue;
+    float effectiveStep = Math.min(step, remainingDistance);
 
     switch (interpolationType) {
-      case DEFAULT -> currentValue += step;
+      case DEFAULT -> {
+        if(currentValue < targetValue)
+          currentValue += effectiveStep;
+        else
+          currentValue -= effectiveStep;
+      }
       case SMOOTH_END -> {
-        currentValue += effectiveStep;
+        if(currentValue < targetValue)
+          currentValue += effectiveStep;
+        else
+          currentValue -= effectiveStep;
         step =
             (int) Math.ceil(step * (1.0 - (double) effectiveStep / (double) (targetValue - value)));
       }
       case SMOOTH_START -> {
-        currentValue += effectiveStep;
+        if(currentValue < targetValue)
+          currentValue += effectiveStep;
+        else
+          currentValue -= effectiveStep;
         step =
             (int) Math.ceil(step * (1.0 + (double) effectiveStep / (double) (targetValue - value)));
       }
