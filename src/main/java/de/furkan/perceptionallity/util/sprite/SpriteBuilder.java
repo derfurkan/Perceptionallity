@@ -5,8 +5,7 @@ import java.awt.*;
 
 public class SpriteBuilder {
 
-  public Sprite buildSprite(
-      Dimension dimension, String spriteKey, String... spritePath) {
+  public Sprite buildSprite(Dimension dimension, String spriteKey, String... spritePath) {
     return new Sprite(
         Perceptionallity.getResourceManager().getResourceFile(spriteKey, spritePath),
         dimension,

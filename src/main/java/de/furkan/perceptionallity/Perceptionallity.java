@@ -15,7 +15,7 @@ import lombok.Getter;
 
 public class Perceptionallity {
 
-  public final static boolean DEBUG_MODE = true;
+  public static final boolean DEBUG_MODE = true;
 
   @Getter private static MenuManager menuManager;
 
@@ -47,7 +47,6 @@ public class Perceptionallity {
         "main_menu_background",
         spriteBuilder.buildSprite(
             new Dimension(menuManager.getWINDOW_WIDTH(), menuManager.getWINDOW_HEIGHT()),
-
             "main_menu_background.png",
             "menu",
             "backgrounds"));
@@ -66,7 +65,6 @@ public class Perceptionallity {
     ConsoleHandler consoleHandler = new ConsoleHandler();
     consoleHandler.setFormatter(new CustomLogFormatter());
     logger.addHandler(consoleHandler);
-
     logger.setLevel(Level.INFO);
   }
 }

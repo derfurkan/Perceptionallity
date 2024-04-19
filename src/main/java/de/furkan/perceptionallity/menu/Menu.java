@@ -12,13 +12,13 @@ import javax.swing.*;
 public abstract class Menu {
 
   private final List<Component> updatingComponents = new ArrayList<>();
+  private final List<Component> steadyComponents = new ArrayList<>();
 
-    public Menu(int msPerUpdate) {
-      if(msPerUpdate == -1) {
-        return;
-      }
-        java.util.Timer updateTimer = new java.util.Timer(
-                getMenuName() + "-updateTask", false);
+  public Menu(int msPerUpdate) {
+    if (msPerUpdate == -1) {
+      return;
+    }
+    java.util.Timer updateTimer = new java.util.Timer(getMenuName() + "-updateTask", false);
     updateTimer.schedule(
         new TimerTask() {
           @Override
@@ -29,17 +29,19 @@ public abstract class Menu {
                 .equals(getMenuName())) {
               getLogger()
                   .warning(
-                      "Stopped updateTimer for Menu "
+                      "Stopped updateTimer for Menu '"
                           + getMenuName()
-                          + " because another currentMenu was found. Please make sure to stop the timer manually before loading any new menus.");
+                          + "' because another currentMenu was found. Please make sure to stop the timer manually before loading any new menus.");
               cancel();
               return;
             }
-            new ArrayList<>(updatingComponents).forEach(o -> {
-              updatingComponents.remove(o);
-              getMainPanel().remove(o);
-            });
-            update();
+            new ArrayList<>(updatingComponents)
+                .forEach(
+                    o -> {
+                      updatingComponents.remove(o);
+                      getMainPanel().remove(o);
+                    });
+            onUpdate();
             getMainPanel().repaint();
             getMainPanel().revalidate();
           }
@@ -50,7 +52,7 @@ public abstract class Menu {
 
   public abstract String getMenuName();
 
-  public abstract void init();
+  public abstract void onInit();
 
   public JLayeredPane getMainPanel() {
     return Perceptionallity.getMenuManager().getMainPanel();
@@ -69,34 +71,45 @@ public abstract class Menu {
     for (Component component : getMainPanel().getComponents()) {
       removeComponent(component);
     }
-    init();
+    onInit();
     getLogger()
-        .info("Drawing menu: " + getMenuName() + " with " + getMainPanel().getComponents().length + " components.");
+        .info(
+            "Drawing menu: "
+                + getMenuName()
+                + " with "
+                + getMainPanel().getComponents().length
+                + " components.");
   }
 
   public void addSteadyComponent(Component component, int order) {
-    getMainPanel().add(component,order,0);
+    if(steadyComponents.contains(component)) {
+      getLogger().warning("This component was already added as a steady component. Please make sure to add it once or use addTempComponent instead. ("+component.getClass().getSimpleName()+")");
+      return;
+    }
+    steadyComponents.add(component);
+    getMainPanel().add(component, order, 0);
   }
 
   // Adding a component which will be removed on the next update call.
   public void addTempComponent(Component component, int order) {
     updatingComponents.add(component);
-    getMainPanel().add(component,order,0);
+    getMainPanel().add(component, order, 0);
   }
 
-
   public void removeComponent(Component component) {
+    steadyComponents.remove(component);
     getMainPanel().remove(component);
   }
 
   // This method will be called every msPerUpdate
-  public abstract void update();
+  public abstract void onUpdate();
 
   public int[] centerLocation(Dimension dimension) {
     return new int[] {
-      (Perceptionallity.getMenuManager().getWINDOW_WIDTH() / 2) - (dimension.width/2),
-      (Perceptionallity.getMenuManager().getWINDOW_HEIGHT() / 2) - (dimension.height/2) //TODO: investigate why this calculation is not working as intended
+      (Perceptionallity.getMenuManager().getWINDOW_WIDTH() / 2) - (dimension.width / 2),
+      (Perceptionallity.getMenuManager().getWINDOW_HEIGHT() / 2)
+          - (dimension.height
+              / 2) // TODO: investigate why this calculation is not working as intended
     };
   }
-
 }
