@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 public class MenuManager {
 
-  private final JPanel mainPanel;
+  private final JLayeredPane mainPanel;
   private final JFrame mainFrame;
 
   private final int WINDOW_WIDTH = 900;
@@ -16,11 +16,11 @@ public class MenuManager {
   @Setter private Menu currentMenu;
 
   public MenuManager() {
-    this.mainPanel = new JPanel();
+    this.mainPanel = new MenuPanel();
 
-    mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+    mainPanel.setLayout(null);
 
-    mainFrame = new JFrame("Perceptionality");
+    mainFrame = new JFrame("Perceptionallity");
     mainFrame.setResizable(false);
     mainFrame.setContentPane(mainPanel);
     mainFrame.setBounds(50, 50, WINDOW_WIDTH, WINDOW_HEIGHT);

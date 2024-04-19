@@ -2,9 +2,8 @@ package de.furkan.perceptionallity.menu.components;
 
 import de.furkan.perceptionallity.Perceptionallity;
 import de.furkan.perceptionallity.resources.ResourceManager;
-import lombok.Getter;
-
 import java.awt.*;
+import lombok.Getter;
 
 @Getter
 public abstract class MenuComponent {
