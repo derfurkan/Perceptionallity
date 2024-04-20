@@ -18,7 +18,6 @@ public abstract class MenuComponent {
     this.x = x;
     this.y = y;
     this.dimension = dimension;
-
   }
 
   public void setXY(int x, int y) {

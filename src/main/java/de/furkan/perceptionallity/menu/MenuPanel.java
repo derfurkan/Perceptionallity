@@ -15,7 +15,7 @@ public class MenuPanel extends JLayeredPane {
         Rectangle bounds = comp.getBounds();
         SwingUtilities.convertRectangle(comp.getParent(), bounds, this);
         g.setColor(Color.RED);
-        g.drawRect(bounds.x - 1, bounds.y - 1, bounds.width + 2, bounds.height + 2);
+        g.drawRect(bounds.x, bounds.y, bounds.width, bounds.height);
       }
     }
   }
