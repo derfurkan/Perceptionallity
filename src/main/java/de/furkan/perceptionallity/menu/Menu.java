@@ -5,6 +5,7 @@ import de.furkan.perceptionallity.resources.ResourceManager;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
 import java.util.TimerTask;
 import java.util.logging.Logger;
 import javax.swing.*;
@@ -14,11 +15,14 @@ public abstract class Menu {
   private final List<Component> updatingComponents = new ArrayList<>();
   private final List<Component> steadyComponents = new ArrayList<>();
 
-  public Menu(int msPerUpdate) {
+  private Timer updateTimer;
+
+  public Menu(int msPerUpdate, Color backgroundColor) {
+    getMainPanel().setBackground(backgroundColor);
     if (msPerUpdate == -1) {
       return;
     }
-    java.util.Timer updateTimer = new java.util.Timer(getMenuName() + "-updateTask", false);
+    updateTimer = new java.util.Timer(getMenuName() + "-updateTask", false);
     updateTimer.schedule(
         new TimerTask() {
           @Override
@@ -52,7 +56,7 @@ public abstract class Menu {
 
   public abstract String getMenuName();
 
-  public abstract void onInit();
+  public abstract void initComponents();
 
   public JLayeredPane getMainPanel() {
     return Perceptionallity.getMenuManager().getMainPanel();
@@ -67,22 +71,15 @@ public abstract class Menu {
   }
 
   public void drawMenu() {
-    getLogger().info("Initializing menu: " + getMenuName());
     for (Component component : getMainPanel().getComponents()) {
       removeComponent(component);
     }
-    onInit();
-    getLogger()
-        .info(
-            "Drawing menu: "
-                + getMenuName()
-                + " with "
-                + getMainPanel().getComponents().length
-                + " components.");
+    initComponents();
+    getLogger().info("Initialized menu components (" + getMenuName() + ")");
   }
 
   public void addSteadyComponent(Component component, int order) {
-    if(steadyComponents.contains(component)) {
+    if (steadyComponents.contains(component)) {
       return;
     }
     steadyComponents.add(component);
@@ -100,6 +97,17 @@ public abstract class Menu {
     getMainPanel().remove(component);
   }
 
+  public void unLoadMenu() {
+    updateTimer.cancel();
+    steadyComponents.clear();
+    updatingComponents.clear();
+    for (Component component : getMainPanel().getComponents()) {
+      getMainPanel().remove(component);
+    }
+    getMainPanel().repaint();
+    getMainPanel().revalidate();
+  }
+
   // This method will be called every msPerUpdate
   public abstract void onUpdate();
 
@@ -114,9 +122,10 @@ public abstract class Menu {
 
   public int[] cornerLocation(Dimension dimension) {
     return new int[] {
-            (Perceptionallity.getMenuManager().getWINDOW_WIDTH()) - (dimension.width+20),
-            (Perceptionallity.getMenuManager().getWINDOW_HEIGHT()) - (dimension.height+15) // TODO: investigate why this calculation is not working as intended
+      (Perceptionallity.getMenuManager().getWINDOW_WIDTH()) - (dimension.width + 20),
+      (Perceptionallity.getMenuManager().getWINDOW_HEIGHT())
+          - (dimension.height
+              + 15) // TODO: investigate why this calculation is not working as intended
     };
   }
-
 }
