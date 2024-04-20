@@ -10,7 +10,7 @@ public class MenuPanel extends JLayeredPane {
   public void paint(Graphics g) {
     super.paint(g);
 
-    if (Perceptionallity.DEBUG_MODE) {
+    if (Perceptionallity.getGame().isDebug() && Perceptionallity.getGame().isShowDebugLines()) {
       for (Component comp : getComponents()) {
         Rectangle bounds = comp.getBounds();
         SwingUtilities.convertRectangle(comp.getParent(), bounds, this);

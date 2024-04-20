@@ -16,31 +16,20 @@ public class MenuLabel extends MenuComponent {
     rawComponent.setFont(
         getResourceManager().getResource("menu_font", GameFont.class).getFont().deriveFont(size));
 
+    // Calculating dimension by font metrics
     Rectangle2D rectangle2D =
         rawComponent
             .getFontMetrics(rawComponent.getFont())
             .getStringBounds(text, rawComponent.getGraphics());
     Dimension dimension =
         new Dimension(
-            Math.toIntExact(Math.round(rectangle2D.getWidth() + 1)),
+            Math.toIntExact(Math.round(rectangle2D.getWidth())),
             Math.toIntExact(Math.round(rectangle2D.getHeight())));
     setDimension(dimension);
   }
 
-  public void setAlpha(float alpha) {
-    rawComponent.setForeground(
-        new Color(
-            (float) rawComponent.getForeground().getRed() / 255,
-            (float) rawComponent.getForeground().getGreen() / 255,
-            (float) rawComponent.getForeground().getBlue() / 255,
-            alpha));
-  }
-
-  public void buildLabel() {
-    rawComponent.setBounds(getX(), getY(), getDimension().width, getDimension().height);
-  }
-
-  public JLabel getLabel() {
+  @Override
+  public JComponent getJComponent() {
     return rawComponent;
   }
 }

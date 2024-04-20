@@ -27,7 +27,8 @@ public abstract class Menu {
         new TimerTask() {
           @Override
           public void run() {
-            if (!Perceptionallity.getMenuManager()
+            if (!Perceptionallity.getGame()
+                .getMenuManager()
                 .getCurrentMenu()
                 .getMenuName()
                 .equals(getMenuName())) {
@@ -59,15 +60,15 @@ public abstract class Menu {
   public abstract void initComponents();
 
   public JLayeredPane getMainPanel() {
-    return Perceptionallity.getMenuManager().getMainPanel();
+    return Perceptionallity.getGame().getMenuManager().getMainPanel();
   }
 
   public ResourceManager getResourceManager() {
-    return Perceptionallity.getResourceManager();
+    return Perceptionallity.getGame().getResourceManager();
   }
 
   public Logger getLogger() {
-    return Perceptionallity.getLogger();
+    return Perceptionallity.getGame().getLogger();
   }
 
   public void drawMenu() {
@@ -75,7 +76,7 @@ public abstract class Menu {
       removeComponent(component);
     }
     initComponents();
-    getLogger().info("Initialized menu components (" + getMenuName() + ")");
+    getLogger().info("Initialized components for menu (" + getMenuName() + ")");
   }
 
   public void addSteadyComponent(Component component, int order) {
@@ -113,17 +114,17 @@ public abstract class Menu {
 
   public int[] centerLocation(Dimension dimension) {
     return new int[] {
-      (Perceptionallity.getMenuManager().getWINDOW_WIDTH() / 2) - (dimension.width / 2),
-      (Perceptionallity.getMenuManager().getWINDOW_HEIGHT() / 2)
+      (Perceptionallity.getGame().getMenuManager().getWINDOW_WIDTH() / 2) - (dimension.width / 2),
+      (Perceptionallity.getGame().getMenuManager().getWINDOW_HEIGHT() / 2)
           - (dimension.height
               / 2) // TODO: investigate why this calculation is not working as intended
     };
   }
 
-  public int[] cornerLocation(Dimension dimension) {
+  public int[] edgeLocation(Dimension dimension) {
     return new int[] {
-      (Perceptionallity.getMenuManager().getWINDOW_WIDTH()) - (dimension.width + 20),
-      (Perceptionallity.getMenuManager().getWINDOW_HEIGHT())
+      (Perceptionallity.getGame().getMenuManager().getWINDOW_WIDTH()) - (dimension.width + 20),
+      (Perceptionallity.getGame().getMenuManager().getWINDOW_HEIGHT())
           - (dimension.height
               + 15) // TODO: investigate why this calculation is not working as intended
     };

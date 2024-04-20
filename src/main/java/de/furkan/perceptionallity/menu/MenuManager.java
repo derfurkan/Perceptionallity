@@ -40,21 +40,13 @@ public class MenuManager {
         new KeyListener() {
           @Override
           public void keyTyped(KeyEvent e) {
-            if (e.getKeyChar() == 'r' && Perceptionallity.DEBUG_MODE) {
-              getLogger().warning("Reloading current Menu ("+currentMenu.getMenuName()+")");
-              Menu newMenu = null;
-
-              //Ew
-              if(currentMenu instanceof MainMenu)
-                newMenu = new MainMenu();
-
-              if(newMenu == null) {
-                throw new RuntimeException("Unknown Menu to reload. Please specify a class for the menu. ("+currentMenu.getMenuName()+")");
+            if(Perceptionallity.getGame().isDebug()) {
+              switch (e.getKeyChar()) {
+                case 'r' -> reloadCurrentMenu();
+                case 'f' -> Perceptionallity.getGame().showDebugLines = !Perceptionallity.getGame().showDebugLines;
               }
-
-              setCurrentMenu(newMenu);
-              drawCurrentMenu();
             }
+  
           }
 
           @Override
@@ -65,8 +57,27 @@ public class MenuManager {
         });
   }
 
+  // Debug
+  private void reloadCurrentMenu() {
+    getLogger().warning("Reloading current Menu (" + currentMenu.getMenuName() + ")");
+    Menu newMenu = null;
+
+    // Ew
+    if (currentMenu instanceof MainMenu) newMenu = new MainMenu();
+
+    if (newMenu == null) {
+      throw new RuntimeException(
+              "Unknown Menu to reload. Please specify a class for the menu. ("
+                      + currentMenu.getMenuName()
+                      + ")");
+    }
+
+    setCurrentMenu(newMenu);
+    drawCurrentMenu();
+  }
+
   public ResourceManager getResourceManager() {
-    return Perceptionallity.getResourceManager();
+    return Perceptionallity.getGame().getResourceManager();
   }
 
   public void drawCurrentMenu() {
@@ -78,12 +89,11 @@ public class MenuManager {
   }
 
   public Logger getLogger() {
-    return Perceptionallity.getLogger();
+    return Perceptionallity.getGame().getLogger();
   }
 
   public void setCurrentMenu(Menu currentMenu) {
-    if (this.currentMenu != null)
-      this.currentMenu.unLoadMenu();
+    if (this.currentMenu != null) this.currentMenu.unLoadMenu();
     this.currentMenu = currentMenu;
   }
 }

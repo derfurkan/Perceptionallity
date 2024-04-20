@@ -7,8 +7,9 @@ public class SpriteBuilder {
 
   public Sprite buildSprite(Dimension dimension, String spriteKey, String... spritePath) {
     return new Sprite(
-        Perceptionallity.getResourceManager().getResourceFile(spriteKey, spritePath),
-        dimension,
-        Image.SCALE_DEFAULT);
+        Perceptionallity.getGame()
+            .getResourceManager()
+            .getResourceFile(spriteKey, spritePath), // TODO: Add getResourceManager method
+        dimension);
   }
 }
