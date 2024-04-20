@@ -13,7 +13,8 @@ public class ResourceManager {
   private final HashMap<String, File> resourceFileCache = new HashMap<>();
 
   public <T> void registerResource(String resourceKey, T resourceValue) {
-    Perceptionallity.getLogger()
+    Perceptionallity.getGame()
+        .getLogger()
         .info(
             "Loading resource: "
                 + resourceKey
@@ -49,8 +50,8 @@ public class ResourceManager {
               + " path: "
               + resourcePathString);
     }
-    File resourceFile = new File(resource.get().getFile());
-    resourceFileCache.put(resourcePathString, resourceFile);
+      File resourceFile = new File(resource.get().getFile());
+      resourceFileCache.put(resourcePathString, resourceFile);
     return resourceFile;
   }
 }

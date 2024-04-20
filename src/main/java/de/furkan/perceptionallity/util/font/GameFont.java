@@ -13,7 +13,8 @@ public class GameFont {
     try {
       this.font =
           Font.createFont(
-              fontType, Perceptionallity.getResourceManager().getResourceFile(fontKey, fontPath));
+              fontType,
+              Perceptionallity.getGame().getResourceManager().getResourceFile(fontKey, fontPath));
     } catch (Exception e) {
       throw new RuntimeException("Failed to load font: " + e.getMessage());
     }

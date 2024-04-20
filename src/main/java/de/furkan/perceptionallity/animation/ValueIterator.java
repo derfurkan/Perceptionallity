@@ -6,11 +6,11 @@ import lombok.Setter;
 public class ValueIterator {
 
   private final InterpolationType interpolationType;
+  private final int index = 0;
   @Setter @Getter private float targetValue;
   private float[] targetValues;
   @Setter @Getter private float currentValue, initialValue;
   private float[] currentValues, initialValues;
-  private final int index = 0;
   private float step;
 
   public ValueIterator(
