@@ -55,6 +55,8 @@ public class StartMenu extends Menu {
 
   @Override
   public void onUpdate() {
+    if(getMsElapsed() < 500)
+      return;
     AtomicBoolean atomicBoolean = new AtomicBoolean(false);
 
     menuComponents
@@ -77,7 +79,7 @@ public class StartMenu extends Menu {
           fadeOutStarted = true;
           menuComponents.values().forEach(ValueIterator::reverse);
         } else {
-          if (getSecondsElapsed() >= 8) {
+          if (getSecondsElapsed() >= 7) {
             getMenuManager().setCurrentMenu(new MainMenu());
             getMenuManager().drawCurrentMenu();
           }
