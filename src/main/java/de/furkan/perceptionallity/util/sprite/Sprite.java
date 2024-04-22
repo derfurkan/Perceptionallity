@@ -18,7 +18,8 @@ public class Sprite {
 
     try {
       rawImage =
-          ImageIO.read(resource).getScaledInstance(dimension.width,dimension.height,Image.SCALE_SMOOTH);
+          ImageIO.read(resource)
+              .getScaledInstance(dimension.width, dimension.height, Image.SCALE_SMOOTH);
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -29,10 +30,10 @@ public class Sprite {
   }
 
   public void resize(Dimension dimension) {
-    this.rawImage = this.rawImage.getScaledInstance(dimension.width,dimension.height,Image.SCALE_SMOOTH);
+    this.rawImage =
+        this.rawImage.getScaledInstance(dimension.width, dimension.height, Image.SCALE_SMOOTH);
     this.rawImageIcon = new ImageIcon(this.rawImage);
     this.rawComponent.setIcon(this.rawImageIcon);
     this.rawComponent.setBounds(0, 0, dimension.width, dimension.height);
   }
-
 }

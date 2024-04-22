@@ -15,14 +15,13 @@ import java.net.URISyntaxException;
 public class MainMenu extends Menu {
 
   // Menu Animations
-  private final ValueIterator titleInAnimation =
-      new ValueIterator(-90, 10, 6, InterpolationType.SMOOTH_END);
+  private final ValueIterator titleInAnimation;
 
   private final ValueIterator subTitleFadeAnimation =
-      new ValueIterator(1.0f, 0.4f, 0.03f, InterpolationType.DEFAULT);
+      new ValueIterator(1.0f, 0.4f, 0.02f, InterpolationType.DEFAULT);
 
   private final ValueIterator buttonInAnimation =
-          new ValueIterator(-280, 20, 25, InterpolationType.SMOOTH_END);
+      new ValueIterator(-280, 20, 25, InterpolationType.SMOOTH_END);
 
   // Menu Titles
   private final String title = "Perceptionallity", subTitle = "A game by Furkan";
@@ -33,53 +32,25 @@ public class MainMenu extends Menu {
   MenuLabel subTitleLabel = new MenuLabel(0, 0, subTitle, 20, Color.WHITE);
   int[] centerSubTitle = centerLocation(subTitleLabel.getDimension());
 
-  MenuButton playButton = new MenuButton(0,220,50,"PLAY");
-  MenuButton optionsButton = new MenuButton(0,0,50,"OPTIONS");
-  MenuButton githubButton = new MenuButton(0,0,50,"GITHUB");
-  MenuButton exitButton = new MenuButton(0,0,50,"EXIT");
-
+  MenuButton playButton = new MenuButton(0, 220, 50, "PLAY");
+  MenuButton optionsButton = new MenuButton(0, 0, 50, "OPTIONS");
+  MenuButton githubButton = new MenuButton(0, 0, 50, "GITHUB");
+  MenuButton exitButton = new MenuButton(0, 0, 50, "EXIT");
 
   public MainMenu() {
-    super(30, Color.BLACK
-    );
+    super(30, Color.BLACK);
+
+    titleInAnimation =
+        new ValueIterator(
+            (float)
+                -(titleLabel.getDimension().getHeight() + subTitleLabel.getDimension().getHeight()),
+            10,
+            6,
+            InterpolationType.SMOOTH_END);
 
     optionsButton.setBelow(playButton);
     githubButton.setBelow(optionsButton);
     exitButton.setBelow(githubButton);
-
-    playButton.setButtonClick(new MenuButtonClick() {
-      @Override
-      public void onClick() {
-
-      }
-    });
-
-    optionsButton.setButtonClick(new MenuButtonClick() {
-      @Override
-      public void onClick() {
-
-      }
-    });
-
-    githubButton.setButtonClick(new MenuButtonClick() {
-      @Override
-      public void onClick() {
-
-          try {
-              Desktop.getDesktop().browse(new URI("https://github.com/derfurkan/Perceptionallity"));
-          } catch (IOException | URISyntaxException e) {
-              throw new RuntimeException(e);
-          }
-      }
-    });
-
-    exitButton.setButtonClick(new MenuButtonClick() {
-      @Override
-      public void onClick() {
-        System.exit(0);
-      }
-    });
-
   }
 
   @Override
@@ -89,10 +60,10 @@ public class MainMenu extends Menu {
 
   @Override
   public void initComponents() {
-//        addSteadyComponent(
-//            getResourceManager().getResource("main_menu_background",
-//     Sprite.class).getRawComponent(),
-//            0);
+    //        addSteadyComponent(
+    //            getResourceManager().getResource("main_menu_background",
+    //     Sprite.class).getRawComponent(),
+    //            0);
     MenuLabel credits =
         new MenuLabel(
             5, 0, "Build " + Perceptionallity.getGame().getBuildString(), 15, Color.WHITE);
@@ -114,24 +85,61 @@ public class MainMenu extends Menu {
 
     addSteadyComponent(debugMode.getJComponent(), 1);
     addSteadyComponent(credits.getJComponent(), 1);
+  }
 
+  private void addButtonFunctionality() {
+    playButton.setButtonClick(
+        new MenuButtonClick() {
+          @Override
+          public void onClick() {}
+        });
+
+    optionsButton.setButtonClick(
+        new MenuButtonClick() {
+          @Override
+          public void onClick() {
+            Perceptionallity.getGame().getMenuManager().setCurrentMenu(new OptionsMenu());
+            Perceptionallity.getGame().getMenuManager().drawCurrentMenu();
+          }
+        });
+
+    githubButton.setButtonClick(
+        new MenuButtonClick() {
+          @Override
+          public void onClick() {
+
+            try {
+              Desktop.getDesktop().browse(new URI("https://github.com/derfurkan/Perceptionallity"));
+            } catch (IOException | URISyntaxException e) {
+              throw new RuntimeException(e);
+            }
+          }
+        });
+
+    exitButton.setButtonClick(
+        new MenuButtonClick() {
+          @Override
+          public void onClick() {
+            System.exit(0);
+          }
+        });
   }
 
   @Override
   public void onUpdate() {
     if (!titleInAnimation.isFinished()) {
-    // Titles move in animation
-    titleLabel.setX(centerTitle[0]);
-    titleLabel.setY((int) titleInAnimation.getCurrentValue());
+      // Titles move in animation
+      titleLabel.setX(centerTitle[0]);
+      titleLabel.setY((int) titleInAnimation.getCurrentValue());
 
-    subTitleLabel.setX(centerSubTitle[0]);
-    subTitleLabel.setY((int) titleInAnimation.getCurrentValue() + titleLabel.getDimension().height);
+      subTitleLabel.setX(centerSubTitle[0]);
+      subTitleLabel.setY(
+          (int) titleInAnimation.getCurrentValue() + titleLabel.getDimension().height);
 
-    titleLabel.buildComponent();
-    subTitleLabel.buildComponent();
+      titleLabel.buildComponent();
+      subTitleLabel.buildComponent();
 
-    titleInAnimation.updateValue();
-
+      titleInAnimation.updateValue();
 
       addTempComponent(titleLabel.getJComponent(), 1);
     } else {
@@ -145,7 +153,7 @@ public class MainMenu extends Menu {
       }
 
       // Button in animation start
-      if(!buttonInAnimation.isFinished()) {
+      if (!buttonInAnimation.isFinished()) {
         playButton.setX((int) buttonInAnimation.getCurrentValue());
         optionsButton.setX((int) buttonInAnimation.getCurrentValue());
         githubButton.setX((int) buttonInAnimation.getCurrentValue());
@@ -157,17 +165,17 @@ public class MainMenu extends Menu {
         exitButton.buildComponent();
 
         buttonInAnimation.updateValue();
-        addTempComponent(playButton.getJComponent(),1);
-        addTempComponent(optionsButton.getJComponent(),1);
-        addTempComponent(githubButton.getJComponent(),1);
-        addTempComponent(exitButton.getJComponent(),1);
+        addTempComponent(playButton.getJComponent(), 1);
+        addTempComponent(optionsButton.getJComponent(), 1);
+        addTempComponent(githubButton.getJComponent(), 1);
+        addTempComponent(exitButton.getJComponent(), 1);
       } else {
         addSteadyComponent(playButton.getJComponent(), 1);
         addSteadyComponent(optionsButton.getJComponent(), 1);
         addSteadyComponent(githubButton.getJComponent(), 1);
         addSteadyComponent(exitButton.getJComponent(), 1);
+        addButtonFunctionality();
       }
-
     }
 
     addTempComponent(subTitleLabel.getJComponent(), 1);

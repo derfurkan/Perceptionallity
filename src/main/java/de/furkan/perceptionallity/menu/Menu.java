@@ -2,10 +2,13 @@ package de.furkan.perceptionallity.menu;
 
 import de.furkan.perceptionallity.Perceptionallity;
 import de.furkan.perceptionallity.resources.ResourceManager;
+import lombok.Getter;
+
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
 import java.util.TimerTask;
 import java.util.logging.Logger;
 import javax.swing.*;
@@ -15,44 +18,48 @@ public abstract class Menu {
   private final List<Component> updatingComponents = new ArrayList<>();
   private final List<Component> steadyComponents = new ArrayList<>();
 
+
+  @Getter
+  private final int msPerUpdate;
+
   private Timer updateTimer;
 
+  @Getter
+  private long updates = 0;
+
   public Menu(int msPerUpdate, Color backgroundColor) {
+    this.msPerUpdate = msPerUpdate;
     getMainPanel().setBackground(backgroundColor);
     if (msPerUpdate == -1) {
       return;
     }
-    updateTimer = new java.util.Timer(getMenuName() + "-updateTask", false);
-    updateTimer.schedule(
-        new TimerTask() {
-          @Override
-          public void run() {
-            if (!Perceptionallity.getGame()
-                .getMenuManager()
-                .getCurrentMenu()
-                .getMenuName()
-                .equals(getMenuName())) {
-              getLogger()
-                  .warning(
-                      "Stopped updateTimer for Menu '"
-                          + getMenuName()
-                          + "' because another currentMenu was found. Please make sure to stop the timer manually before loading any new menus.");
-              cancel();
-              return;
-            }
-            new ArrayList<>(updatingComponents)
-                .forEach(
-                    o -> {
-                      updatingComponents.remove(o);
-                      getMainPanel().remove(o);
-                    });
-            onUpdate();
-            getMainPanel().repaint();
-            getMainPanel().revalidate();
-          }
-        },
-        1000,
-        msPerUpdate);
+
+    updateTimer = new Timer(msPerUpdate, e -> {
+      if (!Perceptionallity.getGame()
+              .getMenuManager()
+              .getCurrentMenu()
+              .getMenuName()
+              .equals(getMenuName())) {
+        getLogger()
+                .warning(
+                        "Stopped updateTimer for Menu '"
+                                + getMenuName()
+                                + "' because another currentMenu was found. Please make sure to stop the timer manually before loading any new menus.");
+        ((Timer)e.getSource()).stop();
+        return;
+      }
+      new ArrayList<>(updatingComponents)
+              .forEach(
+                      o -> {
+                        updatingComponents.remove(o);
+                        getMainPanel().remove(o);
+                      });
+      onUpdate();
+      getMainPanel().repaint();
+      getMainPanel().revalidate();
+      updates++;
+    });
+    updateTimer.start();
   }
 
   public abstract String getMenuName();
@@ -63,8 +70,16 @@ public abstract class Menu {
     return Perceptionallity.getGame().getMenuManager().getMainPanel();
   }
 
+  public boolean isSteadyComponent(JComponent component) {
+    return steadyComponents.contains(component);
+  }
+
   public ResourceManager getResourceManager() {
     return Perceptionallity.getGame().getResourceManager();
+  }
+
+  public MenuManager getMenuManager() {
+    return Perceptionallity.getGame().getMenuManager();
   }
 
   public Logger getLogger() {
@@ -99,7 +114,7 @@ public abstract class Menu {
   }
 
   public void unLoadMenu() {
-    updateTimer.cancel();
+    updateTimer.stop();
     steadyComponents.clear();
     updatingComponents.clear();
     for (Component component : getMainPanel().getComponents()) {
@@ -107,6 +122,10 @@ public abstract class Menu {
     }
     getMainPanel().repaint();
     getMainPanel().revalidate();
+  }
+
+  public int getSecondsElapsed() {
+    return (int) ((getUpdates() * getMsPerUpdate()) / 1000);
   }
 
   // This method will be called every msPerUpdate
