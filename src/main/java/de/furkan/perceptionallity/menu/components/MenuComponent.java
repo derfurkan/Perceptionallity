@@ -65,7 +65,6 @@ public abstract class MenuComponent {
         .isSteadyComponent(getJComponent());
   }
 
-
   public void buildComponent() {
     getJComponent().setBounds(x, y, dimension.width, dimension.height);
   }

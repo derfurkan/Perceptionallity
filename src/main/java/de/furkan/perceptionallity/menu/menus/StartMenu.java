@@ -15,6 +15,7 @@ public class StartMenu extends Menu {
   final HashMap<MenuComponent, ValueIterator> menuComponents = new HashMap<>();
   String startText =
       "We are all alone on life's journey, held\n captive by the limitations of human\n consciousness.";
+  boolean fadeOutStarted = false;
 
   public StartMenu() {
     super(30, Color.BLACK);
@@ -40,7 +41,7 @@ public class StartMenu extends Menu {
       menuComponents.put(
           component,
           new ValueIterator(
-              0f, 1f, new Random().nextFloat(0.01f,0.1f), InterpolationType.DEFAULT));
+              0f, 1f, new Random().nextFloat(0.01f, 0.1f), InterpolationType.DEFAULT));
     }
   }
 
@@ -50,41 +51,41 @@ public class StartMenu extends Menu {
   }
 
   @Override
-  public void initComponents() {
-
-  }
-
-  boolean fadeOutStarted = false;
+  public void initComponents() {}
 
   @Override
   public void onUpdate() {
     AtomicBoolean atomicBoolean = new AtomicBoolean(false);
 
-      menuComponents.values().forEach(valueIterator -> {
-          if(!valueIterator.isFinished())
-              atomicBoolean.set(true);
-      });
+    menuComponents
+        .values()
+        .forEach(
+            valueIterator -> {
+              if (!valueIterator.isFinished()) atomicBoolean.set(true);
+            });
 
-      if(atomicBoolean.get()) {
+    if (atomicBoolean.get()) {
       menuComponents.forEach(
           (menuComponent, valueIterator) -> {
             menuComponent.setAlpha(valueIterator.getCurrentValue());
             menuComponent.buildComponent();
             valueIterator.updateValue();
           });
-      } else {
+    } else {
       if (getSecondsElapsed() >= 6) {
         if (!fadeOutStarted) {
           fadeOutStarted = true;
           menuComponents.values().forEach(ValueIterator::reverse);
         } else {
-          if(getSecondsElapsed() >= 8) {
+          if (getSecondsElapsed() >= 8) {
             getMenuManager().setCurrentMenu(new MainMenu());
             getMenuManager().drawCurrentMenu();
           }
         }
-        }
       }
-      menuComponents.keySet().forEach(menuComponent -> addTempComponent(menuComponent.getJComponent(),1));
+    }
+    menuComponents
+        .keySet()
+        .forEach(menuComponent -> addTempComponent(menuComponent.getJComponent(), 1));
   }
 }

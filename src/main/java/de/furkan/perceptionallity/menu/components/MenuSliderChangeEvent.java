@@ -4,6 +4,5 @@ import javax.swing.*;
 
 public interface MenuSliderChangeEvent {
 
-    void onChange(JSlider jSlider);
-
+  void onChange(JSlider jSlider);
 }

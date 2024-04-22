@@ -74,7 +74,7 @@ public class MenuManager {
     if (currentMenu instanceof MainMenu) newMenu = new MainMenu();
     else if (currentMenu instanceof OptionsMenu) newMenu = new OptionsMenu();
     else if (currentMenu instanceof StartMenu) newMenu = new StartMenu();
-    else if(currentMenu instanceof TestMenu) newMenu = new TestMenu();
+    else if (currentMenu instanceof TestMenu) newMenu = new TestMenu();
 
     //    newMenu =
     // Class.forName(currentMenu.getClass().getModule(),currentMenu.getClass().getName());
@@ -107,8 +107,7 @@ public class MenuManager {
   }
 
   public void setCurrentMenu(Menu currentMenu) {
-    if (this.currentMenu != null)
-      this.currentMenu.unLoadMenu();
+    if (this.currentMenu != null) this.currentMenu.unLoadMenu();
     this.currentMenu = currentMenu;
   }
 }
