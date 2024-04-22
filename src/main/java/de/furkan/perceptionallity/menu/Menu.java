@@ -2,16 +2,12 @@ package de.furkan.perceptionallity.menu;
 
 import de.furkan.perceptionallity.Perceptionallity;
 import de.furkan.perceptionallity.resources.ResourceManager;
-import lombok.Getter;
-
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.TimerTask;
 import java.util.logging.Logger;
 import javax.swing.*;
+import lombok.Getter;
 
 public abstract class Menu {
 
