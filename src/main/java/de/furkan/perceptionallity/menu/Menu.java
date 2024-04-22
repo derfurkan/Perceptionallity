@@ -120,8 +120,12 @@ public abstract class Menu {
     getMainPanel().revalidate();
   }
 
+  public float getMsElapsed() {
+    return ((getUpdates() * getMsPerUpdate()));
+  }
+
   public int getSecondsElapsed() {
-    return (int) ((getUpdates() * getMsPerUpdate()) / 1000);
+    return (int) (getMsElapsed() / 1000);
   }
 
   // This method will be called every msPerUpdate

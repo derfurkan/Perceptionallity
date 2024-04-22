@@ -35,7 +35,7 @@ public class MenuButton extends MenuComponent {
                   .warning("No buttonClick defined for button " + text);
               return;
             }
-            if (e.getButton() != MouseEvent.BUTTON1) return;
+            if (e.getButton() != MouseEvent.BUTTON1 || !isSteadyComponent()) return;
             buttonClick.onClick();
           }
 

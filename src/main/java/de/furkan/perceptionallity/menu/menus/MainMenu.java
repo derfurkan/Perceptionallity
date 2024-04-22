@@ -7,6 +7,9 @@ import de.furkan.perceptionallity.menu.Menu;
 import de.furkan.perceptionallity.menu.components.MenuButton;
 import de.furkan.perceptionallity.menu.components.MenuButtonClick;
 import de.furkan.perceptionallity.menu.components.MenuLabel;
+import de.furkan.perceptionallity.menu.components.MenuSprite;
+import de.furkan.perceptionallity.util.sprite.Sprite;
+
 import java.awt.*;
 import java.io.IOException;
 import java.net.URI;
@@ -32,9 +35,16 @@ public class MainMenu extends Menu {
   MenuLabel subTitleLabel = new MenuLabel(0, 0, subTitle, 20, Color.WHITE);
   int[] centerSubTitle = centerLocation(subTitleLabel.getDimension());
 
-  MenuButton playButton = new MenuButton(0, 220, 50, "PLAY");
+
+  // I hate those.. I probably should make a better way to deal with those images. Maybe like a method extra for that in menu components?
+  MenuSprite gitHubIcon = new MenuSprite(getResourceManager().getResource("github_icon",Sprite.class));
+  MenuSprite discordIcon = new MenuSprite(getResourceManager().getResource("discord_icon",Sprite.class));
+
+  // TODO: Make this better and less ew.. Maybe a method which takes an array and creates menu components automatically?
+  MenuButton playButton = new MenuButton(0, 180, 50, "PLAY"); //TODO: Use arrow keys to navigate
   MenuButton optionsButton = new MenuButton(0, 0, 50, "OPTIONS");
   MenuButton githubButton = new MenuButton(0, 0, 50, "GITHUB");
+  MenuButton discordButton = new MenuButton(0, 0, 50, "DISCORD");
   MenuButton exitButton = new MenuButton(0, 0, 50, "EXIT");
 
   public MainMenu() {
@@ -50,7 +60,13 @@ public class MainMenu extends Menu {
 
     optionsButton.setBelow(playButton);
     githubButton.setBelow(optionsButton);
-    exitButton.setBelow(githubButton);
+    gitHubIcon.setY(githubButton.getY()-5);
+    gitHubIcon.setAsideRight(githubButton);
+    discordButton.setBelow(githubButton);
+    discordIcon.setY(discordButton.getY()-15);
+    discordIcon.setAsideRight(discordButton);
+    discordIcon.setX(discordIcon.getX()-10);
+    exitButton.setBelow(discordButton);
   }
 
   @Override
@@ -123,6 +139,18 @@ public class MainMenu extends Menu {
             System.exit(0);
           }
         });
+
+    discordButton.setButtonClick(new MenuButtonClick() {
+      @Override
+      public void onClick() {
+
+        try {
+          Desktop.getDesktop().browse(new URI("https://discord.gg/pF5FnwDxBj"));
+        } catch (IOException | URISyntaxException e) {
+          throw new RuntimeException(e);
+        }
+      }
+    });
   }
 
   @Override
@@ -157,22 +185,35 @@ public class MainMenu extends Menu {
         playButton.setX((int) buttonInAnimation.getCurrentValue());
         optionsButton.setX((int) buttonInAnimation.getCurrentValue());
         githubButton.setX((int) buttonInAnimation.getCurrentValue());
+        gitHubIcon.setAsideRight(githubButton);
+        discordButton.setX((int) buttonInAnimation.getCurrentValue());
+        discordIcon.setAsideRight(discordButton);
+        discordIcon.setX(discordIcon.getX()-10);
         exitButton.setX((int) buttonInAnimation.getCurrentValue());
 
         playButton.buildComponent();
         optionsButton.buildComponent();
         githubButton.buildComponent();
+        gitHubIcon.buildComponent();
+        discordButton.buildComponent();
+        discordIcon.buildComponent();
         exitButton.buildComponent();
 
         buttonInAnimation.updateValue();
         addTempComponent(playButton.getJComponent(), 1);
         addTempComponent(optionsButton.getJComponent(), 1);
         addTempComponent(githubButton.getJComponent(), 1);
+        addTempComponent(gitHubIcon.getJComponent(), 1);
+        addTempComponent(discordButton.getJComponent(),1);
+        addTempComponent(discordIcon.getJComponent(),1);
         addTempComponent(exitButton.getJComponent(), 1);
       } else {
         addSteadyComponent(playButton.getJComponent(), 1);
         addSteadyComponent(optionsButton.getJComponent(), 1);
         addSteadyComponent(githubButton.getJComponent(), 1);
+        addSteadyComponent(gitHubIcon.getJComponent(), 1);
+        addSteadyComponent(discordButton.getJComponent(),1);
+        addSteadyComponent(discordIcon.getJComponent(),1);
         addSteadyComponent(exitButton.getJComponent(), 1);
         addButtonFunctionality();
       }

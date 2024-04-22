@@ -62,6 +62,14 @@ public class Game {
     resourceManager.registerResource(
         "menu_button",
         spriteBuilder.buildSprite(new Dimension(512, 256), "button.png", "menu", "button"));
+
+    resourceManager.registerResource(
+        "github_icon",
+        spriteBuilder.buildSprite(new Dimension(70, 70), "github.png", "menu", "icon"));
+
+    resourceManager.registerResource(
+        "discord_icon",
+        spriteBuilder.buildSprite(new Dimension(90, 90), "discord.png", "menu", "icon"));
   }
 
   private void buildLogger() {
