@@ -2,6 +2,9 @@ package de.furkan.perceptionallity.menu;
 
 import de.furkan.perceptionallity.Perceptionallity;
 import de.furkan.perceptionallity.menu.menus.MainMenu;
+import de.furkan.perceptionallity.menu.menus.OptionsMenu;
+import de.furkan.perceptionallity.menu.menus.StartMenu;
+import de.furkan.perceptionallity.menu.menus.TestMenu;
 import de.furkan.perceptionallity.resources.ResourceManager;
 import de.furkan.perceptionallity.util.sprite.Sprite;
 import java.awt.event.KeyEvent;
@@ -40,13 +43,18 @@ public class MenuManager {
         new KeyListener() {
           @Override
           public void keyTyped(KeyEvent e) {
-            if(Perceptionallity.getGame().isDebug()) {
+            if (Perceptionallity.getGame().isDebug()) {
               switch (e.getKeyChar()) {
                 case 'r' -> reloadCurrentMenu();
-                case 'f' -> Perceptionallity.getGame().showDebugLines = !Perceptionallity.getGame().showDebugLines;
+                case 'f' ->
+                    Perceptionallity.getGame().showDebugLines =
+                        !Perceptionallity.getGame().showDebugLines;
+                case 'g' -> {
+                  setCurrentMenu(new StartMenu());
+                  drawCurrentMenu();
+                }
               }
             }
-  
           }
 
           @Override
@@ -64,12 +72,18 @@ public class MenuManager {
 
     // Ew
     if (currentMenu instanceof MainMenu) newMenu = new MainMenu();
+    else if (currentMenu instanceof OptionsMenu) newMenu = new OptionsMenu();
+    else if (currentMenu instanceof StartMenu) newMenu = new StartMenu();
+    else if(currentMenu instanceof TestMenu) newMenu = new TestMenu();
+
+    //    newMenu =
+    // Class.forName(currentMenu.getClass().getModule(),currentMenu.getClass().getName());
 
     if (newMenu == null) {
       throw new RuntimeException(
-              "Unknown Menu to reload. Please specify a class for the menu. ("
-                      + currentMenu.getMenuName()
-                      + ")");
+          "Unknown Menu to reload. Please specify a class for the menu. ("
+              + currentMenu.getMenuName()
+              + ")");
     }
 
     setCurrentMenu(newMenu);
@@ -93,7 +107,8 @@ public class MenuManager {
   }
 
   public void setCurrentMenu(Menu currentMenu) {
-    if (this.currentMenu != null) this.currentMenu.unLoadMenu();
+    if (this.currentMenu != null)
+      this.currentMenu.unLoadMenu();
     this.currentMenu = currentMenu;
   }
 }

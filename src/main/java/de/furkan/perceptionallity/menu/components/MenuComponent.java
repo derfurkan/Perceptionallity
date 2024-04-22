@@ -3,9 +3,6 @@ package de.furkan.perceptionallity.menu.components;
 import de.furkan.perceptionallity.Perceptionallity;
 import de.furkan.perceptionallity.resources.ResourceManager;
 import java.awt.*;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 import javax.swing.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -25,17 +22,29 @@ public abstract class MenuComponent {
   }
 
   public void setAbove(MenuComponent menuComponent) {
-    setY(menuComponent.getY() - dimension.height);
+    setY(menuComponent.getY() - menuComponent.getDimension().height);
   }
 
   public void setBelow(MenuComponent menuComponent) {
     setY(menuComponent.getY() + menuComponent.getDimension().height);
   }
 
+  public void setAsideRight(MenuComponent menuComponent) {
+    setX(menuComponent.getX() + menuComponent.getDimension().width);
+  }
+
+  public void setAsideLeft(MenuComponent menuComponent) {
+    setX(menuComponent.getX() - menuComponent.getDimension().width);
+  }
 
   public void setXY(int x, int y) {
     this.x = x;
     this.y = y;
+  }
+
+  public float getAlpha() {
+    Color color = getJComponent().getForeground();
+    return (float) color.getAlpha() / 255;
   }
 
   public void setAlpha(float alpha) {
@@ -49,20 +58,16 @@ public abstract class MenuComponent {
                 alpha));
   }
 
+  public boolean isSteadyComponent() {
+    return Perceptionallity.getGame()
+        .getMenuManager()
+        .getCurrentMenu()
+        .isSteadyComponent(getJComponent());
+  }
+
+
   public void buildComponent() {
     getJComponent().setBounds(x, y, dimension.width, dimension.height);
-  }
-
-  public void addMouseListener(MouseListener mouseListener) {
-    getJComponent().addMouseListener(mouseListener);
-  }
-
-  public void addMouseMotionListener(MouseMotionListener mouseListener) {
-    getJComponent().addMouseMotionListener(mouseListener);
-  }
-
-  public void addKeyListener(KeyListener keyListener) {
-    getJComponent().addKeyListener(keyListener);
   }
 
   public abstract JComponent getJComponent();

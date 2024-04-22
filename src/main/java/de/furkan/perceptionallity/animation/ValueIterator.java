@@ -49,10 +49,6 @@ public class ValueIterator {
           step =
               (int)
                   Math.ceil(step * (1.0 - (double) effectiveStep / (double) (targetValue - value)));
-      case SMOOTH_START ->
-          step =
-              (int)
-                  Math.ceil(step * (1.0 + (double) effectiveStep / (double) (targetValue - value)));
     }
 
     if (currentValue < targetValue) currentValue += effectiveStep;

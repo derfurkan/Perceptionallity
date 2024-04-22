@@ -50,8 +50,8 @@ public class ResourceManager {
               + " path: "
               + resourcePathString);
     }
-      File resourceFile = new File(resource.get().getFile());
-      resourceFileCache.put(resourcePathString, resourceFile);
+    File resourceFile = new File(resource.get().getFile());
+    resourceFileCache.put(resourcePathString, resourceFile);
     return resourceFile;
   }
 }

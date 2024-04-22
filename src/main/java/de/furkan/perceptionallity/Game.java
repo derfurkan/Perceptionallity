@@ -1,7 +1,8 @@
 package de.furkan.perceptionallity;
 
 import de.furkan.perceptionallity.menu.MenuManager;
-import de.furkan.perceptionallity.menu.menus.MainMenu;
+import de.furkan.perceptionallity.menu.menus.StartMenu;
+import de.furkan.perceptionallity.menu.menus.TestMenu;
 import de.furkan.perceptionallity.resources.ResourceManager;
 import de.furkan.perceptionallity.util.font.GameFont;
 import de.furkan.perceptionallity.util.sprite.SpriteBuilder;
@@ -14,18 +15,11 @@ import lombok.Getter;
 @Getter
 public class Game {
 
-  private MenuManager menuManager;
-
-  private ResourceManager resourceManager;
-
-  private SpriteBuilder spriteBuilder;
-
-  private Logger logger;
-
-  // In case we need this for later.
-  private MainMenu mainMenu;
-
   public boolean showDebugLines = false;
+  private MenuManager menuManager;
+  private ResourceManager resourceManager;
+  private SpriteBuilder spriteBuilder;
+  private Logger logger;
 
   public boolean isDebug() {
     return true;
@@ -45,18 +39,18 @@ public class Game {
     loadResources();
     logger.info("Finished loading resources.");
     menuManager.initialize();
-    menuManager.setCurrentMenu(mainMenu = new MainMenu());
+    menuManager.setCurrentMenu(isDebug() ? new TestMenu() : new StartMenu());
     menuManager.drawCurrentMenu();
   }
 
   private void loadResources() {
-//    resourceManager.registerResource(
-//        "main_menu_background",
-//        spriteBuilder.buildSprite(
-//            new Dimension(menuManager.getWINDOW_WIDTH(), menuManager.getWINDOW_HEIGHT()),
-//            "main_menu_background.png",
-//            "menu",
-//            "backgrounds"));
+    //    resourceManager.registerResource(
+    //        "main_menu_background",
+    //        spriteBuilder.buildSprite(
+    //            new Dimension(menuManager.getWINDOW_WIDTH(), menuManager.getWINDOW_HEIGHT()),
+    //            "main_menu_background.png",
+    //            "menu",
+    //            "backgrounds"));
 
     resourceManager.registerResource(
         "menu_font", new GameFont(Font.TRUETYPE_FONT, "joystixmonospace.otf", "font"));
@@ -66,8 +60,8 @@ public class Game {
         spriteBuilder.buildSprite(new Dimension(150, 150), "game_icon.png", "menu", "icon"));
 
     resourceManager.registerResource(
-            "menu_button",
-            spriteBuilder.buildSprite(new Dimension(512, 256), "button.png", "menu", "button"));
+        "menu_button",
+        spriteBuilder.buildSprite(new Dimension(512, 256), "button.png", "menu", "button"));
   }
 
   private void buildLogger() {
