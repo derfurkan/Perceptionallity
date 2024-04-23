@@ -37,7 +37,7 @@ public class OptionsMenu extends Menu {
     menuSlider.setMenuSliderChangeEvent(new MenuSliderChangeEvent() {
       @Override
       public void onChange(JSlider jSlider) {
-        Perceptionallity.getGame().getSoundManager().setVolumeOfAll((float) jSlider.getValue() /100);
+        Perceptionallity.getGame().getSoundEngine().setVolumeOfAll((float) jSlider.getValue() /100);
       }
     });
     menuSlider.buildComponent();

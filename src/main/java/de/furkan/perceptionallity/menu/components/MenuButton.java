@@ -6,7 +6,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import javax.swing.*;
 
-import de.furkan.perceptionallity.util.audio.Sound;
+import de.furkan.perceptionallity.sound.Sound;
 import lombok.Setter;
 
 public class MenuButton extends MenuComponent {
@@ -44,7 +44,7 @@ public class MenuButton extends MenuComponent {
           @Override
           public void mouseEntered(MouseEvent e) {
             if (isSteadyComponent()) {
-                Perceptionallity.getGame().getSoundManager().playAudio(getResourceManager().getResource("button_hover", Sound.class),1f);
+                Perceptionallity.getGame().getSoundEngine().playAudio(getResourceManager().getResource("button_hover", Sound.class),1f,false);
                 setAlpha(0.5f);
             }
           }

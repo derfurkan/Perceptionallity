@@ -7,9 +7,7 @@ import de.furkan.perceptionallity.menu.Menu;
 import de.furkan.perceptionallity.menu.components.MenuButton;
 import de.furkan.perceptionallity.menu.components.MenuButtonClick;
 import de.furkan.perceptionallity.menu.components.MenuLabel;
-import de.furkan.perceptionallity.menu.components.MenuSprite;
-import de.furkan.perceptionallity.util.audio.Sound;
-import de.furkan.perceptionallity.util.sprite.Sprite;
+import de.furkan.perceptionallity.sound.Sound;
 
 import java.awt.*;
 import java.io.IOException;
@@ -64,9 +62,7 @@ public class MainMenu extends Menu {
     discordButton.setBelow(githubButton);
     exitButton.setBelow(discordButton);
 
-    if(!Perceptionallity.getGame().getSoundManager().isAudioAlreadyPlaying(mainMenuJam)) {
-      Perceptionallity.getGame().getSoundManager().playAudioLoop(mainMenuJam,1f);
-    }
+
 
     addButtonFunctionality();
   }
@@ -208,7 +204,9 @@ public class MainMenu extends Menu {
         addSteadyComponent(githubButton.getJComponent(), 1);
         addSteadyComponent(discordButton.getJComponent(),1);
         addSteadyComponent(exitButton.getJComponent(), 1);
-
+        if(!Perceptionallity.getGame().getSoundEngine().isAudioAlreadyPlaying(mainMenuJam)) {
+          Perceptionallity.getGame().getSoundEngine().playAudio(mainMenuJam,1f,true);
+        }
       }
     }
 

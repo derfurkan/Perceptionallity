@@ -1,7 +1,6 @@
 package de.furkan.perceptionallity.menu;
 
 import de.furkan.perceptionallity.Manager;
-import de.furkan.perceptionallity.Perceptionallity;
 import de.furkan.perceptionallity.game.GamePanel;
 import de.furkan.perceptionallity.menu.menus.MainMenu;
 import de.furkan.perceptionallity.menu.menus.OptionsMenu;
@@ -33,7 +32,7 @@ public class MenuManager extends Manager {
   // Debug
   public void reloadCurrentMenu() {
     getLogger().warning("Reloading current Menu (" + currentMenu.getMenuName() + ")");
-    getSoundManager().stopAllAudio();
+    getSoundEngine().stopAllAudio();
     Menu newMenu = null;
 
     // Ew
