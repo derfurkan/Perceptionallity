@@ -1,73 +1,39 @@
 package de.furkan.perceptionallity.menu;
 
+import de.furkan.perceptionallity.Manager;
 import de.furkan.perceptionallity.Perceptionallity;
+import de.furkan.perceptionallity.game.GamePanel;
 import de.furkan.perceptionallity.menu.menus.MainMenu;
 import de.furkan.perceptionallity.menu.menus.OptionsMenu;
 import de.furkan.perceptionallity.menu.menus.StartMenu;
 import de.furkan.perceptionallity.menu.menus.TestMenu;
-import de.furkan.perceptionallity.resources.ResourceManager;
-import de.furkan.perceptionallity.util.sprite.Sprite;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.util.logging.Logger;
+
 import javax.swing.*;
 import lombok.Getter;
 
 @Getter
-public class MenuManager {
+public class MenuManager extends Manager {
+
 
   private final JLayeredPane mainPanel;
-  private final JFrame mainFrame;
 
-  private final int WINDOW_WIDTH = 900;
-  private final int WINDOW_HEIGHT = 500;
 
   private Menu currentMenu;
 
   public MenuManager() {
-    this.mainPanel = new MenuPanel();
-    this.mainFrame = new JFrame("Perceptionallity");
+    this.mainPanel = new GamePanel();
   }
 
+  @Override
   public void initialize() {
     mainPanel.setLayout(null);
     mainPanel.setOpaque(true);
-    mainFrame.setResizable(false);
-    mainFrame.setContentPane(mainPanel);
-    mainFrame.setBounds(50, 50, WINDOW_WIDTH, WINDOW_HEIGHT + 30);
-    mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    mainFrame.setIconImage(
-        getResourceManager().getResource("game_icon", Sprite.class).getRawImage());
-
-    mainFrame.addKeyListener(
-        new KeyListener() {
-          @Override
-          public void keyTyped(KeyEvent e) {
-            if (Perceptionallity.getGame().isDebug()) {
-              switch (e.getKeyChar()) {
-                case 'r' -> reloadCurrentMenu();
-                case 'f' ->
-                    Perceptionallity.getGame().showDebugLines =
-                        !Perceptionallity.getGame().showDebugLines;
-                case 'g' -> {
-                  setCurrentMenu(new StartMenu());
-                  drawCurrentMenu();
-                }
-              }
-            }
-          }
-
-          @Override
-          public void keyPressed(KeyEvent e) {}
-
-          @Override
-          public void keyReleased(KeyEvent e) {}
-        });
   }
 
   // Debug
-  private void reloadCurrentMenu() {
+  public void reloadCurrentMenu() {
     getLogger().warning("Reloading current Menu (" + currentMenu.getMenuName() + ")");
+    getSoundManager().stopAllAudio();
     Menu newMenu = null;
 
     // Ew
@@ -90,21 +56,14 @@ public class MenuManager {
     drawCurrentMenu();
   }
 
-  public ResourceManager getResourceManager() {
-    return Perceptionallity.getGame().getResourceManager();
-  }
 
   public void drawCurrentMenu() {
     if (currentMenu == null) {
       throw new RuntimeException("No current menu set!");
     }
     currentMenu.drawMenu();
-    mainFrame.setVisible(true);
   }
 
-  public Logger getLogger() {
-    return Perceptionallity.getGame().getLogger();
-  }
 
   public void setCurrentMenu(Menu currentMenu) {
     if (this.currentMenu != null) this.currentMenu.unLoadMenu();

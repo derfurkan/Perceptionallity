@@ -8,6 +8,7 @@ import de.furkan.perceptionallity.menu.components.MenuButton;
 import de.furkan.perceptionallity.menu.components.MenuButtonClick;
 import de.furkan.perceptionallity.menu.components.MenuLabel;
 import de.furkan.perceptionallity.menu.components.MenuSprite;
+import de.furkan.perceptionallity.util.audio.Sound;
 import de.furkan.perceptionallity.util.sprite.Sprite;
 
 import java.awt.*;
@@ -29,16 +30,14 @@ public class MainMenu extends Menu {
   // Menu Titles
   private final String title = "Perceptionallity", subTitle = "A game by Furkan";
 
+  private final Sound mainMenuJam;
+
   // Components that are being animated (updated)
   MenuLabel titleLabel = new MenuLabel(0, 0, title, 50, Color.WHITE);
   int[] centerTitle = centerLocation(titleLabel.getDimension());
   MenuLabel subTitleLabel = new MenuLabel(0, 0, subTitle, 20, Color.WHITE);
   int[] centerSubTitle = centerLocation(subTitleLabel.getDimension());
 
-
-  // I hate those.. I probably should make a better way to deal with those images. Maybe like a method extra for that in menu components?
-  MenuSprite gitHubIcon = new MenuSprite(getResourceManager().getResource("github_icon",Sprite.class));
-  MenuSprite discordIcon = new MenuSprite(getResourceManager().getResource("discord_icon",Sprite.class));
 
   // TODO: Make this better and less ew.. Maybe a method which takes an array and creates menu components automatically?
   MenuButton playButton = new MenuButton(0, 180, 50, "PLAY"); //TODO: Use arrow keys to navigate
@@ -58,15 +57,18 @@ public class MainMenu extends Menu {
             6,
             InterpolationType.SMOOTH_END);
 
+    mainMenuJam = getResourceManager().getResource("menu_music",Sound.class);
+
     optionsButton.setBelow(playButton);
     githubButton.setBelow(optionsButton);
-    gitHubIcon.setY(githubButton.getY()-5);
-    gitHubIcon.setAsideRight(githubButton);
     discordButton.setBelow(githubButton);
-    discordIcon.setY(discordButton.getY()-15);
-    discordIcon.setAsideRight(discordButton);
-    discordIcon.setX(discordIcon.getX()-10);
     exitButton.setBelow(discordButton);
+
+    if(!Perceptionallity.getGame().getSoundManager().isAudioAlreadyPlaying(mainMenuJam)) {
+      Perceptionallity.getGame().getSoundManager().playAudioLoop(mainMenuJam,1f);
+    }
+
+    addButtonFunctionality();
   }
 
   @Override
@@ -185,37 +187,28 @@ public class MainMenu extends Menu {
         playButton.setX((int) buttonInAnimation.getCurrentValue());
         optionsButton.setX((int) buttonInAnimation.getCurrentValue());
         githubButton.setX((int) buttonInAnimation.getCurrentValue());
-        gitHubIcon.setAsideRight(githubButton);
         discordButton.setX((int) buttonInAnimation.getCurrentValue());
-        discordIcon.setAsideRight(discordButton);
-        discordIcon.setX(discordIcon.getX()-10);
         exitButton.setX((int) buttonInAnimation.getCurrentValue());
 
         playButton.buildComponent();
         optionsButton.buildComponent();
         githubButton.buildComponent();
-        gitHubIcon.buildComponent();
         discordButton.buildComponent();
-        discordIcon.buildComponent();
         exitButton.buildComponent();
 
         buttonInAnimation.updateValue();
         addTempComponent(playButton.getJComponent(), 1);
         addTempComponent(optionsButton.getJComponent(), 1);
         addTempComponent(githubButton.getJComponent(), 1);
-        addTempComponent(gitHubIcon.getJComponent(), 1);
         addTempComponent(discordButton.getJComponent(),1);
-        addTempComponent(discordIcon.getJComponent(),1);
         addTempComponent(exitButton.getJComponent(), 1);
       } else {
         addSteadyComponent(playButton.getJComponent(), 1);
         addSteadyComponent(optionsButton.getJComponent(), 1);
         addSteadyComponent(githubButton.getJComponent(), 1);
-        addSteadyComponent(gitHubIcon.getJComponent(), 1);
         addSteadyComponent(discordButton.getJComponent(),1);
-        addSteadyComponent(discordIcon.getJComponent(),1);
         addSteadyComponent(exitButton.getJComponent(), 1);
-        addButtonFunctionality();
+
       }
     }
 

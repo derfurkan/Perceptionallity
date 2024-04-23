@@ -8,6 +8,6 @@ public class Perceptionallity {
 
   public static void main(String[] args) {
     game = new Game();
-    game.startGame();
+    game.start();
   }
 }

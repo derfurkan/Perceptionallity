@@ -133,8 +133,8 @@ public abstract class Menu {
 
   public int[] centerLocation(Dimension dimension) {
     return new int[] {
-      (Perceptionallity.getGame().getMenuManager().getWINDOW_WIDTH() / 2) - (dimension.width / 2),
-      (Perceptionallity.getGame().getMenuManager().getWINDOW_HEIGHT() / 2)
+      (Perceptionallity.getGame().getWINDOW_WIDTH() / 2) - (dimension.width / 2),
+      (Perceptionallity.getGame().getWINDOW_HEIGHT() / 2)
           - (dimension.height
               / 2) // TODO: investigate why this calculation is not working as intended
     };
@@ -142,8 +142,8 @@ public abstract class Menu {
 
   public int[] edgeLocation(Dimension dimension) {
     return new int[] {
-      (Perceptionallity.getGame().getMenuManager().getWINDOW_WIDTH()) - (dimension.width + 20),
-      (Perceptionallity.getGame().getMenuManager().getWINDOW_HEIGHT())
+      (Perceptionallity.getGame().getWINDOW_WIDTH()) - (dimension.width + 20),
+      (Perceptionallity.getGame().getWINDOW_HEIGHT())
           - (dimension.height
               + 15) // TODO: investigate why this calculation is not working as intended
     };

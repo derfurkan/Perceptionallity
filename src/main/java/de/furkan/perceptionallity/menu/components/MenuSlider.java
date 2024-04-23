@@ -3,8 +3,6 @@ package de.furkan.perceptionallity.menu.components;
 import lombok.Setter;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.plaf.basic.BasicSliderUI;
 import java.awt.*;
 import java.awt.geom.RoundRectangle2D;
@@ -24,12 +22,7 @@ public class MenuSlider extends MenuComponent {
     rawComponent.setFocusable(false);
     rawComponent.setValue(current);
     rawComponent.addChangeListener(
-        new ChangeListener() {
-          @Override
-          public void stateChanged(ChangeEvent e) {
-            menuSliderChangeEvent.onChange(rawComponent);
-          }
-        });
+            e -> menuSliderChangeEvent.onChange(rawComponent));
   }
 
   @Override

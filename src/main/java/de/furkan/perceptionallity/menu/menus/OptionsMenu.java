@@ -4,8 +4,9 @@ import de.furkan.perceptionallity.Perceptionallity;
 import de.furkan.perceptionallity.animation.InterpolationType;
 import de.furkan.perceptionallity.animation.ValueIterator;
 import de.furkan.perceptionallity.menu.Menu;
-import de.furkan.perceptionallity.menu.components.MenuButton;
-import de.furkan.perceptionallity.menu.components.MenuLabel;
+import de.furkan.perceptionallity.menu.components.*;
+
+import javax.swing.*;
 import java.awt.*;
 
 public class OptionsMenu extends Menu {
@@ -31,7 +32,20 @@ public class OptionsMenu extends Menu {
 
     int[] edgeLocation = edgeLocation(backButton.getDimension());
     backButton.setY(edgeLocation[1]);
+
+    MenuSlider menuSlider = new MenuSlider(20,80,new Dimension(200,50),10,0,100,50);
+    menuSlider.setMenuSliderChangeEvent(new MenuSliderChangeEvent() {
+      @Override
+      public void onChange(JSlider jSlider) {
+        Perceptionallity.getGame().getSoundManager().setVolumeOfAll((float) jSlider.getValue() /100);
+      }
+    });
+    menuSlider.buildComponent();
+    addSteadyComponent(menuSlider.getJComponent(),1);
+
   }
+
+
 
   @Override
   public void onUpdate() {
@@ -57,6 +71,7 @@ public class OptionsMenu extends Menu {
               Perceptionallity.getGame().getMenuManager().drawCurrentMenu();
             });
       }
+
     }
   }
 }
