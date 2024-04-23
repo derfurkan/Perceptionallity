@@ -1,7 +1,7 @@
 package de.furkan.perceptionallity;
 
 import de.furkan.perceptionallity.resources.ResourceManager;
-import de.furkan.perceptionallity.sound.SoundManager;
+import de.furkan.perceptionallity.sound.SoundEngine;
 
 import java.util.logging.Logger;
 
@@ -16,8 +16,8 @@ public abstract class Manager {
         return Perceptionallity.getGame().getLogger();
     }
 
-    public SoundManager getSoundManager() {
-        return Perceptionallity.getGame().getSoundManager();
+    public SoundEngine getSoundEngine() {
+        return Perceptionallity.getGame().getSoundEngine();
     }
 
 

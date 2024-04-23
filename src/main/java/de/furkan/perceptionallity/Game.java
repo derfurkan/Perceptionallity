@@ -5,8 +5,8 @@ import de.furkan.perceptionallity.menu.menus.MainMenu;
 import de.furkan.perceptionallity.menu.menus.StartMenu;
 import de.furkan.perceptionallity.menu.menus.TestMenu;
 import de.furkan.perceptionallity.resources.ResourceManager;
-import de.furkan.perceptionallity.sound.SoundManager;
-import de.furkan.perceptionallity.util.audio.Sound;
+import de.furkan.perceptionallity.sound.SoundEngine;
+import de.furkan.perceptionallity.sound.Sound;
 import de.furkan.perceptionallity.util.font.GameFont;
 import de.furkan.perceptionallity.util.sprite.Sprite;
 import de.furkan.perceptionallity.util.sprite.SpriteBuilder;
@@ -27,7 +27,7 @@ public class Game {
   private final MenuManager menuManager;
   private final ResourceManager resourceManager;
   private final SpriteBuilder spriteBuilder;
-  private final SoundManager soundManager;
+  private final SoundEngine soundEngine;
   private Logger logger;
   private JFrame gameFrame;
 
@@ -46,7 +46,7 @@ public class Game {
     resourceManager = new ResourceManager();
     menuManager = new MenuManager();
     spriteBuilder = new SpriteBuilder();
-    soundManager = new SoundManager();
+    soundEngine = new SoundEngine();
   }
 
   public void start() {
