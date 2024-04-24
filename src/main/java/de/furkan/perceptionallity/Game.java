@@ -1,12 +1,12 @@
 package de.furkan.perceptionallity;
 
+import de.furkan.perceptionallity.game.GameManager;
 import de.furkan.perceptionallity.menu.MenuManager;
-import de.furkan.perceptionallity.menu.menus.MainMenu;
 import de.furkan.perceptionallity.menu.menus.StartMenu;
 import de.furkan.perceptionallity.menu.menus.TestMenu;
 import de.furkan.perceptionallity.resources.ResourceManager;
-import de.furkan.perceptionallity.sound.SoundEngine;
 import de.furkan.perceptionallity.sound.Sound;
+import de.furkan.perceptionallity.sound.SoundEngine;
 import de.furkan.perceptionallity.util.font.GameFont;
 import de.furkan.perceptionallity.util.sprite.Sprite;
 import de.furkan.perceptionallity.util.sprite.SpriteBuilder;
@@ -16,23 +16,30 @@ import java.awt.event.KeyListener;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.logging.*;
-import lombok.Getter;
-
 import javax.swing.*;
+import lombok.Getter;
 
 @Getter
 public class Game {
 
-  public boolean showDebugLines = false;
   private final MenuManager menuManager;
+  private final GameManager gameManager;
   private final ResourceManager resourceManager;
   private final SpriteBuilder spriteBuilder;
   private final SoundEngine soundEngine;
+  private final int WINDOW_WIDTH = 900;
+  private final int WINDOW_HEIGHT = 500;
+  public boolean showDebugLines = false;
   private Logger logger;
   private JFrame gameFrame;
 
-  private final int WINDOW_WIDTH = 900;
-  private final int WINDOW_HEIGHT = 500;
+  public Game() {
+    resourceManager = new ResourceManager();
+    menuManager = new MenuManager();
+    gameManager = new GameManager();
+    spriteBuilder = new SpriteBuilder();
+    soundEngine = new SoundEngine();
+  }
 
   public boolean isDebug() {
     return false;
@@ -42,13 +49,6 @@ public class Game {
     return "DEV";
   }
 
-  public Game() {
-    resourceManager = new ResourceManager();
-    menuManager = new MenuManager();
-    spriteBuilder = new SpriteBuilder();
-    soundEngine = new SoundEngine();
-  }
-
   public void start() {
     buildLogger();
     loadResources();
@@ -56,7 +56,7 @@ public class Game {
     createGameFrame();
     logger.info("Finished creating game frame.");
     menuManager.initialize();
-    menuManager.setCurrentMenu(isDebug() ? new TestMenu() : new MainMenu());
+    menuManager.setCurrentMenu(isDebug() ? new TestMenu() : new StartMenu());
     menuManager.drawCurrentMenu();
   }
 
@@ -67,33 +67,33 @@ public class Game {
     gameFrame.setBounds(50, 50, WINDOW_WIDTH, WINDOW_HEIGHT + 30);
     gameFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     gameFrame.setIconImage(
-            getResourceManager().getResource("game_icon", Sprite.class).getRawImage());
+        getResourceManager().getResource("game_icon", Sprite.class).getRawImage());
     gameFrame.setVisible(true);
 
     gameFrame.addKeyListener(
-            new KeyListener() {
-              @Override
-              public void keyTyped(KeyEvent e) {
-                if (Perceptionallity.getGame().isDebug()) {
-                  switch (e.getKeyChar()) {
-                    case 'r' -> menuManager.reloadCurrentMenu();
-                    case 'f' ->
-                            Perceptionallity.getGame().showDebugLines =
-                                    !Perceptionallity.getGame().showDebugLines;
-                    case 'g' -> {
-                      menuManager.setCurrentMenu(new StartMenu());
-                      menuManager.drawCurrentMenu();
-                    }
-                  }
+        new KeyListener() {
+          @Override
+          public void keyTyped(KeyEvent e) {
+            if (Perceptionallity.getGame().isDebug()) {
+              switch (e.getKeyChar()) {
+                case 'r' -> menuManager.reloadCurrentMenu();
+                case 'f' ->
+                    Perceptionallity.getGame().showDebugLines =
+                        !Perceptionallity.getGame().showDebugLines;
+                case 'g' -> {
+                  menuManager.setCurrentMenu(new StartMenu());
+                  menuManager.drawCurrentMenu();
                 }
               }
+            }
+          }
 
-              @Override
-              public void keyPressed(KeyEvent e) {}
+          @Override
+          public void keyPressed(KeyEvent e) {}
 
-              @Override
-              public void keyReleased(KeyEvent e) {}
-            });
+          @Override
+          public void keyReleased(KeyEvent e) {}
+        });
   }
 
   private void loadResources() {
@@ -116,10 +116,10 @@ public class Game {
         "menu_button",
         spriteBuilder.buildSprite(new Dimension(512, 256), "button.png", "menu", "button"));
 
-    resourceManager.registerResource("button_hover", new Sound("button_hover.wav","menu","button"));
+    resourceManager.registerResource(
+        "button_hover", new Sound("button_hover.wav", "menu", "button"));
 
-    resourceManager.registerResource("menu_music", new Sound("menu_music.wav","menu","audio"));
-
+    resourceManager.registerResource("menu_music", new Sound("menu_music.wav", "menu", "audio"));
   }
 
   private void buildLogger() {

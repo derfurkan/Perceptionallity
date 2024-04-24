@@ -6,12 +6,27 @@ import javax.swing.*;
 
 public class GamePanel extends JLayeredPane {
 
-
-
-
   @Override
   public void paint(Graphics g) {
     super.paint(g);
+
+    // Calculates the position of the objects on the camera and renders them based on the result of the camera calculation.
+    Perceptionallity.getGame().getGameManager().getCamera().flushCalculation();
+    for (Component component : getComponents()) {
+      if (Perceptionallity.getGame().getGameManager().isGameComponent(component)) {
+        int[] newPos =
+            Perceptionallity.getGame()
+                .getGameManager()
+                .getCamera()
+                .calculateObjectPosition(
+                    Perceptionallity.getGame()
+                        .getGameManager()
+                        .getRegisteredGameObjects()
+                        .get(component));
+        component.setBounds(
+            new Rectangle(newPos[0], newPos[1], component.getWidth(), component.getHeight()));
+      }
+    }
 
     if (Perceptionallity.getGame().isDebug() && Perceptionallity.getGame().isShowDebugLines()) {
       for (Component comp : getComponents()) {
@@ -21,6 +36,5 @@ public class GamePanel extends JLayeredPane {
         g.drawRect(bounds.x, bounds.y, bounds.width, bounds.height);
       }
     }
-
   }
 }

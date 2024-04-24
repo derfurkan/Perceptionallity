@@ -25,7 +25,7 @@ public class StartMenu extends Menu {
     MenuComponent lastComponent = null;
     for (String word : startText.split(" ")) {
       MenuComponent component = new MenuLabel(40, 0, word, 30, Color.WHITE);
-      component.setY(centerLocation(component.getDimension())[1] - 40);
+      component.setY(getMenuManager().centerLocation(component.getDimension())[1] - 40);
       if (lastComponent != null) {
         if (word.contains("\n")) {
           component.setBelow(lastComponent);
@@ -55,8 +55,7 @@ public class StartMenu extends Menu {
 
   @Override
   public void onUpdate() {
-    if(getMsElapsed() < 500)
-      return;
+    if (getMsElapsed() < 500) return;
     AtomicBoolean atomicBoolean = new AtomicBoolean(false);
 
     menuComponents

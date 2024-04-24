@@ -8,7 +8,6 @@ import de.furkan.perceptionallity.menu.components.MenuButton;
 import de.furkan.perceptionallity.menu.components.MenuButtonClick;
 import de.furkan.perceptionallity.menu.components.MenuLabel;
 import de.furkan.perceptionallity.sound.Sound;
-
 import java.awt.*;
 import java.io.IOException;
 import java.net.URI;
@@ -32,13 +31,13 @@ public class MainMenu extends Menu {
 
   // Components that are being animated (updated)
   MenuLabel titleLabel = new MenuLabel(0, 0, title, 50, Color.WHITE);
-  int[] centerTitle = centerLocation(titleLabel.getDimension());
+  int[] centerTitle = getMenuManager().centerLocation(titleLabel.getDimension());
   MenuLabel subTitleLabel = new MenuLabel(0, 0, subTitle, 20, Color.WHITE);
-  int[] centerSubTitle = centerLocation(subTitleLabel.getDimension());
+  int[] centerSubTitle = getMenuManager().centerLocation(subTitleLabel.getDimension());
 
-
-  // TODO: Make this better and less ew.. Maybe a method which takes an array and creates menu components automatically?
-  MenuButton playButton = new MenuButton(0, 180, 50, "PLAY"); //TODO: Use arrow keys to navigate
+  // TODO: Make this better and less ew.. Maybe a method which takes an array and creates menu
+  // components automatically?
+  MenuButton playButton = new MenuButton(0, 180, 50, "PLAY"); // TODO: Use arrow keys to navigate
   MenuButton optionsButton = new MenuButton(0, 0, 50, "OPTIONS");
   MenuButton githubButton = new MenuButton(0, 0, 50, "GITHUB");
   MenuButton discordButton = new MenuButton(0, 0, 50, "DISCORD");
@@ -55,14 +54,12 @@ public class MainMenu extends Menu {
             6,
             InterpolationType.SMOOTH_END);
 
-    mainMenuJam = getResourceManager().getResource("menu_music",Sound.class);
+    mainMenuJam = getResourceManager().getResource("menu_music", Sound.class);
 
     optionsButton.setBelow(playButton);
     githubButton.setBelow(optionsButton);
     discordButton.setBelow(githubButton);
     exitButton.setBelow(discordButton);
-
-
 
     addButtonFunctionality();
   }
@@ -81,7 +78,7 @@ public class MainMenu extends Menu {
     MenuLabel credits =
         new MenuLabel(
             5, 0, "Build " + Perceptionallity.getGame().getBuildString(), 15, Color.WHITE);
-    int[] cornerLocation = edgeLocation(credits.getDimension());
+    int[] cornerLocation = getMenuManager().edgeLocation(credits.getDimension());
     credits.setXY(cornerLocation[0], cornerLocation[1]);
     credits.buildComponent();
 
@@ -92,7 +89,7 @@ public class MainMenu extends Menu {
             "Debug " + (Perceptionallity.getGame().isDebug() ? "ON" : "OFF"),
             15,
             Color.WHITE);
-    cornerLocation = edgeLocation(debugMode.getDimension());
+    cornerLocation = getMenuManager().edgeLocation(debugMode.getDimension());
     debugMode.setXY(
         cornerLocation[0], (int) (cornerLocation[1] - credits.getDimension().getHeight()));
     debugMode.buildComponent();
@@ -138,17 +135,18 @@ public class MainMenu extends Menu {
           }
         });
 
-    discordButton.setButtonClick(new MenuButtonClick() {
-      @Override
-      public void onClick() {
+    discordButton.setButtonClick(
+        new MenuButtonClick() {
+          @Override
+          public void onClick() {
 
-        try {
-          Desktop.getDesktop().browse(new URI("https://discord.gg/pF5FnwDxBj"));
-        } catch (IOException | URISyntaxException e) {
-          throw new RuntimeException(e);
-        }
-      }
-    });
+            try {
+              Desktop.getDesktop().browse(new URI("https://discord.gg/pF5FnwDxBj"));
+            } catch (IOException | URISyntaxException e) {
+              throw new RuntimeException(e);
+            }
+          }
+        });
   }
 
   @Override
@@ -196,16 +194,16 @@ public class MainMenu extends Menu {
         addTempComponent(playButton.getJComponent(), 1);
         addTempComponent(optionsButton.getJComponent(), 1);
         addTempComponent(githubButton.getJComponent(), 1);
-        addTempComponent(discordButton.getJComponent(),1);
+        addTempComponent(discordButton.getJComponent(), 1);
         addTempComponent(exitButton.getJComponent(), 1);
       } else {
         addSteadyComponent(playButton.getJComponent(), 1);
         addSteadyComponent(optionsButton.getJComponent(), 1);
         addSteadyComponent(githubButton.getJComponent(), 1);
-        addSteadyComponent(discordButton.getJComponent(),1);
+        addSteadyComponent(discordButton.getJComponent(), 1);
         addSteadyComponent(exitButton.getJComponent(), 1);
-        if(!Perceptionallity.getGame().getSoundEngine().isAudioAlreadyPlaying(mainMenuJam)) {
-          Perceptionallity.getGame().getSoundEngine().playAudio(mainMenuJam,1f,true);
+        if (!Perceptionallity.getGame().getSoundEngine().isAudioAlreadyPlaying(mainMenuJam)) {
+          Perceptionallity.getGame().getSoundEngine().playAudio(mainMenuJam, 1f, true);
         }
       }
     }
