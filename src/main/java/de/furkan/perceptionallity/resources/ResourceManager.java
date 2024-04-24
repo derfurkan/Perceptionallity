@@ -33,7 +33,7 @@ public class ResourceManager {
     if (resource == null || !type.isInstance(resource.data())) {
       throw new IllegalArgumentException("Invalid or unloaded resource key: " + resourceKey);
     }
-    return (T) resource.data();
+    return (T) resource.clone().data();
   }
 
   public File getResourceFile(String resourceKey, String... resourcePath) {

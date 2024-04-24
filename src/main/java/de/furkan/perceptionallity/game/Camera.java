@@ -12,11 +12,6 @@ public class Camera {
   private GameObject centeredObject;
 
   public void centerOnObject(GameObject centeredObject) {
-    finishGameObject(
-        centeredObject,
-        Perceptionallity.getGame()
-            .getMenuManager()
-            .centerLocation(centeredObject.getRectangle().getSize()));
     this.centeredObject = centeredObject;
   }
 
@@ -27,18 +22,23 @@ public class Camera {
 
   public int[] calculateObjectPosition(GameObject gameObject) {
     int[] calculatedPosition = gameObject.getWorldLocation().getXY();
-    if (centeredObject != null) {
-      int diffX = centeredObject.getWorldLocation().getX() - gameObject.getWorldLocation().getX();
-      int diffY = centeredObject.getWorldLocation().getY() - gameObject.getWorldLocation().getY();
-      calculatedPosition =
-          new int[] {
-            centeredObject.getComponent().getX() + diffX,
-            centeredObject.getComponent().getY() + diffY
-          };
+    if (centeredObject != null && centeredObject != gameObject) {
+      int diffX = gameObject.getWorldLocation().getX() - centeredObject.getWorldLocation().getX();
+      int diffY = gameObject.getWorldLocation().getY() - centeredObject.getWorldLocation().getY();
+
+      int offsetX = centeredObject.getComponent().getWidth() / 2;
+      int offsetY = centeredObject.getComponent().getHeight() / 2;
+      calculatedPosition = new int[]{
+              centeredObject.getComponent().getX() + diffX - offsetX,
+              centeredObject.getComponent().getY() + diffY - offsetY
+      };
+    } else if (centeredObject == gameObject) {
+      calculatedPosition = Perceptionallity.getGame().getMenuManager().centerLocation(gameObject.getRectangle().getSize());
     }
     finishGameObject(gameObject, calculatedPosition);
     return calculatedPosition;
   }
+
 
   private void finishGameObject(GameObject gameObject, int[] calculatedLocation) {
     calculatedGameObjects.remove(gameObject);
