@@ -22,7 +22,7 @@ public abstract class Menu {
 
   public Menu(int msPerUpdate, Color backgroundColor) {
     this.msPerUpdate = msPerUpdate;
-    getMainPanel().setBackground(backgroundColor);
+    getGamePanel().setBackground(backgroundColor);
     if (msPerUpdate == -1) {
       return;
     }
@@ -48,11 +48,11 @@ public abstract class Menu {
                   .forEach(
                       o -> {
                         updatingComponents.remove(o);
-                        getMainPanel().remove(o);
+                        getGamePanel().remove(o);
                       });
               onUpdate();
-              getMainPanel().repaint();
-              getMainPanel().revalidate();
+              getGamePanel().repaint();
+              getGamePanel().revalidate();
               updates++;
             });
     updateTimer.start();
@@ -62,8 +62,8 @@ public abstract class Menu {
 
   public abstract void initComponents();
 
-  public JLayeredPane getMainPanel() {
-    return Perceptionallity.getGame().getMenuManager().getMainPanel();
+  public JLayeredPane getGamePanel() {
+    return Perceptionallity.getGame().getMenuManager().getGamePanel();
   }
 
   public boolean isSteadyComponent(JComponent component) {
@@ -83,7 +83,7 @@ public abstract class Menu {
   }
 
   public void drawMenu() {
-    for (Component component : getMainPanel().getComponents()) {
+    for (Component component : getGamePanel().getComponents()) {
       removeComponent(component);
     }
     initComponents();
@@ -95,29 +95,29 @@ public abstract class Menu {
       return;
     }
     steadyComponents.add(component);
-    getMainPanel().add(component, order, 0);
+    getGamePanel().add(component, order, 0);
   }
 
   // Adding a component which will be removed on the next update call.
   public void addTempComponent(Component component, int order) {
     updatingComponents.add(component);
-    getMainPanel().add(component, order, 0);
+    getGamePanel().add(component, order, 0);
   }
 
   public void removeComponent(Component component) {
     steadyComponents.remove(component);
-    getMainPanel().remove(component);
+    getGamePanel().remove(component);
   }
 
   public void unLoadMenu() {
     updateTimer.stop();
     steadyComponents.clear();
     updatingComponents.clear();
-    for (Component component : getMainPanel().getComponents()) {
-      getMainPanel().remove(component);
+    for (Component component : getGamePanel().getComponents()) {
+      getGamePanel().remove(component);
     }
-    getMainPanel().repaint();
-    getMainPanel().revalidate();
+    getGamePanel().repaint();
+    getGamePanel().revalidate();
   }
 
   public float getMsElapsed() {

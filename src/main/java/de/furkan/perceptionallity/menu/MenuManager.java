@@ -14,18 +14,17 @@ import lombok.Getter;
 @Getter
 public class MenuManager extends Manager {
 
-  private final JLayeredPane mainPanel;
 
   private Menu currentMenu;
 
-  public MenuManager() {
-    this.mainPanel = new GamePanel();
-  }
-
   @Override
   public void initialize() {
-    mainPanel.setLayout(null);
-    mainPanel.setOpaque(true);
+    getGamePanel().setLayout(null);
+    getGamePanel().setOpaque(true);
+  }
+
+  public JLayeredPane getGamePanel() {
+    return Perceptionallity.getGame().getGamePanel();
   }
 
   // Debug

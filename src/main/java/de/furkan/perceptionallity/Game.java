@@ -1,6 +1,7 @@
 package de.furkan.perceptionallity;
 
 import de.furkan.perceptionallity.game.GameManager;
+import de.furkan.perceptionallity.game.GamePanel;
 import de.furkan.perceptionallity.menu.MenuManager;
 import de.furkan.perceptionallity.menu.menus.StartMenu;
 import de.furkan.perceptionallity.menu.menus.TestMenu;
@@ -9,7 +10,7 @@ import de.furkan.perceptionallity.sound.Sound;
 import de.furkan.perceptionallity.sound.SoundEngine;
 import de.furkan.perceptionallity.util.font.GameFont;
 import de.furkan.perceptionallity.util.sprite.Sprite;
-import de.furkan.perceptionallity.util.sprite.SpriteBuilder;
+
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -25,8 +26,8 @@ public class Game {
   private final MenuManager menuManager;
   private final GameManager gameManager;
   private final ResourceManager resourceManager;
-  private final SpriteBuilder spriteBuilder;
   private final SoundEngine soundEngine;
+  private final JLayeredPane gamePanel = new GamePanel();
   private final int WINDOW_WIDTH = 900;
   private final int WINDOW_HEIGHT = 500;
   public boolean showDebugLines = false;
@@ -37,16 +38,15 @@ public class Game {
     resourceManager = new ResourceManager();
     menuManager = new MenuManager();
     gameManager = new GameManager();
-    spriteBuilder = new SpriteBuilder();
     soundEngine = new SoundEngine();
   }
 
   public boolean isDebug() {
-    return false;
+    return true;
   }
 
   public String getBuildString() {
-    return "DEV";
+    return "DEV-0.01";
   }
 
   public void start() {
@@ -63,7 +63,7 @@ public class Game {
   private void createGameFrame() {
     this.gameFrame = new JFrame("Perceptionallity");
     gameFrame.setResizable(false);
-    gameFrame.setContentPane(menuManager.getMainPanel());
+    gameFrame.setContentPane(menuManager.getGamePanel());
     gameFrame.setBounds(50, 50, WINDOW_WIDTH, WINDOW_HEIGHT + 30);
     gameFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     gameFrame.setIconImage(
@@ -110,16 +110,23 @@ public class Game {
 
     resourceManager.registerResource(
         "game_icon",
-        spriteBuilder.buildSprite(new Dimension(150, 150), "game_icon.png", "menu", "icon"));
+        new Sprite(resourceManager
+                        .getResourceFile("game_icon.png", "menu", "icon"), new Dimension(150, 150)));
 
     resourceManager.registerResource(
         "menu_button",
-        spriteBuilder.buildSprite(new Dimension(512, 256), "button.png", "menu", "button"));
+            new Sprite(resourceManager
+                                .getResourceFile("button.png", "menu", "button"), new Dimension(512, 256)));
 
     resourceManager.registerResource(
         "button_hover", new Sound("button_hover.wav", "menu", "button"));
 
     resourceManager.registerResource("menu_music", new Sound("menu_music.wav", "menu", "audio"));
+
+    resourceManager.registerResource(
+        "initial_player",
+        new Sprite(
+            resourceManager.getResourceFile("player.png", "game", "player"), new Dimension(100,100)));
   }
 
   private void buildLogger() {

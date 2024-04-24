@@ -7,9 +7,8 @@ import javax.swing.*;
 public class GamePanel extends JLayeredPane {
 
   @Override
-  public void paint(Graphics g) {
-    super.paint(g);
-
+  public void paintComponent(Graphics g) {
+    super.paintComponent(g);
     // Calculates the position of the objects on the camera and renders them based on the result of the camera calculation.
     Perceptionallity.getGame().getGameManager().getCamera().flushCalculation();
     for (Component component : getComponents()) {

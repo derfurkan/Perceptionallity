@@ -102,7 +102,10 @@ public class MainMenu extends Menu {
     playButton.setButtonClick(
         new MenuButtonClick() {
           @Override
-          public void onClick() {}
+          public void onClick() {
+            getMenuManager().getCurrentMenu().unLoadMenu();
+            Perceptionallity.getGame().getGameManager().initialize();
+          }
         });
 
     optionsButton.setButtonClick(
