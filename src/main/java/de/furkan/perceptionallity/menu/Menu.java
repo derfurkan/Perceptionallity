@@ -14,14 +14,11 @@ public abstract class Menu {
   private final List<Component> updatingComponents = new ArrayList<>();
   private final List<Component> steadyComponents = new ArrayList<>();
 
-
-  @Getter
-  private final int msPerUpdate;
+  @Getter private final int msPerUpdate;
 
   private Timer updateTimer;
 
-  @Getter
-  private long updates = 0;
+  @Getter private long updates = 0;
 
   public Menu(int msPerUpdate, Color backgroundColor) {
     this.msPerUpdate = msPerUpdate;
@@ -30,31 +27,34 @@ public abstract class Menu {
       return;
     }
 
-    updateTimer = new Timer(msPerUpdate, e -> {
-      if (!Perceptionallity.getGame()
-              .getMenuManager()
-              .getCurrentMenu()
-              .getMenuName()
-              .equals(getMenuName())) {
-        getLogger()
-                .warning(
+    updateTimer =
+        new Timer(
+            msPerUpdate,
+            e -> {
+              if (!Perceptionallity.getGame()
+                  .getMenuManager()
+                  .getCurrentMenu()
+                  .getMenuName()
+                  .equals(getMenuName())) {
+                getLogger()
+                    .warning(
                         "Stopped updateTimer for Menu '"
-                                + getMenuName()
-                                + "' because another currentMenu was found. Please make sure to stop the timer manually before loading any new menus.");
-        ((Timer)e.getSource()).stop();
-        return;
-      }
-      new ArrayList<>(updatingComponents)
-              .forEach(
+                            + getMenuName()
+                            + "' because another currentMenu was found. Please make sure to stop the timer manually before loading any new menus.");
+                ((Timer) e.getSource()).stop();
+                return;
+              }
+              new ArrayList<>(updatingComponents)
+                  .forEach(
                       o -> {
                         updatingComponents.remove(o);
                         getMainPanel().remove(o);
                       });
-      onUpdate();
-      getMainPanel().repaint();
-      getMainPanel().revalidate();
-      updates++;
-    });
+              onUpdate();
+              getMainPanel().repaint();
+              getMainPanel().revalidate();
+              updates++;
+            });
     updateTimer.start();
   }
 
@@ -130,22 +130,4 @@ public abstract class Menu {
 
   // This method will be called every msPerUpdate
   public abstract void onUpdate();
-
-  public int[] centerLocation(Dimension dimension) {
-    return new int[] {
-      (Perceptionallity.getGame().getWINDOW_WIDTH() / 2) - (dimension.width / 2),
-      (Perceptionallity.getGame().getWINDOW_HEIGHT() / 2)
-          - (dimension.height
-              / 2) // TODO: investigate why this calculation is not working as intended
-    };
-  }
-
-  public int[] edgeLocation(Dimension dimension) {
-    return new int[] {
-      (Perceptionallity.getGame().getWINDOW_WIDTH()) - (dimension.width + 20),
-      (Perceptionallity.getGame().getWINDOW_HEIGHT())
-          - (dimension.height
-              + 15) // TODO: investigate why this calculation is not working as intended
-    };
-  }
 }

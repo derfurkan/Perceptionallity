@@ -1,21 +1,20 @@
 package de.furkan.perceptionallity.menu;
 
 import de.furkan.perceptionallity.Manager;
+import de.furkan.perceptionallity.Perceptionallity;
 import de.furkan.perceptionallity.game.GamePanel;
 import de.furkan.perceptionallity.menu.menus.MainMenu;
 import de.furkan.perceptionallity.menu.menus.OptionsMenu;
 import de.furkan.perceptionallity.menu.menus.StartMenu;
 import de.furkan.perceptionallity.menu.menus.TestMenu;
-
+import java.awt.*;
 import javax.swing.*;
 import lombok.Getter;
 
 @Getter
 public class MenuManager extends Manager {
 
-
   private final JLayeredPane mainPanel;
-
 
   private Menu currentMenu;
 
@@ -55,7 +54,6 @@ public class MenuManager extends Manager {
     drawCurrentMenu();
   }
 
-
   public void drawCurrentMenu() {
     if (currentMenu == null) {
       throw new RuntimeException("No current menu set!");
@@ -63,9 +61,26 @@ public class MenuManager extends Manager {
     currentMenu.drawMenu();
   }
 
-
   public void setCurrentMenu(Menu currentMenu) {
     if (this.currentMenu != null) this.currentMenu.unLoadMenu();
     this.currentMenu = currentMenu;
+  }
+
+  public int[] centerLocation(Dimension dimension) {
+    return new int[] {
+      (Perceptionallity.getGame().getWINDOW_WIDTH() / 2) - (dimension.width / 2),
+      (Perceptionallity.getGame().getWINDOW_HEIGHT() / 2)
+          - (dimension.height
+              / 2) // TODO: investigate why this calculation is not working as intended
+    };
+  }
+
+  public int[] edgeLocation(Dimension dimension) {
+    return new int[] {
+      (Perceptionallity.getGame().getWINDOW_WIDTH()) - (dimension.width + 20),
+      (Perceptionallity.getGame().getWINDOW_HEIGHT())
+          - (dimension.height
+              + 15) // TODO: investigate why this calculation is not working as intended
+    };
   }
 }

@@ -5,9 +5,8 @@ import de.furkan.perceptionallity.animation.InterpolationType;
 import de.furkan.perceptionallity.animation.ValueIterator;
 import de.furkan.perceptionallity.menu.Menu;
 import de.furkan.perceptionallity.menu.components.*;
-
-import javax.swing.*;
 import java.awt.*;
+import javax.swing.*;
 
 public class OptionsMenu extends Menu {
   final ValueIterator optionsLabelAnimation, backButtonFadeAnimation;
@@ -30,22 +29,22 @@ public class OptionsMenu extends Menu {
   @Override
   public void initComponents() {
 
-    int[] edgeLocation = edgeLocation(backButton.getDimension());
+    int[] edgeLocation = getMenuManager().edgeLocation(backButton.getDimension());
     backButton.setY(edgeLocation[1]);
 
-    MenuSlider menuSlider = new MenuSlider(20,80,new Dimension(200,50),10,0,100,50);
-    menuSlider.setMenuSliderChangeEvent(new MenuSliderChangeEvent() {
-      @Override
-      public void onChange(JSlider jSlider) {
-        Perceptionallity.getGame().getSoundEngine().setVolumeOfAll((float) jSlider.getValue() /100);
-      }
-    });
+    MenuSlider menuSlider = new MenuSlider(20, 80, new Dimension(200, 50), 10, 0, 100, 50);
+    menuSlider.setMenuSliderChangeEvent(
+        new MenuSliderChangeEvent() {
+          @Override
+          public void onChange(JSlider jSlider) {
+            Perceptionallity.getGame()
+                .getSoundEngine()
+                .setVolumeOfAll((float) jSlider.getValue() / 100);
+          }
+        });
     menuSlider.buildComponent();
-    addSteadyComponent(menuSlider.getJComponent(),1);
-
+    addSteadyComponent(menuSlider.getJComponent(), 1);
   }
-
-
 
   @Override
   public void onUpdate() {
@@ -71,7 +70,6 @@ public class OptionsMenu extends Menu {
               Perceptionallity.getGame().getMenuManager().drawCurrentMenu();
             });
       }
-
     }
   }
 }
