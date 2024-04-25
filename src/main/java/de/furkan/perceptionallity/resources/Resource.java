@@ -1,6 +1,5 @@
 package de.furkan.perceptionallity.resources;
 
-import lombok.Getter;
 
 public record Resource<T>(T data) implements Cloneable {
 

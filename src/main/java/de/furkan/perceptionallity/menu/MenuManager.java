@@ -2,7 +2,6 @@ package de.furkan.perceptionallity.menu;
 
 import de.furkan.perceptionallity.Manager;
 import de.furkan.perceptionallity.Perceptionallity;
-import de.furkan.perceptionallity.game.GamePanel;
 import de.furkan.perceptionallity.menu.menus.MainMenu;
 import de.furkan.perceptionallity.menu.menus.OptionsMenu;
 import de.furkan.perceptionallity.menu.menus.StartMenu;
@@ -13,7 +12,6 @@ import lombok.Getter;
 
 @Getter
 public class MenuManager extends Manager {
-
 
   private Menu currentMenu;
 
