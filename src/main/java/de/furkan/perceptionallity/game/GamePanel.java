@@ -6,11 +6,17 @@ import javax.swing.*;
 
 public class GamePanel extends JLayeredPane {
 
+  /**
+   * Overrides the paintComponent method to handle custom rendering of game components.
+   * This method first flushes the camera's calculation cache, then recalculates and sets new bounds for each game component based on the camera's calculations.
+   * If debug mode is enabled and showing debug lines is set, it also draws red rectangles around each component to visualize their bounds.
+   *
+   * @param g The Graphics object to protect.
+   */
   @Override
   public void paintComponent(Graphics g) {
     super.paintComponent(g);
-    // Calculates the position of the objects on the camera and renders them based on the result of
-    // the camera calculation.
+
     Perceptionallity.getGame().getGameManager().getCamera().flushCalculation();
     for (Component component : getComponents()) {
       if (Perceptionallity.getGame().getGameManager().isGameComponent(component)) {
@@ -19,10 +25,7 @@ public class GamePanel extends JLayeredPane {
                 .getGameManager()
                 .getCamera()
                 .calculateObjectPosition(
-                    Perceptionallity.getGame()
-                        .getGameManager()
-                        .getGameObjects()
-                        .get(component));
+                    Perceptionallity.getGame().getGameManager().getGameObjects().get(component));
         component.setBounds(
             new Rectangle(newPos[0], newPos[1], component.getWidth(), component.getHeight()));
       }
