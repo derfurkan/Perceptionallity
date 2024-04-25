@@ -1,14 +1,13 @@
 package de.furkan.perceptionallity.game.entity;
 
 import de.furkan.perceptionallity.Perceptionallity;
-import de.furkan.perceptionallity.game.WorldLocation;
 import de.furkan.perceptionallity.game.GameObject;
+import de.furkan.perceptionallity.game.WorldLocation;
 import de.furkan.perceptionallity.util.sprite.Sprite;
+import java.awt.*;
+import javax.swing.*;
 import lombok.Getter;
 import lombok.Setter;
-
-import javax.swing.*;
-import java.awt.*;
 
 @Setter
 @Getter

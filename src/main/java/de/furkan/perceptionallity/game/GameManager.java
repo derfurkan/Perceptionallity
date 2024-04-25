@@ -1,7 +1,7 @@
 package de.furkan.perceptionallity.game;
 
 import de.furkan.perceptionallity.Manager;
-
+import de.furkan.perceptionallity.game.entity.player.GamePlayer;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import javax.swing.*;
-
 import lombok.Getter;
 
 @Getter
@@ -28,60 +27,71 @@ public class GameManager extends Manager {
   public GameManager() {
     gameTimer = new Timer(30, e -> loopCalls.forEach(LoopAction::onLoop));
 
-    registerLoopAction(
-            () -> keyListeners.forEach((integer,listener) -> {
-              if(pressedKeys.contains(integer)) {
-                listener.whileKeyPressed();
-              }
-            }));
+    registerLoopAction(() -> {
 
-    registerKeyListener(
-        new int[] {KeyEvent.VK_W, KeyEvent.VK_S},
-        new GameKeyListener() {
-          @Override
-          public void keyTyped(KeyEvent keyEvent) {}
+        keyListeners.forEach(
+                (integer, listener) -> {
+                    if (pressedKeys.contains(integer)) {
+                        listener.whileKeyPressed(integer);
+                    }
+                });
 
-          @Override
-          public void whileKeyPressed() {
-            // FUCK YEAH THIS IS WORKING!
-          }
-
-          @Override
-          public void keyReleased(KeyEvent keyEvent) {}
+        gameObjects.forEach((component,gameObject) -> {
+            gameObject.getWorldLocation().applyVelocity(gameObject.getCurrentVelocity());
         });
+
+        getGame().getGamePanel().repaint();
+        getGame().getGamePanel().revalidate();
+    });
+
   }
 
   @Override
   public void initialize() {
 
-    getGame().getGameFrame().addKeyListener(new java.awt.event.KeyListener() {
-      @Override
-      public void keyTyped(KeyEvent e) {
-        triggerKeyListener(e);
-      }
+    getGame()
+        .getGameFrame()
+        .addKeyListener(
+            new java.awt.event.KeyListener() {
+              @Override
+              public void keyTyped(KeyEvent e) {
+                  triggerKeyListener(e);
+              }
 
-      @Override
-      public void keyPressed(KeyEvent e) {
-        pressedKeys.add(e.getKeyCode());
-      }
+              @Override
+              public void keyPressed(KeyEvent e) {
+                  GameKeyListener listener = keyListeners.get(e.getKeyCode());
+                  pressedKeys.add(e.getKeyCode());
+              }
 
-      @Override
-      public void keyReleased(KeyEvent e) {
-        pressedKeys.remove(e.getKeyCode());
-        triggerKeyListener(e);
-      }
+              @Override
+              public void keyReleased(KeyEvent e) {
+                  pressedKeys.remove(e.getKeyCode());
+                  triggerKeyListener(e);
+              }
 
-      private void triggerKeyListener(KeyEvent e) {
-        GameKeyListener listener = keyListeners.get(e.getKeyCode());
-        if (listener != null) {
-          if (e.getID() == KeyEvent.KEY_TYPED) {
-            listener.keyTyped(e);
-          } else if (e.getID() == KeyEvent.KEY_RELEASED) {
-            listener.keyReleased(e);
-          }
-        }
-      }
-    });
+              private void triggerKeyListener(KeyEvent e) {
+                GameKeyListener listener = keyListeners.get(e.getKeyCode());
+                if (listener != null) {
+                  if (e.getID() == KeyEvent.KEY_TYPED) {
+                    listener.keyTyped(e);
+                  } else if (e.getID() == KeyEvent.KEY_RELEASED) {
+                    listener.keyReleased(e);
+                  }
+                }
+              }
+
+            });
+
+    GamePlayer gamePlayer = new GamePlayer(new WorldLocation(20, 20), "initial_player");
+      GamePlayer gamePlayer1 = new GamePlayer(new WorldLocation(50, 50), "initial_player");
+
+      gamePlayer1.buildGameObject();
+
+    gamePlayer.registerKeyListener();
+    gamePlayer.buildGameObject();
+
+    camera.centerOnObject(gamePlayer);
 
     startGameLoop();
   }
@@ -90,9 +100,9 @@ public class GameManager extends Manager {
     loopCalls.add(loopAction);
   }
 
-  public void registerKeyListener(int[] keyCodes, GameKeyListener gameKeyListener) {
-    for (int keyCode : keyCodes) {
-      keyListeners.put(keyCode,gameKeyListener);
+  public void registerKeyListener(GameKeyListener gameKeyListener, Integer... keyEvents) {
+    for (Integer integer : keyEvents) {
+      keyListeners.put(integer, gameKeyListener);
     }
   }
 

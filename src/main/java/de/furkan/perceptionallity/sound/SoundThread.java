@@ -13,8 +13,8 @@ public class SoundThread extends Thread {
   private byte[] currentAudioData;
 
   protected SoundThread(boolean loop, float volume, AudioFormat audioFormat) {
-    this.volume = volume;
     this.loop = loop;
+    this.volume = volume;
     this.audioFormat = audioFormat;
     start();
   }
@@ -24,9 +24,7 @@ public class SoundThread extends Thread {
     try {
       sourceDataLine = AudioSystem.getSourceDataLine(audioFormat);
       sourceDataLine.open(audioFormat);
-      FloatControl gainControl =
-          (FloatControl) sourceDataLine.getControl(FloatControl.Type.MASTER_GAIN);
-      gainControl.setValue(20f * (float) Math.log10(volume));
+      setVolume(volume);
 
       sourceDataLine.start();
       sourceDataLine.addLineListener(
@@ -35,6 +33,7 @@ public class SoundThread extends Thread {
               new SoundThread(true, volume, audioFormat);
             }
           });
+
       while (true) {
         if (currentAudioData == null) return;
         sourceDataLine.flush();
@@ -47,7 +46,13 @@ public class SoundThread extends Thread {
   }
 
   public void writeToLine(byte[] audioData) {
-
     currentAudioData = audioData;
+  }
+
+  public void setVolume(float volume) {
+    FloatControl gainControl =
+        (FloatControl) sourceDataLine.getControl(FloatControl.Type.MASTER_GAIN);
+    float gain = (float) (Math.log10(volume) * 20);
+    gainControl.setValue(gain);
   }
 }

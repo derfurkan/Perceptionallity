@@ -17,4 +17,10 @@ public class WorldLocation {
   public int[] getXY() {
     return new int[] {x, y};
   }
+
+  public void applyVelocity(GameVelocity gameVelocity) {
+    this.x += gameVelocity.getX();
+    this.y += gameVelocity.getY();
+  }
+
 }

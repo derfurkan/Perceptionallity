@@ -20,9 +20,7 @@ public abstract class Manager {
     return getGame().getSoundEngine();
   }
 
-
   public Game getGame() {
     return Perceptionallity.getGame();
   }
-
 }

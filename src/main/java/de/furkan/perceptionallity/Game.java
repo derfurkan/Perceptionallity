@@ -10,7 +10,6 @@ import de.furkan.perceptionallity.sound.Sound;
 import de.furkan.perceptionallity.sound.SoundEngine;
 import de.furkan.perceptionallity.util.font.GameFont;
 import de.furkan.perceptionallity.util.sprite.Sprite;
-
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -49,6 +48,10 @@ public class Game {
     return "DEV-0.01";
   }
 
+  /**
+   * Initializes and starts the game by setting up the logger, loading resources, creating the game frame, and setting the initial menu.
+   * It decides the initial menu based on whether the game is in debug mode.
+   */
   public void start() {
     buildLogger();
     loadResources();
@@ -60,6 +63,11 @@ public class Game {
     menuManager.drawCurrentMenu();
   }
 
+  /**
+   * Creates the main game window, sets its properties, and initializes key listeners for debug commands.
+   * The game frame is set to be non-resizable and will close the application on exit.
+   * Key listeners support debug functionalities like reloading menus and toggling debug lines.
+   */
   private void createGameFrame() {
     this.gameFrame = new JFrame("Perceptionallity");
     gameFrame.setResizable(false);
@@ -96,6 +104,11 @@ public class Game {
         });
   }
 
+  /**
+   * Loads all necessary resources such as fonts, sprites, and sounds into the game.
+   * Resources are registered with unique keys and are loaded from specified paths.
+   * This method is crucial for preparing all visual and audio assets needed for the game.
+   */
   private void loadResources() {
     //    resourceManager.registerResource(
     //        "main_menu_background",
@@ -132,6 +145,10 @@ public class Game {
             new Dimension(100, 100)));
   }
 
+  /**
+   * Configures the logger for the game. It removes all default handlers and adds a custom console handler.
+   * This method sets up the logger to output information about game operations, aiding in debugging and monitoring game state.
+   */
   private void buildLogger() {
     logger = Logger.getLogger("");
 
