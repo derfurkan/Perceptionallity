@@ -1,7 +1,7 @@
-package de.furkan.perceptionallity.game.world;
+package de.furkan.perceptionallity.game;
 
 import de.furkan.perceptionallity.Perceptionallity;
-import de.furkan.perceptionallity.game.WorldLocation;
+
 import java.awt.*;
 
 import de.furkan.perceptionallity.resources.ResourceManager;
@@ -14,8 +14,7 @@ public abstract class GameObject {
   private final WorldLocation worldLocation;
   private final Rectangle rectangle;
 
-  @Setter
-  private Component component;
+  @Setter private Component component;
 
   public GameObject(Rectangle rectangle, WorldLocation worldLocation) {
     this.worldLocation = worldLocation;
@@ -24,9 +23,7 @@ public abstract class GameObject {
 
   public abstract void buildGameObject();
 
-
   public ResourceManager getResourceManager() {
     return Perceptionallity.getGame().getResourceManager();
   }
-
 }

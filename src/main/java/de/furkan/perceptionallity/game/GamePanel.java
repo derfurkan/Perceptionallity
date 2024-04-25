@@ -9,7 +9,8 @@ public class GamePanel extends JLayeredPane {
   @Override
   public void paintComponent(Graphics g) {
     super.paintComponent(g);
-    // Calculates the position of the objects on the camera and renders them based on the result of the camera calculation.
+    // Calculates the position of the objects on the camera and renders them based on the result of
+    // the camera calculation.
     Perceptionallity.getGame().getGameManager().getCamera().flushCalculation();
     for (Component component : getComponents()) {
       if (Perceptionallity.getGame().getGameManager().isGameComponent(component)) {
@@ -20,7 +21,7 @@ public class GamePanel extends JLayeredPane {
                 .calculateObjectPosition(
                     Perceptionallity.getGame()
                         .getGameManager()
-                        .getRegisteredGameObjects()
+                        .getGameObjects()
                         .get(component));
         component.setBounds(
             new Rectangle(newPos[0], newPos[1], component.getWidth(), component.getHeight()));

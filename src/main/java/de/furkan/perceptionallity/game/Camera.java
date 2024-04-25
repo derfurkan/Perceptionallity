@@ -1,7 +1,7 @@
 package de.furkan.perceptionallity.game;
 
 import de.furkan.perceptionallity.Perceptionallity;
-import de.furkan.perceptionallity.game.world.GameObject;
+
 import java.util.HashMap;
 import lombok.Getter;
 
@@ -28,17 +28,20 @@ public class Camera {
 
       int offsetX = centeredObject.getComponent().getWidth() / 2;
       int offsetY = centeredObject.getComponent().getHeight() / 2;
-      calculatedPosition = new int[]{
-              centeredObject.getComponent().getX() + diffX - offsetX,
-              centeredObject.getComponent().getY() + diffY - offsetY
-      };
+      calculatedPosition =
+          new int[] {
+            centeredObject.getComponent().getX() + diffX - offsetX,
+            centeredObject.getComponent().getY() + diffY - offsetY
+          };
     } else if (centeredObject == gameObject) {
-      calculatedPosition = Perceptionallity.getGame().getMenuManager().centerLocation(gameObject.getRectangle().getSize());
+      calculatedPosition =
+          Perceptionallity.getGame()
+              .getMenuManager()
+              .centerLocation(gameObject.getRectangle().getSize());
     }
     finishGameObject(gameObject, calculatedPosition);
     return calculatedPosition;
   }
-
 
   private void finishGameObject(GameObject gameObject, int[] calculatedLocation) {
     calculatedGameObjects.remove(gameObject);
