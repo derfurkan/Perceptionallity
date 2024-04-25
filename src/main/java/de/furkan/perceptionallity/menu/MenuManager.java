@@ -63,6 +63,7 @@ public class MenuManager extends Manager {
     this.currentMenu = currentMenu;
   }
 
+
   public int[] centerLocation(Dimension dimension) {
     return new int[] {
       (Perceptionallity.getGame().getWINDOW_WIDTH() / 2) - (dimension.width / 2),
