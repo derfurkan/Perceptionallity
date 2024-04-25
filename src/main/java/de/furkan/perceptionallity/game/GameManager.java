@@ -1,68 +1,118 @@
 package de.furkan.perceptionallity.game;
 
 import de.furkan.perceptionallity.Manager;
-import de.furkan.perceptionallity.Perceptionallity;
-import de.furkan.perceptionallity.game.entity.player.GamePlayer;
-import de.furkan.perceptionallity.game.world.GameObject;
+
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Random;
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.HashSet;
+import java.util.Set;
+import javax.swing.*;
 
 import lombok.Getter;
-
-import javax.swing.*;
 
 @Getter
 public class GameManager extends Manager {
 
   private final Camera camera = new Camera();
 
-  private final HashMap<Component, GameObject> registeredGameObjects = new HashMap<>();
+  private final HashMap<Component, GameObject> gameObjects = new HashMap<>();
+  private final HashMap<Integer, GameKeyListener> keyListeners = new HashMap<>();
+  private final java.util.List<LoopAction> loopCalls = new ArrayList<>();
+  private final Timer gameTimer;
 
-  public GameManager() {}
+  // Track currently pressed keys
+  private final Set<Integer> pressedKeys = new HashSet<>();
+
+  public GameManager() {
+    gameTimer = new Timer(30, e -> loopCalls.forEach(LoopAction::onLoop));
+
+    registerLoopAction(
+            () -> keyListeners.forEach((integer,listener) -> {
+              if(pressedKeys.contains(integer)) {
+                listener.whileKeyPressed();
+              }
+            }));
+
+    registerKeyListener(
+        new int[] {KeyEvent.VK_W, KeyEvent.VK_S},
+        new GameKeyListener() {
+          @Override
+          public void keyTyped(KeyEvent keyEvent) {}
+
+          @Override
+          public void whileKeyPressed() {
+            // FUCK YEAH THIS IS WORKING!
+          }
+
+          @Override
+          public void keyReleased(KeyEvent keyEvent) {}
+        });
+  }
 
   @Override
   public void initialize() {
 
-    GamePlayer gamePlayer = new GamePlayer(new WorldLocation(20,20),"initial_player");
+    getGame().getGameFrame().addKeyListener(new java.awt.event.KeyListener() {
+      @Override
+      public void keyTyped(KeyEvent e) {
+        triggerKeyListener(e);
+      }
 
-    GamePlayer gamePlayer1 = new GamePlayer(new WorldLocation(100,100),"game_icon");
-    gamePlayer.buildGameObject();
-    gamePlayer1.buildGameObject();
-    Timer timer =
-        new Timer(
-            100,
-            new ActionListener() {
-              @Override
-              public void actionPerformed(ActionEvent e) {
-                gamePlayer.getWorldLocation().setX(ThreadLocalRandom.current().nextInt(-100,200));
-                gamePlayer.getWorldLocation().setY(ThreadLocalRandom.current().nextInt(-100,200));
-                Perceptionallity.getGame().getGamePanel().repaint();
-                Perceptionallity.getGame().getGamePanel().revalidate();
-              }
-            });
-    timer.start();
+      @Override
+      public void keyPressed(KeyEvent e) {
+        pressedKeys.add(e.getKeyCode());
+      }
 
+      @Override
+      public void keyReleased(KeyEvent e) {
+        pressedKeys.remove(e.getKeyCode());
+        triggerKeyListener(e);
+      }
 
-    camera.stopCentering();
-    camera.centerOnObject(gamePlayer);
+      private void triggerKeyListener(KeyEvent e) {
+        GameKeyListener listener = keyListeners.get(e.getKeyCode());
+        if (listener != null) {
+          if (e.getID() == KeyEvent.KEY_TYPED) {
+            listener.keyTyped(e);
+          } else if (e.getID() == KeyEvent.KEY_RELEASED) {
+            listener.keyReleased(e);
+          }
+        }
+      }
+    });
 
+    startGameLoop();
+  }
 
+  public void registerLoopAction(LoopAction loopAction) {
+    loopCalls.add(loopAction);
+  }
+
+  public void registerKeyListener(int[] keyCodes, GameKeyListener gameKeyListener) {
+    for (int keyCode : keyCodes) {
+      keyListeners.put(keyCode,gameKeyListener);
+    }
+  }
+
+  private void startGameLoop() {
+    gameTimer.start();
+  }
+
+  private void stopGameLoop() {
+    gameTimer.stop();
   }
 
   public boolean isGameComponent(Component component) {
-    return registeredGameObjects.containsKey(component);
+    return gameObjects.containsKey(component);
   }
 
   public void registerGameObject(GameObject gameObject) {
-    registeredGameObjects.put(gameObject.getComponent(),gameObject);
+    gameObjects.put(gameObject.getComponent(), gameObject);
   }
 
   public void unregisterGameObject(GameObject gameObject) {
-    registeredGameObjects.remove(gameObject.getComponent());
+    gameObjects.remove(gameObject.getComponent());
   }
-
 }

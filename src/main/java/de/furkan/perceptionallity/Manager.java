@@ -9,14 +9,20 @@ public abstract class Manager {
   public abstract void initialize();
 
   public ResourceManager getResourceManager() {
-    return Perceptionallity.getGame().getResourceManager();
+    return getGame().getResourceManager();
   }
 
   public Logger getLogger() {
-    return Perceptionallity.getGame().getLogger();
+    return getGame().getLogger();
   }
 
   public SoundEngine getSoundEngine() {
-    return Perceptionallity.getGame().getSoundEngine();
+    return getGame().getSoundEngine();
   }
+
+
+  public Game getGame() {
+    return Perceptionallity.getGame();
+  }
+
 }

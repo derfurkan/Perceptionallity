@@ -110,13 +110,15 @@ public class Game {
 
     resourceManager.registerResource(
         "game_icon",
-        new Sprite(resourceManager
-                        .getResourceFile("game_icon.png", "menu", "icon"), new Dimension(150, 150)));
+        new Sprite(
+            resourceManager.getResourceFile("game_icon.png", "menu", "icon"),
+            new Dimension(150, 150)));
 
     resourceManager.registerResource(
         "menu_button",
-            new Sprite(resourceManager
-                                .getResourceFile("button.png", "menu", "button"), new Dimension(512, 256)));
+        new Sprite(
+            resourceManager.getResourceFile("button.png", "menu", "button"),
+            new Dimension(512, 256)));
 
     resourceManager.registerResource(
         "button_hover", new Sound("button_hover.wav", "menu", "button"));
@@ -126,7 +128,8 @@ public class Game {
     resourceManager.registerResource(
         "initial_player",
         new Sprite(
-            resourceManager.getResourceFile("player.png", "game", "player"), new Dimension(100,100)));
+            resourceManager.getResourceFile("player.png", "game", "player"),
+            new Dimension(100, 100)));
   }
 
   private void buildLogger() {

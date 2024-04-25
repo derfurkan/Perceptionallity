@@ -3,9 +3,7 @@ package de.furkan.perceptionallity.game.entity.player;
 import de.furkan.perceptionallity.Perceptionallity;
 import de.furkan.perceptionallity.game.WorldLocation;
 import de.furkan.perceptionallity.game.entity.GameEntity;
-import de.furkan.perceptionallity.game.entity.GameEntityController;
 import de.furkan.perceptionallity.util.sprite.Sprite;
-
 import java.awt.*;
 
 public class GamePlayer extends GameEntity {
