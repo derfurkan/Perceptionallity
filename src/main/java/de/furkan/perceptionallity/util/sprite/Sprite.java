@@ -14,8 +14,8 @@ public class Sprite {
   private ImageIcon rawImageIcon;
 
   /**
-   * Constructs a Sprite object by loading an image from the specified file and scaling it to the given dimensions.
-   * The scaled image is then used to create an ImageIcon.
+   * Constructs a Sprite object by loading an image from the specified file and scaling it to the
+   * given dimensions. The scaled image is then used to create an ImageIcon.
    *
    * @param resource The file from which the image is loaded.
    * @param dimension The dimensions to which the image is scaled.
@@ -33,9 +33,25 @@ public class Sprite {
     }
   }
 
+  public Sprite(File resource) {
+
+    try {
+      rawImage =
+              ImageIO.read(resource);
+      rawImageIcon = new ImageIcon(rawImage);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  public Sprite(Image image, Dimension dimension) {
+      rawImage = image.getScaledInstance(dimension.width, dimension.height, Image.SCALE_SMOOTH);
+      rawImageIcon = new ImageIcon(rawImage);
+  }
+
   /**
-   * Resizes the image associated with this sprite to the specified dimensions.
-   * The resized image is then used to update the ImageIcon.
+   * Resizes the image associated with this sprite to the specified dimensions. The resized image is
+   * then used to update the ImageIcon.
    *
    * @param dimension The new dimensions to which the image is scaled.
    */

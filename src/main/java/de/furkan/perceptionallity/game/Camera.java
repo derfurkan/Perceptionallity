@@ -12,6 +12,7 @@ public class Camera {
 
   /**
    * Centers the camera on a specified game object.
+   *
    * @param centeredObject The game object to center the camera on.
    */
   public void centerOnObject(GameObject centeredObject) {
@@ -27,8 +28,9 @@ public class Camera {
   }
 
   /**
-   * Calculates the position of a game object relative to the centered object.
-   * If there is no centered object, it calculates the position based on the game object's own location.
+   * Calculates the position of a game object relative to the centered object. If there is no
+   * centered object, it calculates the position based on the game object's own location.
+   *
    * @param gameObject The game object for which to calculate the position.
    * @return An array of two integers representing the x and y coordinates.
    */
@@ -60,6 +62,7 @@ public class Camera {
 
   /**
    * Updates the stored location of a game object after recalculating its position.
+   *
    * @param gameObject The game object whose position has been recalculated.
    * @param calculatedLocation The new calculated position of the game object.
    */
@@ -68,9 +71,7 @@ public class Camera {
     calculatedGameObjects.put(gameObject, calculatedLocation);
   }
 
-  /**
-   * Clears all stored calculations of game object positions.
-   */
+  /** Clears all stored calculations of game object positions. */
   public void flushCalculation() {
     calculatedGameObjects.clear();
   }
