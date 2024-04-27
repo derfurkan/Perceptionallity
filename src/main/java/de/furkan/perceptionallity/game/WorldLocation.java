@@ -22,5 +22,4 @@ public class WorldLocation {
     this.x += gameVelocity.getX();
     this.y += gameVelocity.getY();
   }
-
 }

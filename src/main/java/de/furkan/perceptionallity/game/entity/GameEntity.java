@@ -14,7 +14,6 @@ import lombok.Setter;
 public class GameEntity extends GameObject {
 
   private int maxHealth, currentHealth;
-
   private Sprite initialSprite;
   private JLabel jLabel;
 
@@ -23,20 +22,19 @@ public class GameEntity extends GameObject {
       WorldLocation worldLocation,
       Sprite initialSprite,
       int maxHealth,
-      int currentHealth,
-      String entityName) {
+      int currentHealth) {
     super(rectangle, worldLocation);
     this.initialSprite = initialSprite;
     this.maxHealth = maxHealth;
     this.currentHealth = currentHealth;
-    this.jLabel = new JLabel(entityName);
+    this.jLabel = new JLabel();
     setComponent(jLabel);
   }
 
   @Override
   public void buildGameObject() {
     Perceptionallity.getGame().getGameManager().registerGameObject(this);
-    initialSprite.resize(getRectangle().getSize());
+    initialSprite.resize(new Dimension(20, 20));
     jLabel.setIcon(initialSprite.getRawImageIcon());
     jLabel.setBounds(getRectangle());
     Perceptionallity.getGame().getGamePanel().add(getComponent(), 1);

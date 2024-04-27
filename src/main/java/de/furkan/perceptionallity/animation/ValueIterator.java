@@ -1,10 +1,8 @@
 package de.furkan.perceptionallity.animation;
 
+import java.util.Objects;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.Objects;
-
 
 public class ValueIterator {
 
@@ -17,13 +15,14 @@ public class ValueIterator {
   private float step;
 
   /**
-   * Constructs a new ValueIterator for single float values.
-   * This constructor initializes the iterator with initial and target values, a step size, and an interpolation type.
+   * Constructs a new ValueIterator for single float values. This constructor initializes the
+   * iterator with initial and target values, a step size, and an interpolation type.
    *
    * @param initialValue the initial value from which the interpolation starts.
    * @param targetValue the target value to which the interpolation should proceed.
    * @param step the step size used for each update towards the target value.
-   * @param interpolationType the type of interpolation to use, which can affect how the step size is adjusted.
+   * @param interpolationType the type of interpolation to use, which can affect how the step size
+   *     is adjusted.
    */
   public ValueIterator(
       float initialValue, float targetValue, float step, InterpolationType interpolationType) {
@@ -52,8 +51,9 @@ public class ValueIterator {
   }
 
   /**
-   * Updates the current value towards the target value based on the step size and interpolation type.
-   * If the interpolation type is SMOOTH_END, the step size is dynamically adjusted as the value approaches the target.
+   * Updates the current value towards the target value based on the step size and interpolation
+   * type. If the interpolation type is SMOOTH_END, the step size is dynamically adjusted as the
+   * value approaches the target.
    */
   public void updateValue() {
     if (currentValue == targetValue) {
@@ -65,11 +65,10 @@ public class ValueIterator {
         currentValue > targetValue ? currentValue - targetValue : targetValue - currentValue;
     float effectiveStep = Math.min(step, remainingDistance);
 
-      if (Objects.requireNonNull(interpolationType) == InterpolationType.SMOOTH_END) {
-          step =
-                  (int)
-                          Math.ceil(step * (1.0 - (double) effectiveStep / (double) (targetValue - value)));
-      }
+    if (Objects.requireNonNull(interpolationType) == InterpolationType.SMOOTH_END) {
+      step =
+          (int) Math.ceil(step * (1.0 - (double) effectiveStep / (double) (targetValue - value)));
+    }
 
     if (currentValue < targetValue) currentValue += effectiveStep;
     else currentValue -= effectiveStep;
@@ -85,9 +84,7 @@ public class ValueIterator {
     initialValue = currentValue;
   }
 
-  /**
-   * Resets the current value to the initial value.
-   */
+  /** Resets the current value to the initial value. */
   public void reset() {
     currentValue = initialValue;
   }
