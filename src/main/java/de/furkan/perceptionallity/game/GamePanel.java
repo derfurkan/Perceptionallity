@@ -7,9 +7,10 @@ import javax.swing.*;
 public class GamePanel extends JLayeredPane {
 
   /**
-   * Overrides the paintComponent method to handle custom rendering of game components.
-   * This method first flushes the camera's calculation cache, then recalculates and sets new bounds for each game component based on the camera's calculations.
-   * If debug mode is enabled and showing debug lines is set, it also draws red rectangles around each component to visualize their bounds.
+   * Overrides the paintComponent method to handle custom rendering of game components. This method
+   * first flushes the camera's calculation cache, then recalculates and sets new bounds for each
+   * game component based on the camera's calculations. If debug mode is enabled and showing debug
+   * lines is set, it also draws red rectangles around each component to visualize their bounds.
    *
    * @param g The Graphics object to protect.
    */

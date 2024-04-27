@@ -59,17 +59,16 @@ public abstract class Menu {
   }
 
   /**
-   * Retrieves the unique name of the menu.
-   * This name is used to identify the menu and manage its state.
+   * Retrieves the unique name of the menu. This name is used to identify the menu and manage its
+   * state.
    *
    * @return the name of the menu as a String.
    */
   public abstract String getMenuName();
 
   /**
-   * Initializes the components of the menu.
-   * This method should set up all UI components that are part of the menu.
-   * It is called every time the menu is drawn.
+   * Initializes the components of the menu. This method should set up all UI components that are
+   * part of the menu. It is called every time the menu is drawn.
    */
   public abstract void initComponents();
 
@@ -102,8 +101,8 @@ public abstract class Menu {
   }
 
   /**
-   * Adds a component to the menu that remains steady across updates.
-   * Steady components are not removed during the update cycle.
+   * Adds a component to the menu that remains steady across updates. Steady components are not
+   * removed during the update cycle.
    *
    * @param component the component to be added.
    * @param order the z-order of the component where 0 is the topmost position.
@@ -117,8 +116,8 @@ public abstract class Menu {
   }
 
   /**
-   * Adds a temporary component to the menu which will be removed on the next update call.
-   * This is useful for components that should only exist for a single update cycle.
+   * Adds a temporary component to the menu which will be removed on the next update call. This is
+   * useful for components that should only exist for a single update cycle.
    *
    * @param component the component to be added.
    * @param order the z-order of the component where 0 is the topmost position.
@@ -134,8 +133,8 @@ public abstract class Menu {
   }
 
   /**
-   * Cleans up the menu by stopping the update timer and removing all components.
-   * This method should be called when the menu is no longer in use to free up resources.
+   * Cleans up the menu by stopping the update timer and removing all components. This method should
+   * be called when the menu is no longer in use to free up resources.
    */
   public void unLoadMenu() {
     updateTimer.stop();
@@ -157,9 +156,8 @@ public abstract class Menu {
   }
 
   /**
-   * Handles the update logic for the menu.
-   * This method is called periodically according to the msPerUpdate setting.
-   * It should contain logic to update the state or appearance of the menu.
+   * Handles the update logic for the menu. This method is called periodically according to the
+   * msPerUpdate setting. It should contain logic to update the state or appearance of the menu.
    */
   public abstract void onUpdate();
 }
