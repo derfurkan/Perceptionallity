@@ -5,12 +5,9 @@ import de.furkan.perceptionallity.animation.Animation;
 import de.furkan.perceptionallity.game.entity.player.GamePlayer;
 import java.awt.*;
 import java.awt.event.KeyEvent;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.*;
 import java.util.List;
-import java.util.Set;
-import javax.swing.*;
+import javax.swing.Timer;
 import lombok.Getter;
 
 @Getter
@@ -33,6 +30,7 @@ public class GameManager extends Manager {
   public GameManager() {
     gameTimer = new Timer(GAME_UPDATE_MS, e -> loopCalls.forEach(LoopAction::onLoop));
 
+    // Each frame render loop
     registerLoopAction(
         () -> {
           updatesPassed += 1;
@@ -54,6 +52,7 @@ public class GameManager extends Manager {
                   animation.getCurrentFrame().resize(gameObject.getRectangle().getSize());
                   gameObject.getComponent().setIcon(animation.getCurrentFrame().getRawImageIcon());
                   animation.nextFrame();
+
                 }
               });
 
@@ -64,7 +63,7 @@ public class GameManager extends Manager {
 
   @Override
   public void initialize() {
-
+      startGameLoop();
     getGame()
         .getGameFrame()
         .addKeyListener(
@@ -97,17 +96,16 @@ public class GameManager extends Manager {
               }
             });
 
-    GamePlayer gamePlayer = new GamePlayer(new WorldLocation(20, 20), "initial_player");
-    GamePlayer gamePlayer1 = new GamePlayer(new WorldLocation(50, 50), "initial_player");
+    GamePlayer gamePlayer = new GamePlayer(new WorldLocation(20, 20));
+    GamePlayer gamePlayer1 = new GamePlayer(new WorldLocation(50, 50));
 
-    gamePlayer1.buildGameObject();
+   // gamePlayer1.buildGameObject();
 
-    gamePlayer.registerKeyListener();
+   // gamePlayer.registerKeyListener();
     gamePlayer.buildGameObject();
 
     // camera.centerOnObject(gamePlayer);
 
-    startGameLoop();
   }
 
   public void registerLoopAction(LoopAction loopAction) {
@@ -115,16 +113,19 @@ public class GameManager extends Manager {
   }
 
   public void registerKeyListener(GameKeyListener gameKeyListener, Integer... keyEvents) {
+      getLogger().info("Registered new KeyListener "+ Arrays.toString(keyEvents));
     for (Integer integer : keyEvents) {
       keyListeners.put(integer, gameKeyListener);
     }
   }
 
   private void startGameLoop() {
-    gameTimer.start();
+      getLogger().info("Started game loop");
+      gameTimer.start();
   }
 
   private void stopGameLoop() {
+      getLogger().info("Stopped game loop");
     gameTimer.stop();
   }
 
@@ -133,10 +134,12 @@ public class GameManager extends Manager {
   }
 
   public void registerGameObject(GameObject gameObject) {
+      getLogger().info("Registered new GameObject ("+gameObject.getClass().getSimpleName()+")");
     gameObjects.put(gameObject.getComponent(), gameObject);
   }
 
   public void unregisterGameObject(GameObject gameObject) {
+      getLogger().info("Unregistered GameObject ("+gameObject.getClass().getSimpleName()+")");
     gameObjects.remove(gameObject.getComponent());
   }
 }

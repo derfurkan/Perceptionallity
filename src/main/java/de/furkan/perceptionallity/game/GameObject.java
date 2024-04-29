@@ -2,7 +2,6 @@ package de.furkan.perceptionallity.game;
 
 import de.furkan.perceptionallity.Game;
 import de.furkan.perceptionallity.Perceptionallity;
-import de.furkan.perceptionallity.animation.Animation;
 import de.furkan.perceptionallity.resources.ResourceManager;
 import java.awt.*;
 import javax.swing.*;
@@ -15,7 +14,6 @@ public abstract class GameObject {
   private final WorldLocation worldLocation;
   private final Rectangle rectangle;
   private final GameVelocity currentVelocity;
-  @Setter private Animation defaultAnimation;
   @Setter private JLabel component;
 
   public GameObject(Rectangle rectangle, WorldLocation worldLocation) {

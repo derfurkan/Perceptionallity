@@ -1,5 +1,6 @@
 package de.furkan.perceptionallity.util.sprite;
 
+import de.furkan.perceptionallity.Perceptionallity;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
@@ -27,6 +28,16 @@ public class Sprite {
       rawImage =
           ImageIO.read(resource)
               .getScaledInstance(dimension.width, dimension.height, Image.SCALE_SMOOTH);
+      rawImageIcon = new ImageIcon(rawImage);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  public Sprite(String spriteFile, String ...spritePath) {
+
+    try {
+      rawImage = ImageIO.read(Perceptionallity.getGame().getResourceManager().getResourceFile(spriteFile,spritePath));
       rawImageIcon = new ImageIcon(rawImage);
     } catch (IOException e) {
       e.printStackTrace();
