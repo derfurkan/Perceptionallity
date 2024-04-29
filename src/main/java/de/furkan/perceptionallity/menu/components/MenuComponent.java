@@ -3,6 +3,7 @@ package de.furkan.perceptionallity.menu.components;
 import de.furkan.perceptionallity.Perceptionallity;
 import de.furkan.perceptionallity.resources.ResourceManager;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import javax.swing.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -42,12 +43,27 @@ public abstract class MenuComponent {
     this.y = y;
   }
 
-  public float getAlpha() {
+  public float getOpacity() {
     Color color = getJComponent().getForeground();
     return (float) color.getAlpha() / 255;
   }
 
-  public void setAlpha(float alpha) {
+  public void setOpacity(float alpha) {
+    if(this instanceof MenuSprite menuSprite) {
+      Image originalImage = menuSprite.getSprite().getRawImage();
+      BufferedImage bufferedImage = new BufferedImage(
+              originalImage.getWidth(null),
+              originalImage.getHeight(null),
+              BufferedImage.TYPE_INT_ARGB);
+
+      Graphics2D g2d = bufferedImage.createGraphics();
+      g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
+      g2d.drawImage(originalImage, 0, 0, null);
+      g2d.dispose();
+
+      ((JLabel)menuSprite.getJComponent()).setIcon(new ImageIcon(bufferedImage));
+    }
+
     Color color = getJComponent().getForeground();
     getJComponent()
         .setForeground(

@@ -47,13 +47,13 @@ public class MenuButton extends MenuComponent {
                   .getSoundEngine()
                   .playAudio(
                       getResourceManager().getResource("button_hover", Sound.class), 1f, false);
-              setAlpha(0.5f);
+              setOpacity(0.5f);
             }
           }
 
           @Override
           public void mouseExited(MouseEvent e) {
-            if (isSteadyComponent()) setAlpha(1f);
+            if (isSteadyComponent()) setOpacity(1f);
           }
         });
   }
