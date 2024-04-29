@@ -3,7 +3,6 @@ package de.furkan.perceptionallity.game.entity;
 import de.furkan.perceptionallity.Perceptionallity;
 import de.furkan.perceptionallity.game.GameObject;
 import de.furkan.perceptionallity.game.WorldLocation;
-import de.furkan.perceptionallity.util.sprite.Sprite;
 import java.awt.*;
 import javax.swing.*;
 import lombok.Getter;
@@ -13,29 +12,28 @@ import lombok.Setter;
 @Getter
 public class GameEntity extends GameObject {
 
-  private int maxHealth, currentHealth;
-  private Sprite initialSprite;
+  private GameEntity gameEntityObject;
+  private int maxHealth, currentHealth, moveSpeed;
   private JLabel jLabel;
 
   public GameEntity(
       Rectangle rectangle,
       WorldLocation worldLocation,
-      Sprite initialSprite,
       int maxHealth,
-      int currentHealth) {
+      int currentHealth,
+      int moveSpeed) {
     super(rectangle, worldLocation);
-    this.initialSprite = initialSprite;
     this.maxHealth = maxHealth;
+    this.moveSpeed = moveSpeed;
     this.currentHealth = currentHealth;
     this.jLabel = new JLabel();
+    this.gameEntityObject = this;
     setComponent(jLabel);
   }
 
   @Override
   public void buildGameObject() {
     Perceptionallity.getGame().getGameManager().registerGameObject(this);
-    initialSprite.resize(new Dimension(20, 20));
-    jLabel.setIcon(initialSprite.getRawImageIcon());
     jLabel.setBounds(getRectangle());
     Perceptionallity.getGame().getGamePanel().add(getComponent(), 1);
   }

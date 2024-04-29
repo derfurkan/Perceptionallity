@@ -37,7 +37,7 @@ public class StartMenu extends Menu {
       }
 
       lastComponent = component;
-      component.setAlpha(0.0f);
+      component.setOpacity(0.0f);
       menuComponents.put(
           component,
           new ValueIterator(
@@ -68,7 +68,7 @@ public class StartMenu extends Menu {
     if (atomicBoolean.get()) {
       menuComponents.forEach(
           (menuComponent, valueIterator) -> {
-            menuComponent.setAlpha(valueIterator.getCurrentValue());
+            menuComponent.setOpacity(valueIterator.getCurrentValue());
             menuComponent.buildComponent();
             valueIterator.updateValue();
           });

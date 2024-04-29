@@ -7,7 +7,10 @@ import de.furkan.perceptionallity.menu.Menu;
 import de.furkan.perceptionallity.menu.components.MenuButton;
 import de.furkan.perceptionallity.menu.components.MenuButtonClick;
 import de.furkan.perceptionallity.menu.components.MenuLabel;
+import de.furkan.perceptionallity.menu.components.MenuSprite;
 import de.furkan.perceptionallity.sound.Sound;
+import de.furkan.perceptionallity.util.sprite.Sprite;
+
 import java.awt.*;
 import java.io.IOException;
 import java.net.URI;
@@ -20,6 +23,9 @@ public class MainMenu extends Menu {
 
   private final ValueIterator subTitleFadeAnimation =
       new ValueIterator(1.0f, 0.4f, 0.02f, InterpolationType.DEFAULT);
+
+  private final ValueIterator backgroundFadeAnimation =
+          new ValueIterator(0.0f, 1f, 0.04f, InterpolationType.DEFAULT);
 
   private final ValueIterator buttonInAnimation =
       new ValueIterator(-280, 20, 25, InterpolationType.SMOOTH_END);
@@ -42,6 +48,10 @@ public class MainMenu extends Menu {
   MenuButton githubButton = new MenuButton(0, 0, 50, "GITHUB");
   MenuButton discordButton = new MenuButton(0, 0, 50, "DISCORD");
   MenuButton exitButton = new MenuButton(0, 0, 50, "EXIT");
+
+  MenuSprite background = new MenuSprite(0,0,Perceptionallity.getGame().getWindowDimension(), getResourceManager().getResource("main_menu_background",
+                                                                                                                              Sprite.class));
+
 
   public MainMenu() {
     super(30, Color.BLACK);
@@ -71,10 +81,7 @@ public class MainMenu extends Menu {
 
   @Override
   public void initComponents() {
-    //        addSteadyComponent(
-    //            getResourceManager().getResource("main_menu_background",
-    //     Sprite.class).getRawComponent(),
-    //            0);
+
     MenuLabel credits =
         new MenuLabel(
             5, 0, "Build " + Perceptionallity.getGame().getBuildString(), 15, Color.WHITE);
@@ -154,63 +161,74 @@ public class MainMenu extends Menu {
 
   @Override
   public void onUpdate() {
-    if (!titleInAnimation.isFinished()) {
-      // Titles move in animation
-      titleLabel.setX(centerTitle[0]);
-      titleLabel.setY((int) titleInAnimation.getCurrentValue());
 
-      subTitleLabel.setX(centerSubTitle[0]);
-      subTitleLabel.setY(
-          (int) titleInAnimation.getCurrentValue() + titleLabel.getDimension().height);
+    if(!backgroundFadeAnimation.isFinished()) {
+      background.setOpacity(backgroundFadeAnimation.getCurrentValue());
+      background.buildComponent();
+      addTempComponent(background.getJComponent(),0);
+      backgroundFadeAnimation.updateValue();
+      return;
+    }
+    addSteadyComponent(background.getJComponent(),0);
+      if (!titleInAnimation.isFinished()) {
+        // Titles move in animation
+        titleLabel.setX(centerTitle[0]);
+        titleLabel.setY((int) titleInAnimation.getCurrentValue());
 
-      titleLabel.buildComponent();
-      subTitleLabel.buildComponent();
+        subTitleLabel.setX(centerSubTitle[0]);
+        subTitleLabel.setY(
+            (int) titleInAnimation.getCurrentValue() + titleLabel.getDimension().height);
 
-      titleInAnimation.updateValue();
+        titleLabel.buildComponent();
+        subTitleLabel.buildComponent();
 
-      addTempComponent(titleLabel.getJComponent(), 1);
-    } else {
-      addSteadyComponent(titleLabel.getJComponent(), 1);
+        titleInAnimation.updateValue();
 
-      // SubTitle glow animation start
-      subTitleLabel.setAlpha(subTitleFadeAnimation.getCurrentValue());
-      subTitleFadeAnimation.updateValue();
-      if (subTitleFadeAnimation.isFinished()) {
-        subTitleFadeAnimation.reverse();
-      }
-
-      // Button in animation start
-      if (!buttonInAnimation.isFinished()) {
-        playButton.setX((int) buttonInAnimation.getCurrentValue());
-        optionsButton.setX((int) buttonInAnimation.getCurrentValue());
-        githubButton.setX((int) buttonInAnimation.getCurrentValue());
-        discordButton.setX((int) buttonInAnimation.getCurrentValue());
-        exitButton.setX((int) buttonInAnimation.getCurrentValue());
-
-        playButton.buildComponent();
-        optionsButton.buildComponent();
-        githubButton.buildComponent();
-        discordButton.buildComponent();
-        exitButton.buildComponent();
-
-        buttonInAnimation.updateValue();
-        addTempComponent(playButton.getJComponent(), 1);
-        addTempComponent(optionsButton.getJComponent(), 1);
-        addTempComponent(githubButton.getJComponent(), 1);
-        addTempComponent(discordButton.getJComponent(), 1);
-        addTempComponent(exitButton.getJComponent(), 1);
+        addTempComponent(titleLabel.getJComponent(), 1);
       } else {
-        addSteadyComponent(playButton.getJComponent(), 1);
-        addSteadyComponent(optionsButton.getJComponent(), 1);
-        addSteadyComponent(githubButton.getJComponent(), 1);
-        addSteadyComponent(discordButton.getJComponent(), 1);
-        addSteadyComponent(exitButton.getJComponent(), 1);
-        if (!Perceptionallity.getGame().getSoundEngine().isAudioAlreadyPlaying(mainMenuJam)) {
-          Perceptionallity.getGame().getSoundEngine().playAudio(mainMenuJam, 1f, true);
+        addSteadyComponent(titleLabel.getJComponent(), 1);
+
+        // SubTitle glow animation start
+        subTitleLabel.setOpacity(subTitleFadeAnimation.getCurrentValue());
+        subTitleFadeAnimation.updateValue();
+        if (subTitleFadeAnimation.isFinished()) {
+          subTitleFadeAnimation.reverse();
+        }
+
+        // Button in animation start
+        if (!buttonInAnimation.isFinished()) {
+          playButton.setX((int) buttonInAnimation.getCurrentValue());
+          optionsButton.setX((int) buttonInAnimation.getCurrentValue());
+          githubButton.setX((int) buttonInAnimation.getCurrentValue());
+          discordButton.setX((int) buttonInAnimation.getCurrentValue());
+          exitButton.setX((int) buttonInAnimation.getCurrentValue());
+
+          playButton.buildComponent();
+          optionsButton.buildComponent();
+          githubButton.buildComponent();
+          discordButton.buildComponent();
+          exitButton.buildComponent();
+
+          buttonInAnimation.updateValue();
+          addTempComponent(playButton.getJComponent(), 1);
+          addTempComponent(optionsButton.getJComponent(), 1);
+          addTempComponent(githubButton.getJComponent(), 1);
+          addTempComponent(discordButton.getJComponent(), 1);
+          addTempComponent(exitButton.getJComponent(), 1);
+        } else {
+          addSteadyComponent(playButton.getJComponent(), 1);
+          addSteadyComponent(optionsButton.getJComponent(), 1);
+          addSteadyComponent(githubButton.getJComponent(), 1);
+          addSteadyComponent(discordButton.getJComponent(), 1);
+          addSteadyComponent(exitButton.getJComponent(), 1);
+//          if (!Perceptionallity.getGame().getSoundEngine().isAudioAlreadyPlaying(mainMenuJam)) {
+//            Perceptionallity.getGame().getSoundEngine().playAudio(mainMenuJam, 1f, true);
+//          }
         }
       }
-    }
+      addTempComponent(subTitleLabel.getJComponent(), 1);
 
-    addTempComponent(subTitleLabel.getJComponent(), 1);
+
+
   }
 }

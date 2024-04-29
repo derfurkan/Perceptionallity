@@ -58,7 +58,7 @@ public class OptionsMenu extends Menu {
       addSteadyComponent(optionsLabel.getJComponent(), 1);
 
       if (!backButtonFadeAnimation.isFinished()) {
-        backButton.setAlpha(backButtonFadeAnimation.getCurrentValue());
+        backButton.setOpacity(backButtonFadeAnimation.getCurrentValue());
         backButtonFadeAnimation.updateValue();
         backButton.buildComponent();
         addTempComponent(backButton.getJComponent(), 1);

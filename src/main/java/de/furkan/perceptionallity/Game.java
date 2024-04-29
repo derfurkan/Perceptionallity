@@ -30,6 +30,7 @@ public class Game {
   private final JLayeredPane gamePanel = new GamePanel();
   private final int WINDOW_WIDTH = 900;
   private final int WINDOW_HEIGHT = 500;
+  private final Dimension windowDimension = new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT);
   public boolean showDebugLines = false;
   private Logger logger;
   private JFrame gameFrame;
@@ -46,7 +47,7 @@ public class Game {
   }
 
   public String getBuildString() {
-    return "DEV-0.02";
+    return "DEV-0.03";
   }
 
   /**
@@ -56,12 +57,20 @@ public class Game {
    */
   public void start() {
     buildLogger();
-    loadResources();
-    logger.info("Finished loading resources.");
+    try {
+      loadResources();
+    } catch (Exception e) {
+      getLogger().severe("Error while loading resources");
+      e.printStackTrace();
+      return;
+    }
+    logger.info("Finished loading resources");
     createGameFrame();
-    logger.info("Finished creating game frame.");
+    logger.info("Finished creating game frame");
     menuManager.initialize();
+
     menuManager.setCurrentMenu(isDebug() ? new TestMenu() : new StartMenu());
+
     menuManager.drawCurrentMenu();
   }
 
@@ -112,51 +121,49 @@ public class Game {
    * preparing all visual and audio assets needed for the game.
    */
   private void loadResources() {
-    //    resourceManager.registerResource(
-    //        "main_menu_background",
-    //        spriteBuilder.buildSprite(
-    //            new Dimension(menuManager.getWINDOW_WIDTH(), menuManager.getWINDOW_HEIGHT()),
-    //            "main_menu_background.png",
-    //            "menu",
-    //            "backgrounds"));
-
     resourceManager.registerResource(
         "menu_font", new GameFont(Font.TRUETYPE_FONT, "joystixmonospace.otf", "font"));
 
-    resourceManager.registerResource(
-        "game_icon",
-        new Sprite(
-            resourceManager.getResourceFile("game_icon.png", "menu", "icon"),
-            new Dimension(150, 150)));
-
-    resourceManager.registerResource(
-        "menu_button",
-        new Sprite(
-            resourceManager.getResourceFile("button.png", "menu", "button"),
-            new Dimension(512, 256)));
-
-    resourceManager.registerResource(
-        "button_hover", new Sound("button_hover.wav", "menu", "button"));
+    resourceManager.registerResource("game_icon", new Sprite("game_icon.png", "menu", "icon"));
 
     resourceManager.registerResource("menu_music", new Sound("menu_music.wav", "menu", "audio"));
 
-    resourceManager.registerResource(
-        "initial_player",
-        new Sprite(
-            resourceManager.getResourceFile("player.png", "game", "player"),
-            new Dimension(100, 100)));
+    registerAnimationResource(
+        "player_idle_down_animation", 2, 5,true,"IdleDown.png", "game", "player", "animation_sheets");
+
+    registerAnimationResource(
+        "player_idle_up_animation", 2, 5,true,"IdleUp.png", "game", "player", "animation_sheets");
+
+    registerAnimationResource(
+        "player_idle_left_animation", 2, 5,true,"IdleLeft.png", "game", "player", "animation_sheets");
+
+    registerAnimationResource(
+        "player_idle_right_animation", 2, 5,true,"IdleRight.png", "game", "player", "animation_sheets");
+
+
+    registerAnimationResource(
+        "player_walk_down_animation", 4, 8,true,"WalkDown.png", "game", "player", "animation_sheets");
+    registerAnimationResource(
+        "player_walk_up_animation", 4, 8,true,"WalkUp.png", "game", "player", "animation_sheets");
+    registerAnimationResource(
+        "player_walk_left_animation", 4, 8,true,"WalkLeft.png", "game", "player", "animation_sheets");
+    registerAnimationResource(
+        "player_walk_right_animation", 4, 8,true,"WalkRight.png", "game", "player", "animation_sheets");
+  }
+
+  private void registerAnimationResource(
+          String animationKey, int columns, int fps, boolean loop, String sheetFile, String... sheetPath) {
 
     resourceManager.registerResource(
-        "player_animation_sheet",
-        new Sprite(resourceManager.getResourceFile("player_sheet.png", "game","player")));
+        animationKey + "_sheet", new Sprite(resourceManager.getResourceFile(sheetFile, sheetPath)));
 
     resourceManager.registerResource(
-        "player_animation",
+        animationKey,
         new Animation(
             resourceManager.cutSpriteSheet(
-                resourceManager.getResource("player_animation_sheet", Sprite.class), 1, 6),
-            5,
-            true));
+                resourceManager.getResource(animationKey + "_sheet", Sprite.class), 1, columns),
+                fps,
+                loop));
   }
 
   /**
