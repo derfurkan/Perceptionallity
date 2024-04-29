@@ -1,12 +1,12 @@
 package de.furkan.perceptionallity.game;
 
 import de.furkan.perceptionallity.Manager;
-import de.furkan.perceptionallity.animation.Animation;
 import de.furkan.perceptionallity.game.entity.player.GamePlayer;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.util.*;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import javax.swing.Timer;
 import lombok.Getter;
 
@@ -15,17 +15,15 @@ public class GameManager extends Manager {
 
   private final Camera camera = new Camera();
 
-  private final HashMap<Component, GameObject> gameObjects = new HashMap<>();
+  private final List<GameObject> gameObjects = new ArrayList<>();
   private final HashMap<Integer, GameKeyListener> keyListeners = new HashMap<>();
   private final List<LoopAction> loopCalls = new ArrayList<>();
-  private final HashMap<GameObject, Animation> playingAnimations = new HashMap<>();
   private final Timer gameTimer;
 
-  // Track currently pressed keys
   private final Set<Integer> pressedKeys = new HashSet<>();
 
   private final int GAME_UPDATE_MS = 30;
-  private int updatesPassed = 0;  // Time accumulated from timer ticks
+  private long updatesPassed = 0;
 
   public GameManager() {
     gameTimer = new Timer(GAME_UPDATE_MS, e -> loopCalls.forEach(LoopAction::onLoop));
@@ -33,7 +31,10 @@ public class GameManager extends Manager {
     // Each frame render loop
     registerLoopAction(
         () -> {
+          // Just on case if a player has no real life:
+          if (updatesPassed == Long.MAX_VALUE) updatesPassed = 0;
           updatesPassed += 1;
+
           keyListeners.forEach(
               (integer, listener) -> {
                 if (pressedKeys.contains(integer)) {
@@ -41,18 +42,49 @@ public class GameManager extends Manager {
                 }
               });
 
+          // GameObject Pass
           gameObjects.forEach(
-              (component, gameObject) ->
-                  gameObject.getWorldLocation().applyVelocity(gameObject.getCurrentVelocity()));
+              (gameObject) -> {
+                int[] beforeLocation = gameObject.getWorldLocation().getXY();
 
-          playingAnimations.forEach(
-              (gameObject, animation) -> {
-                if (updatesPassed % ((1000 / GAME_UPDATE_MS) / animation.getFramesPerSecond())
-                    == 0) {
-                  animation.getCurrentFrame().resize(gameObject.getRectangle().getSize());
-                  gameObject.getComponent().setIcon(animation.getCurrentFrame().getRawImageIcon());
-                  animation.nextFrame();
+                gameObject.getWorldLocation().applyVelocity(gameObject.getCurrentVelocity());
+                CompletableFuture<Boolean> collisionFuture = new CompletableFuture<>();
 
+                getGame().getGamePanel().passToCollisionCheck(gameObject, collisionFuture);
+
+                collisionFuture.whenComplete(
+                    (isColliding, throwable) -> {
+                      if (isColliding) {
+                        gameObject.getWorldLocation().setXY(beforeLocation[0], beforeLocation[1]);
+                        camera.getCalculatedGameObjects().remove(gameObject);
+                      }
+                    });
+
+                if (gameObject.getCurrentPlayingAnimation().isPresent()) {
+                  if ((updatesPassed
+                              % ((1000 / GAME_UPDATE_MS)
+                                  / gameObject
+                                      .getCurrentPlayingAnimation()
+                                      .get()
+                                      .getFramesPerSecond())
+                          == 0)
+                      || gameObject.isAnimationFresh()) {
+                    if (gameObject.isAnimationFresh()) gameObject.setAnimationFresh(false);
+                    gameObject
+                        .getCurrentPlayingAnimation()
+                        .get()
+                        .getCurrentFrame()
+                        .resize(gameObject.getDimension());
+                    gameObject
+                        .getComponent()
+                        .setIcon(
+                            gameObject
+                                .getCurrentPlayingAnimation()
+                                .get()
+                                .getCurrentFrame()
+                                .getRawImageIcon());
+                    gameObject.getCurrentPlayingAnimation().get().nextFrame();
+                  }
                 }
               });
 
@@ -63,7 +95,7 @@ public class GameManager extends Manager {
 
   @Override
   public void initialize() {
-      startGameLoop();
+    startGameLoop();
     getGame()
         .getGameFrame()
         .addKeyListener(
@@ -97,15 +129,14 @@ public class GameManager extends Manager {
             });
 
     GamePlayer gamePlayer = new GamePlayer(new WorldLocation(20, 20));
-    GamePlayer gamePlayer1 = new GamePlayer(new WorldLocation(50, 50));
+    GamePlayer gamePlayer1 = new GamePlayer(new WorldLocation(170, 170));
 
-   // gamePlayer1.buildGameObject();
+    gamePlayer1.buildGameObject();
 
-   // gamePlayer.registerKeyListener();
+    gamePlayer.registerKeyListener();
     gamePlayer.buildGameObject();
 
-    // camera.centerOnObject(gamePlayer);
-
+    camera.centerOnObject(gamePlayer);
   }
 
   public void registerLoopAction(LoopAction loopAction) {
@@ -113,33 +144,40 @@ public class GameManager extends Manager {
   }
 
   public void registerKeyListener(GameKeyListener gameKeyListener, Integer... keyEvents) {
-      getLogger().info("Registered new KeyListener "+ Arrays.toString(keyEvents));
+    getLogger().info("Registered new KeyListener " + Arrays.toString(keyEvents));
     for (Integer integer : keyEvents) {
       keyListeners.put(integer, gameKeyListener);
     }
   }
 
   private void startGameLoop() {
-      getLogger().info("Started game loop");
-      gameTimer.start();
+    getLogger().info("Started game loop");
+    gameTimer.start();
   }
 
   private void stopGameLoop() {
-      getLogger().info("Stopped game loop");
+    getLogger().info("Stopped game loop");
     gameTimer.stop();
   }
 
   public boolean isGameComponent(Component component) {
-    return gameObjects.containsKey(component);
+    return gameObjects.stream().anyMatch(gameObject -> gameObject.getComponent() == component);
+  }
+
+  public GameObject getGameObjectByComponent(Component component) {
+    return gameObjects.stream()
+        .filter(gameObject -> gameObject.getComponent() == component)
+        .findFirst()
+        .get();
   }
 
   public void registerGameObject(GameObject gameObject) {
-      getLogger().info("Registered new GameObject ("+gameObject.getClass().getSimpleName()+")");
-    gameObjects.put(gameObject.getComponent(), gameObject);
+    getLogger().info("Registered new GameObject (" + gameObject.getClass().getSimpleName() + ")");
+    gameObjects.add(gameObject);
   }
 
   public void unregisterGameObject(GameObject gameObject) {
-      getLogger().info("Unregistered GameObject ("+gameObject.getClass().getSimpleName()+")");
+    getLogger().info("Unregistered GameObject (" + gameObject.getClass().getSimpleName() + ")");
     gameObjects.remove(gameObject.getComponent());
   }
 }

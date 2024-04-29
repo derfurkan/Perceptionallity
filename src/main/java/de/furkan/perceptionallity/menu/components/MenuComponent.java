@@ -49,9 +49,10 @@ public abstract class MenuComponent {
   }
 
   public void setOpacity(float alpha) {
-    if(this instanceof MenuSprite menuSprite) {
+    if (this instanceof MenuSprite menuSprite) {
       Image originalImage = menuSprite.getSprite().getRawImage();
-      BufferedImage bufferedImage = new BufferedImage(
+      BufferedImage bufferedImage =
+          new BufferedImage(
               originalImage.getWidth(null),
               originalImage.getHeight(null),
               BufferedImage.TYPE_INT_ARGB);
@@ -61,7 +62,7 @@ public abstract class MenuComponent {
       g2d.drawImage(originalImage, 0, 0, null);
       g2d.dispose();
 
-      ((JLabel)menuSprite.getJComponent()).setIcon(new ImageIcon(bufferedImage));
+      ((JLabel) menuSprite.getJComponent()).setIcon(new ImageIcon(bufferedImage));
     }
 
     Color color = getJComponent().getForeground();

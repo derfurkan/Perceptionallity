@@ -17,6 +17,11 @@ public class GameVelocity {
     return this.x == 0 && this.y == 0;
   }
 
+  public void reverse() {
+    this.x = -this.x;
+    this.y = -this.y;
+  }
+
   public void set(int x, int y) {
     this.x = x;
     this.y = y;

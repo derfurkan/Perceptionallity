@@ -1,5 +1,6 @@
 package de.furkan.perceptionallity.game;
 
+import java.awt.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -16,6 +17,11 @@ public class WorldLocation {
 
   public int[] getXY() {
     return new int[] {x, y};
+  }
+
+  public void setXY(int x, int y) {
+    setX(x);
+    setY(y);
   }
 
   public void applyVelocity(GameVelocity gameVelocity) {

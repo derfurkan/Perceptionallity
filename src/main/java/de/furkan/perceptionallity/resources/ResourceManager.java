@@ -105,8 +105,10 @@ public class ResourceManager {
         for (int x = 0; x < columns; x++) {
           int xCord = x * spriteWidth;
           int yCord = y * spriteHeight;
-          BufferedImage subImage = bufferedSheet.getSubimage(xCord, yCord, spriteWidth, spriteHeight);
-          sprites[index++] = new Sprite(subImage, new Dimension(subImage.getWidth(),subImage.getHeight()));
+          BufferedImage subImage =
+              bufferedSheet.getSubimage(xCord, yCord, spriteWidth, spriteHeight);
+          sprites[index++] =
+              new Sprite(subImage, new Dimension(subImage.getWidth(), subImage.getHeight()));
         }
       }
       return sprites;
@@ -114,5 +116,4 @@ public class ResourceManager {
       throw new RuntimeException("Sprite image is not a BufferedImage.");
     }
   }
-
 }
