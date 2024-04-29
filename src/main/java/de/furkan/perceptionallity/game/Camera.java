@@ -1,6 +1,7 @@
 package de.furkan.perceptionallity.game;
 
 import de.furkan.perceptionallity.Perceptionallity;
+import java.awt.*;
 import java.util.HashMap;
 import lombok.Getter;
 
@@ -8,7 +9,7 @@ public class Camera {
 
   @Getter private final HashMap<GameObject, int[]> calculatedGameObjects = new HashMap<>();
 
-  private GameObject centeredObject;
+  @Getter private GameObject centeredObject;
 
   /**
    * Centers the camera on a specified game object.
@@ -51,12 +52,9 @@ public class Camera {
           };
     } else if (centeredObject == gameObject) {
       calculatedPosition =
-          Perceptionallity.getGame()
-              .getMenuManager()
-              .centerLocation(gameObject.getRectangle().getSize());
+          Perceptionallity.getGame().getMenuManager().centerLocation(gameObject.getDimension());
     }
 
-    finishGameObject(gameObject, calculatedPosition);
     return calculatedPosition;
   }
 
@@ -66,7 +64,7 @@ public class Camera {
    * @param gameObject The game object whose position has been recalculated.
    * @param calculatedLocation The new calculated position of the game object.
    */
-  private void finishGameObject(GameObject gameObject, int[] calculatedLocation) {
+  public void finishGameObject(GameObject gameObject, int[] calculatedLocation) {
     calculatedGameObjects.remove(gameObject);
     calculatedGameObjects.put(gameObject, calculatedLocation);
   }
