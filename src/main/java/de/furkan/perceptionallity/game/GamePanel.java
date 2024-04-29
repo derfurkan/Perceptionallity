@@ -2,9 +2,13 @@ package de.furkan.perceptionallity.game;
 
 import de.furkan.perceptionallity.Perceptionallity;
 import java.awt.*;
+import java.util.HashMap;
+import java.util.concurrent.CompletableFuture;
 import javax.swing.*;
 
 public class GamePanel extends JLayeredPane {
+
+  private final HashMap<GameObject, CompletableFuture<Boolean>> collisionCheck = new HashMap<>();
 
   /**
    * Overrides the paintComponent method to handle custom rendering of game components. This method
@@ -18,19 +22,73 @@ public class GamePanel extends JLayeredPane {
   public void paintComponent(Graphics g) {
     super.paintComponent(g);
 
-    Perceptionallity.getGame().getGameManager().getCamera().flushCalculation();
+    getCamera().flushCalculation();
     for (Component component : getComponents()) {
       if (Perceptionallity.getGame().getGameManager().isGameComponent(component)) {
-        int[] newPos =
-            Perceptionallity.getGame()
-                .getGameManager()
-                .getCamera()
-                .calculateObjectPosition(
-                    Perceptionallity.getGame().getGameManager().getGameObjects().get(component));
-        component.setBounds(
-            new Rectangle(newPos[0], newPos[1], component.getWidth(), component.getHeight()));
+        GameObject gameObject =
+            Perceptionallity.getGame().getGameManager().getGameObjectByComponent(component);
+        int[] newPos = getCamera().calculateObjectPosition(gameObject);
+
+        getCamera().finishGameObject(gameObject, newPos);
       }
     }
+
+    // Collision check start
+    new HashMap<>(collisionCheck)
+        .forEach(
+            (gameObject, booleanCompletableFuture) -> {
+              if (!getCamera().getCalculatedGameObjects().containsKey(gameObject)) {
+                return;
+              }
+              int[] calPos = getCamera().getCalculatedGameObjects().get(gameObject);
+              Rectangle futureRect =
+                  new Rectangle(
+                      calPos[0],
+                      calPos[1],
+                      gameObject.getDimension().width,
+                      gameObject.getDimension().height);
+
+              new HashMap<>(getCamera().getCalculatedGameObjects())
+                  .forEach(
+                      (gameObject1, ints) -> {
+                        if (gameObject == gameObject1) return;
+
+                        if (futureRect.intersects(
+                            new Rectangle(
+                                ints[0],
+                                ints[1],
+                                gameObject1.getDimension().width,
+                                gameObject1.getDimension().height))) {
+
+                          booleanCompletableFuture.complete(true);
+                        }
+                      });
+
+              if (!booleanCompletableFuture.isDone()) {
+                booleanCompletableFuture.complete(false);
+              } else if (getCamera().getCenteredObject() != null
+                  && getCamera().getCenteredObject() == gameObject) {
+                getCamera().flushCalculation();
+              }
+
+              collisionCheck.remove(gameObject);
+            });
+
+    // Collision check end
+
+    // Render final game objects
+    getCamera()
+        .getCalculatedGameObjects()
+        .forEach(
+            (gameObject, newLoc) ->
+                gameObject
+                    .getComponent()
+                    .setBounds(
+                        new Rectangle(
+                            newLoc[0],
+                            newLoc[1],
+                            (int) gameObject.getDimension().getWidth(),
+                            (int) gameObject.getDimension().getHeight())));
 
     if (Perceptionallity.getGame().isDebug() && Perceptionallity.getGame().isShowDebugLines()) {
       for (Component comp : getComponents()) {
@@ -40,5 +98,14 @@ public class GamePanel extends JLayeredPane {
         g.drawRect(bounds.x, bounds.y, bounds.width, bounds.height);
       }
     }
+  }
+
+  public void passToCollisionCheck(
+      GameObject gameObject, CompletableFuture<Boolean> completableFuture) {
+    collisionCheck.put(gameObject, completableFuture);
+  }
+
+  public Camera getCamera() {
+    return Perceptionallity.getGame().getGameManager().getCamera();
   }
 }

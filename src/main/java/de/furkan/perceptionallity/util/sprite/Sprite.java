@@ -34,10 +34,14 @@ public class Sprite {
     }
   }
 
-  public Sprite(String spriteFile, String ...spritePath) {
+  public Sprite(String spriteFile, String... spritePath) {
 
     try {
-      rawImage = ImageIO.read(Perceptionallity.getGame().getResourceManager().getResourceFile(spriteFile,spritePath));
+      rawImage =
+          ImageIO.read(
+              Perceptionallity.getGame()
+                  .getResourceManager()
+                  .getResourceFile(spriteFile, spritePath));
       rawImageIcon = new ImageIcon(rawImage);
     } catch (IOException e) {
       e.printStackTrace();
@@ -47,8 +51,7 @@ public class Sprite {
   public Sprite(File resource) {
 
     try {
-      rawImage =
-              ImageIO.read(resource);
+      rawImage = ImageIO.read(resource);
       rawImageIcon = new ImageIcon(rawImage);
     } catch (IOException e) {
       e.printStackTrace();
@@ -56,8 +59,8 @@ public class Sprite {
   }
 
   public Sprite(Image image, Dimension dimension) {
-      rawImage = image.getScaledInstance(dimension.width, dimension.height, Image.SCALE_SMOOTH);
-      rawImageIcon = new ImageIcon(rawImage);
+    rawImage = image.getScaledInstance(dimension.width, dimension.height, Image.SCALE_SMOOTH);
+    rawImageIcon = new ImageIcon(rawImage);
   }
 
   /**

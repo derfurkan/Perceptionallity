@@ -17,12 +17,12 @@ public class GameEntity extends GameObject {
   private JLabel jLabel;
 
   public GameEntity(
-      Rectangle rectangle,
+      Dimension dimension,
       WorldLocation worldLocation,
       int maxHealth,
       int currentHealth,
       int moveSpeed) {
-    super(rectangle, worldLocation);
+    super(dimension, worldLocation, true);
     this.maxHealth = maxHealth;
     this.moveSpeed = moveSpeed;
     this.currentHealth = currentHealth;
@@ -34,7 +34,11 @@ public class GameEntity extends GameObject {
   @Override
   public void buildGameObject() {
     Perceptionallity.getGame().getGameManager().registerGameObject(this);
-    jLabel.setBounds(getRectangle());
+    jLabel.setBounds(
+        getWorldLocation().getX(),
+        getWorldLocation().getY(),
+        (int) getDimension().getWidth(),
+        (int) getDimension().getHeight());
     Perceptionallity.getGame().getGamePanel().add(getComponent(), 1);
   }
 }

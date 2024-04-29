@@ -27,7 +27,7 @@ public class Game {
   private final GameManager gameManager;
   private final ResourceManager resourceManager;
   private final SoundEngine soundEngine;
-  private final JLayeredPane gamePanel = new GamePanel();
+  private final GamePanel gamePanel = new GamePanel();
   private final int WINDOW_WIDTH = 900;
   private final int WINDOW_HEIGHT = 500;
   private final Dimension windowDimension = new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -129,30 +129,76 @@ public class Game {
     resourceManager.registerResource("menu_music", new Sound("menu_music.wav", "menu", "audio"));
 
     registerAnimationResource(
-        "player_idle_down_animation", 2, 5,true,"IdleDown.png", "game", "player", "animation_sheets");
+        "player_idle_down_animation",
+        2,
+        5,
+        true,
+        "IdleDown.png",
+        "game",
+        "player",
+        "animation_sheets");
 
     registerAnimationResource(
-        "player_idle_up_animation", 2, 5,true,"IdleUp.png", "game", "player", "animation_sheets");
+        "player_idle_up_animation", 2, 5, true, "IdleUp.png", "game", "player", "animation_sheets");
 
     registerAnimationResource(
-        "player_idle_left_animation", 2, 5,true,"IdleLeft.png", "game", "player", "animation_sheets");
+        "player_idle_left_animation",
+        2,
+        5,
+        true,
+        "IdleLeft.png",
+        "game",
+        "player",
+        "animation_sheets");
 
     registerAnimationResource(
-        "player_idle_right_animation", 2, 5,true,"IdleRight.png", "game", "player", "animation_sheets");
+        "player_idle_right_animation",
+        2,
+        5,
+        true,
+        "IdleRight.png",
+        "game",
+        "player",
+        "animation_sheets");
 
-
     registerAnimationResource(
-        "player_walk_down_animation", 4, 8,true,"WalkDown.png", "game", "player", "animation_sheets");
+        "player_walk_down_animation",
+        4,
+        8,
+        true,
+        "WalkDown.png",
+        "game",
+        "player",
+        "animation_sheets");
     registerAnimationResource(
-        "player_walk_up_animation", 4, 8,true,"WalkUp.png", "game", "player", "animation_sheets");
+        "player_walk_up_animation", 4, 8, true, "WalkUp.png", "game", "player", "animation_sheets");
     registerAnimationResource(
-        "player_walk_left_animation", 4, 8,true,"WalkLeft.png", "game", "player", "animation_sheets");
+        "player_walk_left_animation",
+        4,
+        8,
+        true,
+        "WalkLeft.png",
+        "game",
+        "player",
+        "animation_sheets");
     registerAnimationResource(
-        "player_walk_right_animation", 4, 8,true,"WalkRight.png", "game", "player", "animation_sheets");
+        "player_walk_right_animation",
+        4,
+        8,
+        true,
+        "WalkRight.png",
+        "game",
+        "player",
+        "animation_sheets");
   }
 
   private void registerAnimationResource(
-          String animationKey, int columns, int fps, boolean loop, String sheetFile, String... sheetPath) {
+      String animationKey,
+      int columns,
+      int fps,
+      boolean loop,
+      String sheetFile,
+      String... sheetPath) {
 
     resourceManager.registerResource(
         animationKey + "_sheet", new Sprite(resourceManager.getResourceFile(sheetFile, sheetPath)));
@@ -162,8 +208,8 @@ public class Game {
         new Animation(
             resourceManager.cutSpriteSheet(
                 resourceManager.getResource(animationKey + "_sheet", Sprite.class), 1, columns),
-                fps,
-                loop));
+            fps,
+            loop));
   }
 
   /**
