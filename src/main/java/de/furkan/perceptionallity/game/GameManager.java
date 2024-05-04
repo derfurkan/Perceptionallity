@@ -24,6 +24,8 @@ public class GameManager extends Manager {
 
   private final int GAME_UPDATE_MS = 30;
   private long updatesPassed = 0;
+  int frameCount = 0;
+  long startTime = System.currentTimeMillis();
 
   public GameManager() {
     gameTimer = new Timer(GAME_UPDATE_MS, e -> loopCalls.forEach(LoopAction::onLoop));
@@ -31,9 +33,10 @@ public class GameManager extends Manager {
     // Each frame render loop
     registerLoopAction(
         () -> {
-          // Just on case if a player has no real life:
+          // Just in case if a player has no real-life:
           if (updatesPassed == Long.MAX_VALUE) updatesPassed = 0;
           updatesPassed += 1;
+
 
           keyListeners.forEach(
               (integer, listener) -> {
@@ -42,54 +45,65 @@ public class GameManager extends Manager {
                 }
               });
 
-          // GameObject Pass
+
+
+
+
+            // GameObject Pass
           gameObjects.forEach(
               (gameObject) -> {
+                  
                 int[] beforeLocation = gameObject.getWorldLocation().getXY();
-
                 gameObject.getWorldLocation().applyVelocity(gameObject.getCurrentVelocity());
-                CompletableFuture<Boolean> collisionFuture = new CompletableFuture<>();
+                if (gameObject.isPassToCollisionCheck()) {
+                  CompletableFuture<Boolean> collisionFuture = new CompletableFuture<>();
+                  getGame().getGamePanel().passToCollisionCheck(gameObject, collisionFuture);
 
-                getGame().getGamePanel().passToCollisionCheck(gameObject, collisionFuture);
+                  collisionFuture.whenComplete(
+                      (isColliding, throwable) -> {
+                        if (isColliding) {
+                          gameObject.getWorldLocation().setXY(beforeLocation[0], beforeLocation[1]);
+                          camera.getCalculatedGameObjects().remove(gameObject);
+                        }
+                      });
+                }
 
-                collisionFuture.whenComplete(
-                    (isColliding, throwable) -> {
-                      if (isColliding) {
-                        gameObject.getWorldLocation().setXY(beforeLocation[0], beforeLocation[1]);
-                        camera.getCalculatedGameObjects().remove(gameObject);
-                      }
-                    });
-
-                if (gameObject.getCurrentPlayingAnimation().isPresent()) {
+                if (gameObject.getCurrentPlayingAnimation() != null) {
                   if ((updatesPassed
                               % ((1000 / GAME_UPDATE_MS)
-                                  / gameObject
-                                      .getCurrentPlayingAnimation()
-                                      .get()
-                                      .getFramesPerSecond())
+                                  / gameObject.getCurrentPlayingAnimation().getFramesPerSecond())
                           == 0)
                       || gameObject.isAnimationFresh()) {
                     if (gameObject.isAnimationFresh()) gameObject.setAnimationFresh(false);
-                    gameObject
-                        .getCurrentPlayingAnimation()
-                        .get()
-                        .getCurrentFrame()
-                        .resize(gameObject.getDimension());
+
                     gameObject
                         .getComponent()
                         .setIcon(
                             gameObject
                                 .getCurrentPlayingAnimation()
-                                .get()
                                 .getCurrentFrame()
                                 .getRawImageIcon());
-                    gameObject.getCurrentPlayingAnimation().get().nextFrame();
+
+                    gameObject.getCurrentPlayingAnimation().nextFrame();
                   }
                 }
+
+
               });
 
-          getGame().getGamePanel().repaint();
+            getGame().getGamePanel().repaint();
           getGame().getGamePanel().revalidate();
+
+            frameCount++;
+
+          if (updatesPassed % (1000 / GAME_UPDATE_MS) == 0) {
+            double fps = (double) frameCount / ((System.currentTimeMillis() - startTime) / 1000.0);
+
+            frameCount = 0;
+            startTime = System.currentTimeMillis();
+
+            System.out.println("FPS: " + String.format("%.2f", fps));
+          }
         });
   }
 
@@ -128,13 +142,13 @@ public class GameManager extends Manager {
               }
             });
 
-    GamePlayer gamePlayer = new GamePlayer(new WorldLocation(20, 20));
-    GamePlayer gamePlayer1 = new GamePlayer(new WorldLocation(170, 170));
+    GamePlayer gamePlayer = new GamePlayer(new WorldLocation(20, 20),true);
+    GamePlayer gamePlayer1 = new GamePlayer(new WorldLocation(170, 170),false);
 
-    gamePlayer1.buildGameObject();
+    gamePlayer1.initializeGameObject(1);
 
     gamePlayer.registerKeyListener();
-    gamePlayer.buildGameObject();
+    gamePlayer.initializeGameObject(1);
 
     camera.centerOnObject(gamePlayer);
   }
@@ -178,6 +192,6 @@ public class GameManager extends Manager {
 
   public void unregisterGameObject(GameObject gameObject) {
     getLogger().info("Unregistered GameObject (" + gameObject.getClass().getSimpleName() + ")");
-    gameObjects.remove(gameObject.getComponent());
+    gameObjects.remove(gameObject);
   }
 }
