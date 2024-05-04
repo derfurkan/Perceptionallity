@@ -5,7 +5,6 @@ import de.furkan.perceptionallity.game.GameManager;
 import de.furkan.perceptionallity.game.GamePanel;
 import de.furkan.perceptionallity.menu.MenuManager;
 import de.furkan.perceptionallity.menu.menus.StartMenu;
-import de.furkan.perceptionallity.menu.menus.TestMenu;
 import de.furkan.perceptionallity.resources.ResourceManager;
 import de.furkan.perceptionallity.sound.Sound;
 import de.furkan.perceptionallity.sound.SoundEngine;
@@ -69,7 +68,7 @@ public class Game {
     logger.info("Finished creating game frame");
     menuManager.initialize();
 
-    menuManager.setCurrentMenu(isDebug() ? new TestMenu() : new StartMenu());
+    menuManager.setCurrentMenu(isDebug() ? new StartMenu() : new StartMenu());
 
     menuManager.drawCurrentMenu();
   }
@@ -128,10 +127,12 @@ public class Game {
 
     resourceManager.registerResource("menu_music", new Sound("menu_music.wav", "menu", "audio"));
 
+    resourceManager.registerResource("main_menu_background", new Sprite("main.png","menu","backgrounds"));
+
     registerAnimationResource(
         "player_idle_down_animation",
         2,
-        5,
+        8,
         true,
         "IdleDown.png",
         "game",
@@ -139,12 +140,12 @@ public class Game {
         "animation_sheets");
 
     registerAnimationResource(
-        "player_idle_up_animation", 2, 5, true, "IdleUp.png", "game", "player", "animation_sheets");
+        "player_idle_up_animation", 2, 8, true, "IdleUp.png", "game", "player", "animation_sheets");
 
     registerAnimationResource(
         "player_idle_left_animation",
         2,
-        5,
+            8,
         true,
         "IdleLeft.png",
         "game",
@@ -154,7 +155,7 @@ public class Game {
     registerAnimationResource(
         "player_idle_right_animation",
         2,
-        5,
+        8,
         true,
         "IdleRight.png",
         "game",

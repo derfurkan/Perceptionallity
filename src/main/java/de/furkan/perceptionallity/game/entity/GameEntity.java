@@ -1,6 +1,5 @@
 package de.furkan.perceptionallity.game.entity;
 
-import de.furkan.perceptionallity.Perceptionallity;
 import de.furkan.perceptionallity.game.GameObject;
 import de.furkan.perceptionallity.game.WorldLocation;
 import java.awt.*;
@@ -21,8 +20,8 @@ public class GameEntity extends GameObject {
       WorldLocation worldLocation,
       int maxHealth,
       int currentHealth,
-      int moveSpeed) {
-    super(dimension, worldLocation, true);
+      int moveSpeed,boolean passToCollisionCheck) {
+    super(dimension, worldLocation, passToCollisionCheck);
     this.maxHealth = maxHealth;
     this.moveSpeed = moveSpeed;
     this.currentHealth = currentHealth;
@@ -30,15 +29,5 @@ public class GameEntity extends GameObject {
     this.gameEntityObject = this;
     setComponent(jLabel);
   }
-
-  @Override
-  public void buildGameObject() {
-    Perceptionallity.getGame().getGameManager().registerGameObject(this);
-    jLabel.setBounds(
-        getWorldLocation().getX(),
-        getWorldLocation().getY(),
-        (int) getDimension().getWidth(),
-        (int) getDimension().getHeight());
-    Perceptionallity.getGame().getGamePanel().add(getComponent(), 1);
-  }
+  
 }
