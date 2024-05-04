@@ -8,7 +8,7 @@ import java.util.Iterator;
 import lombok.Getter;
 
 @Getter
-public class Animation {
+public class Animation implements Cloneable {
 
   private final Sprite[] sprites;
   private final int framesPerSecond;
@@ -43,4 +43,13 @@ public class Animation {
   private void resetAnimation() {
     this.animationSprites = Arrays.asList(this.sprites).iterator();
   }
+
+    @Override
+    public Animation clone() {
+        try {
+            return (Animation) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
+    }
 }
