@@ -11,6 +11,10 @@ Currently there is no compiled executable so you need to compile it yourself. On
 * R = Reload the current displayed Menu
 * G = Reset to Start Menu
 
+### Images
+![image1](https://i.ibb.co/6PFSnrZ/Screenshot-2024-05-06-231538.png)
+
+![image2](https://i.ibb.co/LgLHkWf/Screenshot-2024-05-06-231642.png)
 
 ## Why Java?
 It's the language I know inside out and have been working with for a long time. I might dabble in other languages along the way, but for now, Java is the main game plan.
