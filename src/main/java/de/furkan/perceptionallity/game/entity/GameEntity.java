@@ -2,33 +2,32 @@ package de.furkan.perceptionallity.game.entity;
 
 import de.furkan.perceptionallity.game.GameObject;
 import de.furkan.perceptionallity.game.WorldLocation;
+import java.awt.*;
+import java.util.HashMap;
+import javax.swing.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.swing.*;
-import java.awt.*;
-
 @Setter
-@Getter
 public class GameEntity extends GameObject {
+  @Getter private GameEntity gameEntityObject;
+  private HashMap<EntityAttributes, Integer> entityAttributes = new HashMap<>();
 
-    private GameEntity gameEntityObject;
-    private int maxHealth, currentHealth, moveSpeed;
-    private JLabel jLabel;
+  public GameEntity(
+      Dimension dimension, WorldLocation worldLocation, boolean passToCollisionCheck) {
+    super(dimension, worldLocation, passToCollisionCheck);
+    this.gameEntityObject = this;
+  }
 
-    public GameEntity(
-            Dimension dimension,
-            WorldLocation worldLocation,
-            int maxHealth,
-            int currentHealth,
-            int moveSpeed, boolean passToCollisionCheck) {
-        super(dimension, worldLocation, passToCollisionCheck);
-        this.maxHealth = maxHealth;
-        this.moveSpeed = moveSpeed;
-        this.currentHealth = currentHealth;
-        this.jLabel = new JLabel();
-        this.gameEntityObject = this;
-        setComponent(jLabel);
+  public void setAttribute(EntityAttributes entityAttribute, int value) {
+    entityAttributes.remove(entityAttribute);
+    entityAttributes.put(entityAttribute, value);
+  }
+
+  public int getAttribute(EntityAttributes entityAttribute) {
+    if (entityAttributes.containsKey(entityAttribute)) {
+      return entityAttributes.get(entityAttribute);
     }
-
+    return 0;
+  }
 }
