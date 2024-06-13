@@ -2,6 +2,7 @@ package de.furkan.perceptionallity.menu;
 
 import de.furkan.perceptionallity.Manager;
 import de.furkan.perceptionallity.Perceptionallity;
+import de.furkan.perceptionallity.game.GameState;
 import de.furkan.perceptionallity.menu.menus.MainMenu;
 import de.furkan.perceptionallity.menu.menus.OptionsMenu;
 import de.furkan.perceptionallity.menu.menus.StartMenu;
@@ -26,7 +27,7 @@ public class MenuManager extends Manager {
   }
 
   // Debug
-  public void reloadCurrentMenu() {
+  public void reloadCurrentMenu() throws Exception {
     getLogger().warning("Reloading current Menu (" + currentMenu.getMenuName() + ")");
     getSoundEngine().stopAllAudio();
     Menu newMenu = null;
@@ -41,20 +42,23 @@ public class MenuManager extends Manager {
     // Class.forName(currentMenu.getClass().getModule(),currentMenu.getClass().getName());
 
     if (newMenu == null) {
-      throw new RuntimeException(
-          "Unknown Menu to reload. Please specify a class for the menu. ("
-              + currentMenu.getMenuName()
-              + ")");
+      getGame()
+          .handleFatalException(
+              new RuntimeException(
+                  "Unknown Menu to reload. Please specify a class for the menu. ("
+                      + currentMenu.getMenuName()
+                      + ")"));
     }
 
     setCurrentMenu(newMenu);
     drawCurrentMenu();
   }
 
-  public void drawCurrentMenu() {
+  public void drawCurrentMenu() throws Exception {
     if (currentMenu == null) {
-      throw new RuntimeException("No current menu set!");
+      getGame().handleFatalException(new RuntimeException("No current menu set!"));
     }
+    getGame().getGameManager().setGameState(GameState.MENU);
     currentMenu.drawMenu();
   }
 

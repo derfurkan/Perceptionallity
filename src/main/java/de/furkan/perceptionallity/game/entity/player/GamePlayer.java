@@ -3,10 +3,7 @@ package de.furkan.perceptionallity.game.entity.player;
 import static java.awt.event.KeyEvent.*;
 
 import de.furkan.perceptionallity.animation.Animation;
-import de.furkan.perceptionallity.game.GameKeyEvent;
-import de.furkan.perceptionallity.game.GameKeyListener;
-import de.furkan.perceptionallity.game.GameState;
-import de.furkan.perceptionallity.game.WorldLocation;
+import de.furkan.perceptionallity.game.*;
 import de.furkan.perceptionallity.game.entity.EntityAttributes;
 import de.furkan.perceptionallity.game.entity.GameEntity;
 import de.furkan.perceptionallity.game.entity.npc.GameNPC;
@@ -21,11 +18,35 @@ public class GamePlayer extends GameEntity {
    */
   GameKeyEvent gameKeyEvent;
 
-  private DIRECTION lastDirection;
+  private DIRECTION lastDirection = DIRECTION.SOUTH;
+  private int successWalk;
 
-  public GamePlayer(WorldLocation worldLocation, boolean passToCollisionCheck) {
+  public GamePlayer(WorldLocation worldLocation, boolean passToCollisionCheck) throws Exception {
     super(new Dimension(100, 110), worldLocation, passToCollisionCheck);
-    playAnimation(getResourceManager().getResource("player_idle_down_animation", Animation.class));
+    playAnimation(
+        getResourceManager().getResource("player_idle_down_animation", Animation.class), true);
+    getGameManager()
+        .registerLoopAction(
+            new GameAction() {
+              @Override
+              public void onAction() {
+
+                getGameManager()
+                    .getGameNPCs()
+                    .forEach(
+                        gameNPC -> {
+                          if (distanceTo(
+                                  gameNPC
+                                      .getWorldLocation()
+                                      .toCenterLocation(gameNPC.getDimension()))
+                              < 75) {
+                            gameNPC.showInteractArrow();
+                          } else {
+                            gameNPC.hideInteractArrow();
+                          }
+                        });
+              }
+            });
   }
 
   public void registerKeyEvent() {
@@ -37,7 +58,7 @@ public class GamePlayer extends GameEntity {
                     new GameKeyListener() {
 
                       @Override
-                      public void whileKeyPressed(int integer) {
+                      public void whileKeyPressed(int integer) throws Exception {
 
                         if (getGameManager().isGameState(GameState.IN_DIALOGUE)) {
                           handleDialogueKey(integer);
@@ -70,11 +91,10 @@ public class GamePlayer extends GameEntity {
                               newKey = ANIMATION_KEYS.WALK_RIGHT;
                               lastDirection = DIRECTION.OST;
                             }
-                            case VK_ENTER ->  {
-
+                            case VK_ENTER -> {
                               for (GameNPC gameNPC : getGameManager().getGameNPCs()) {
-                                if(gameNPC.isInteractionArrowShown()) {
-                                  //CHECK NPC
+                                if (gameNPC.isInteractionArrowShown()) {
+                                  // CHECK NPC
                                   getGameManager().setGameState(GameState.IN_DIALOGUE);
                                   break;
                                 }
@@ -82,57 +102,58 @@ public class GamePlayer extends GameEntity {
 
                               return;
                             }
-
                           }
                           if (newKey == null) {
-                            throw new RuntimeException(
-                                "This exception should never ever come up. If it did came up there is something horrible going on.");
+                            getGame()
+                                .handleFatalException(
+                                    new RuntimeException(
+                                        "This exception should never ever come up. If it did came up there is something horrible going on."));
                           }
+                          successWalk = integer;
 
-                          playAnimation(
+                            playAnimation(
                               getResourceManager()
                                   .getResource(newKey.animationKey, Animation.class),
-                              8);
+                              8,
+                              true);
                         }
                       }
 
                       @Override
-                      public void keyReleased(KeyEvent keyEvent) {
-                        // TODO: Fix that only valid pressed keys will trigger keyReleased
-                        getCurrentVelocity().set(0, 0);
+                      public void keyReleased(KeyEvent keyEvent) throws Exception {
+                        if (keyEvent.getKeyCode() == successWalk) {
+                          getCurrentVelocity().set(0, 0);
 
-                        ANIMATION_KEYS idleAnimation = null;
+                          ANIMATION_KEYS idleAnimation = null;
 
-                        switch (lastDirection) {
-                          case NORTH -> idleAnimation = ANIMATION_KEYS.IDLE_UP;
-                          case OST -> idleAnimation = ANIMATION_KEYS.IDLE_RIGHT;
-                          case SOUTH -> idleAnimation = ANIMATION_KEYS.IDLE_DOWN;
-                          case WEST -> idleAnimation = ANIMATION_KEYS.IDLE_LEFT;
+                          switch (lastDirection) {
+                            case NORTH -> idleAnimation = ANIMATION_KEYS.IDLE_UP;
+                            case OST -> idleAnimation = ANIMATION_KEYS.IDLE_RIGHT;
+                            case SOUTH -> idleAnimation = ANIMATION_KEYS.IDLE_DOWN;
+                            case WEST -> idleAnimation = ANIMATION_KEYS.IDLE_LEFT;
+                          }
+
+                          playAnimation(
+                              getResourceManager()
+                                  .getResource(idleAnimation.animationKey, Animation.class),
+                              true);
                         }
-
-                        playAnimation(
-                            getResourceManager()
-                                .getResource(idleAnimation.animationKey, Animation.class));
                       }
                     },
                     VK_W,
                     VK_A,
                     VK_S,
                     VK_D,
-                    VK_ENTER,
-                        VK_ESCAPE));
+                    VK_ENTER));
   }
+
+  private void handleDialogueKey(int key) {}
 
   enum DIRECTION {
     NORTH,
     OST,
     SOUTH,
     WEST
-  }
-
-  
-  private void handleDialogueKey(int key) {
-    
   }
 
   enum ANIMATION_KEYS {

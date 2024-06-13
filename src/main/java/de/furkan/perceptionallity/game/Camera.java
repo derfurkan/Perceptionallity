@@ -91,11 +91,8 @@ public class Camera {
     calculatedGameObjects.clear();
   }
 
-
   public boolean isCenteredObject(GameObject gameObject) {
-    if(centeredObject == null)
-      return false;
+    if (centeredObject == null) return false;
     else return centeredObject == gameObject;
   }
-
 }

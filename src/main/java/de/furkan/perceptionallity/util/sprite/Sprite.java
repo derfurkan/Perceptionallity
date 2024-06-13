@@ -22,38 +22,26 @@ public class Sprite implements Cloneable {
    * @param dimension The dimensions to which the image is scaled.
    * @throws IOException If there is an error reading the image file.
    */
-  public Sprite(File resource, Dimension dimension) {
-    try {
-      rawImage =
-          ImageIO.read(resource)
-              .getScaledInstance(dimension.width, dimension.height, Image.SCALE_SMOOTH);
-      rawImageIcon = new ImageIcon(rawImage);
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+  public Sprite(File resource, Dimension dimension) throws IOException {
+    rawImage =
+        ImageIO.read(resource)
+            .getScaledInstance(dimension.width, dimension.height, Image.SCALE_SMOOTH);
+    rawImageIcon = new ImageIcon(rawImage);
   }
 
-  public Sprite(String spriteFile, String... spritePath) {
+  public Sprite(String spriteFile, String... spritePath) throws IOException {
 
-    try {
-      rawImage =
-          ImageIO.read(
-              Perceptionallity.getGame()
-                  .getResourceManager()
-                  .getResourceFile(spriteFile, spritePath));
-      rawImageIcon = new ImageIcon(rawImage);
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+    rawImage =
+        ImageIO.read(
+            Perceptionallity.getGame()
+                .getResourceManager()
+                .getResourceFile(spriteFile, spritePath));
+    rawImageIcon = new ImageIcon(rawImage);
   }
 
-  public Sprite(File resource) {
-    try {
-      rawImage = ImageIO.read(resource);
-      rawImageIcon = new ImageIcon(rawImage);
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+  public Sprite(File resource) throws IOException {
+    rawImage = ImageIO.read(resource);
+    rawImageIcon = new ImageIcon(rawImage);
   }
 
   public Sprite(Image image, Dimension dimension) {
@@ -73,12 +61,8 @@ public class Sprite implements Cloneable {
   }
 
   @Override
-  public Sprite clone() {
-    try {
-      // TODO: copy mutable state here, so the clone can't change the internals of the original
-      return (Sprite) super.clone();
-    } catch (CloneNotSupportedException e) {
-      throw new AssertionError();
-    }
+  public Sprite clone() throws CloneNotSupportedException {
+    // TODO: copy mutable state here, so the clone can't change the internals of the original
+    return (Sprite) super.clone();
   }
 }

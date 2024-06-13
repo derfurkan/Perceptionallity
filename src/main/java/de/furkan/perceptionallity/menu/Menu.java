@@ -13,11 +13,8 @@ public abstract class Menu {
 
   private final List<Component> updatingComponents = new ArrayList<>();
   private final List<Component> steadyComponents = new ArrayList<>();
-
   @Getter private final int msPerUpdate;
-
   private Timer updateTimer;
-
   @Getter private long updates = 0;
 
   public Menu(int msPerUpdate, Color backgroundColor) {
@@ -50,7 +47,11 @@ public abstract class Menu {
                         updatingComponents.remove(o);
                         getGamePanel().remove(o);
                       });
-              onUpdate();
+              try {
+                onUpdate();
+              } catch (Exception ex) {
+                Perceptionallity.getGame().handleFatalException(new RuntimeException(ex));
+              }
               getGamePanel().repaint();
               getGamePanel().revalidate();
               updates++;
@@ -70,7 +71,7 @@ public abstract class Menu {
    * Initializes the components of the menu. This method should set up all UI components that are
    * part of the menu. It is called every time the menu is drawn.
    */
-  public abstract void initComponents();
+  public abstract void initComponents() throws Exception;
 
   public JLayeredPane getGamePanel() {
     return Perceptionallity.getGame().getMenuManager().getGamePanel();
@@ -92,7 +93,7 @@ public abstract class Menu {
     return Perceptionallity.getGame().getLogger();
   }
 
-  public void drawMenu() {
+  public void drawMenu() throws Exception {
     for (Component component : getGamePanel().getComponents()) {
       removeComponent(component);
     }
@@ -137,7 +138,7 @@ public abstract class Menu {
    * be called when the menu is no longer in use to free up resources.
    */
   public void unLoadMenu() {
-    updateTimer.stop();
+    if (updateTimer != null) updateTimer.stop();
     steadyComponents.clear();
     updatingComponents.clear();
     for (Component component : getGamePanel().getComponents()) {
@@ -159,5 +160,5 @@ public abstract class Menu {
    * Handles the update logic for the menu. This method is called periodically according to the
    * msPerUpdate setting. It should contain logic to update the state or appearance of the menu.
    */
-  public abstract void onUpdate();
+  public abstract void onUpdate() throws Exception;
 }

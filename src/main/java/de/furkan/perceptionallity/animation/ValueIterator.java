@@ -33,14 +33,6 @@ public class ValueIterator {
     this.interpolationType = interpolationType;
   }
 
-  public ValueIterator(
-      float[] initialValues,
-      float[] targetValues,
-      float step,
-      InterpolationType interpolationType) {
-    throw new RuntimeException("Not implemented yet.");
-  }
-
   /**
    * Checks if the current value has reached the target value.
    *

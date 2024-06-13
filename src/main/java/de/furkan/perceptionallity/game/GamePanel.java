@@ -33,6 +33,8 @@ public class GamePanel extends JLayeredPane {
       }
     }
 
+    // TODO: Create collision handler
+
     // Collision check start
     new HashMap<>(collisionCheck)
         .forEach(
@@ -89,41 +91,46 @@ public class GamePanel extends JLayeredPane {
                             (int) gameObject.getDimension().getWidth(),
                             (int) gameObject.getDimension().getHeight())));
 
-    if (Perceptionallity.getGame().isDebug() && Perceptionallity.getGame().isShowDebugLines()) {
+    if (!Perceptionallity.getGame().isDebug() || !Perceptionallity.getGame().isShowDebugLines())
+      return;
 
-      int layerCount = highestLayer() == 0 ? 1 : highestLayer();
+    int layerCount = highestLayer() == 0 ? 1 : highestLayer();
 
-      for (int i = 0; i < layerCount; i++) {
-        int componentCountInLayer = getComponentCountInLayer(i);
+    for (int i = 0; i < layerCount; i++) {
 
-        for (int j = 0; j < componentCountInLayer; j++) {
-          Component comp = getComponentsInLayer(i)[j];
+      for (int j = 0; j < getComponentCountInLayer(i); j++) {
+        Component comp = getComponentsInLayer(i)[j];
 
-          Rectangle bounds = comp.getBounds();
-          SwingUtilities.convertRectangle(comp.getParent(), bounds, this);
-          g.setColor(Color.RED);
-          g.drawRect(bounds.x, bounds.y, bounds.width, bounds.height);
+        Rectangle bounds = comp.getBounds();
+        SwingUtilities.convertRectangle(comp.getParent(), bounds, this);
+        g.setColor(Color.RED);
+        g.drawRect(bounds.x, bounds.y, bounds.width, bounds.height);
 
-          if (Perceptionallity.getGame().getGameManager().isGameComponent(comp)) {
-            GameObject gameObject =
-                Perceptionallity.getGame().getGameManager().getGameObjectByComponent(comp);
-            if (gameObject.getCollisionBoundaries() != null) {
-              bounds =
-                  new Rectangle(
-                      gameObject.getComponent().getX()
-                          + (gameObject.getComponent().getWidth() / 2)
-                          - gameObject.getCollisionBoundaries().width / 2,
-                      (gameObject.getComponent().getY()
-                              + (gameObject.getComponent().getHeight() / 2)
-                              - (gameObject.getCollisionBoundaries().height / 2))
-                          - 5,
-                      gameObject.getCollisionBoundaries().width,
-                      gameObject.getCollisionBoundaries().height);
+        if (Perceptionallity.getGame().getGameManager().isGameComponent(comp)) {
 
-              SwingUtilities.convertRectangle(comp.getParent(), bounds, this);
-              g.setColor(Color.GREEN);
-              g.drawRect(bounds.x, bounds.y, bounds.width, bounds.height);
-            }
+          GameObject gameObject =
+              Perceptionallity.getGame().getGameManager().getGameObjectByComponent(comp);
+          if (gameObject.getCollisionBoundaries() != null) {
+
+            bounds =
+                new Rectangle(
+                    gameObject.getComponent().getX()
+                        + (gameObject.getComponent().getWidth() / 2)
+                        - gameObject.getCollisionBoundaries().width / 2,
+                    (gameObject.getComponent().getY()
+                            + (gameObject.getComponent().getHeight() / 2)
+                            - (gameObject.getCollisionBoundaries().height / 2))
+                        - 5,
+                    gameObject.getCollisionBoundaries().width,
+                    gameObject.getCollisionBoundaries().height);
+
+            SwingUtilities.convertRectangle(comp.getParent(), bounds, this);
+            g.setColor(Color.GREEN);
+            g.drawRect(bounds.x, bounds.y, bounds.width, bounds.height);
+
+            // To my future self: Remove code nesting at all costs later pls..
+
+            // Response to my past self: Fuck this code nesting. Better kill yourself
           }
         }
       }

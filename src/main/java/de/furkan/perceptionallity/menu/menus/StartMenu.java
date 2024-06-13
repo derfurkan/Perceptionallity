@@ -17,7 +17,7 @@ public class StartMenu extends Menu {
       "We are all alone on life's journey, held\n captive by the limitations of human\n consciousness.";
   boolean fadeOutStarted = false;
 
-  public StartMenu() {
+  public StartMenu() throws Exception {
     super(30, Color.BLACK);
 
     // Build menu components
@@ -28,7 +28,7 @@ public class StartMenu extends Menu {
       component.setY(getMenuManager().centerLocation(component.getDimension())[1] - 40);
       if (lastComponent != null) {
         if (word.contains("\n")) {
-          component.setBelow(lastComponent);
+          component.setBelow(lastComponent, 0);
         } else {
           component.setAsideRight(lastComponent);
           component.setX(component.getX() + 15);
@@ -54,7 +54,7 @@ public class StartMenu extends Menu {
   public void initComponents() {}
 
   @Override
-  public void onUpdate() {
+  public void onUpdate() throws Exception {
     if (getMsElapsed() < 500) return;
     AtomicBoolean atomicBoolean = new AtomicBoolean(false);
 

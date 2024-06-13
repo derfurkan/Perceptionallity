@@ -3,11 +3,11 @@ package de.furkan.perceptionallity;
 import de.furkan.perceptionallity.animation.Animation;
 import de.furkan.perceptionallity.game.GameManager;
 import de.furkan.perceptionallity.game.GamePanel;
+import de.furkan.perceptionallity.game.GameState;
 import de.furkan.perceptionallity.menu.MenuManager;
 import de.furkan.perceptionallity.menu.menus.StartMenu;
 import de.furkan.perceptionallity.menu.menus.TestMenu;
 import de.furkan.perceptionallity.resources.ResourceManager;
-import de.furkan.perceptionallity.sound.Sound;
 import de.furkan.perceptionallity.sound.SoundEngine;
 import de.furkan.perceptionallity.util.font.GameFont;
 import de.furkan.perceptionallity.util.sprite.Sprite;
@@ -16,6 +16,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.*;
 import javax.swing.*;
 import lombok.Getter;
@@ -28,14 +29,16 @@ public class Game {
   private final ResourceManager resourceManager;
   private final SoundEngine soundEngine;
   private final GamePanel gamePanel = new GamePanel();
-  private final int WINDOW_WIDTH = 900;
-  private final int WINDOW_HEIGHT = 500;
+  private final int WINDOW_WIDTH = 900,WINDOW_HEIGHT = 500;
+  private final int DISPLAY_WIDTH,DISPLAY_HEIGHT;
   private final Dimension windowDimension = new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT);
   public boolean showDebugLines = false;
   private Logger logger;
   private JFrame gameFrame;
 
   public Game() {
+    DISPLAY_WIDTH = Toolkit.getDefaultToolkit().getScreenSize().width;
+    DISPLAY_HEIGHT = Toolkit.getDefaultToolkit().getScreenSize().height;
     resourceManager = new ResourceManager();
     menuManager = new MenuManager();
     gameManager = new GameManager();
@@ -47,7 +50,7 @@ public class Game {
   }
 
   public String getBuildString() {
-    return "DEV-0.03";
+    return "DEV-0.06";
   }
 
   /**
@@ -55,15 +58,10 @@ public class Game {
    * frame, and setting the initial menu. It decides the initial menu based on whether the game is
    * in debug mode.
    */
-  public void start() {
+  public void start() throws Exception {
     buildLogger();
-    try {
-      loadResources();
-    } catch (Exception e) {
-      getLogger().severe("Error while loading resources");
-      e.printStackTrace();
-      return;
-    }
+    gameManager.setGameState(GameState. RESOURCE_LOADING);
+    loadResources();
     logger.info("Finished loading resources");
     createGameFrame();
     logger.info("Finished creating game frame");
@@ -72,6 +70,7 @@ public class Game {
     menuManager.setCurrentMenu(isDebug() ? new TestMenu() : new StartMenu());
 
     menuManager.drawCurrentMenu();
+
   }
 
   /**
@@ -79,11 +78,11 @@ public class Game {
    * commands. The game frame is set to be non-resizable and will close the application on exit. Key
    * listeners support debug functionalities like reloading menus and toggling debug lines.
    */
-  private void createGameFrame() {
+  private void createGameFrame() throws Exception {
     this.gameFrame = new JFrame("Perceptionallity");
     gameFrame.setResizable(false);
     gameFrame.setContentPane(menuManager.getGamePanel());
-    gameFrame.setBounds(50, 50, WINDOW_WIDTH, WINDOW_HEIGHT + 30);
+    gameFrame.setBounds(DISPLAY_WIDTH/2-WINDOW_WIDTH/2, DISPLAY_HEIGHT/2-WINDOW_HEIGHT/2, WINDOW_WIDTH, WINDOW_HEIGHT + 30);
     gameFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     gameFrame.setIconImage(
         getResourceManager().getResource("game_icon", Sprite.class).getRawImage());
@@ -95,13 +94,39 @@ public class Game {
           public void keyTyped(KeyEvent e) {
             if (Perceptionallity.getGame().isDebug()) {
               switch (e.getKeyChar()) {
-                case 'r' -> menuManager.reloadCurrentMenu();
+                case 'r' -> {
+                    try {
+                        menuManager.reloadCurrentMenu();
+                    } catch (Exception ex) {
+                      handleFatalException(ex);
+                    }
+                }
                 case 'f' ->
                     Perceptionallity.getGame().showDebugLines =
                         !Perceptionallity.getGame().showDebugLines;
                 case 'g' -> {
-                  menuManager.setCurrentMenu(new StartMenu());
-                  menuManager.drawCurrentMenu();
+                    try {
+                        menuManager.setCurrentMenu(new StartMenu());
+                    } catch (Exception ex) {
+                      Perceptionallity.getGame().handleFatalException(ex);
+                    }
+                    try {
+                        menuManager.drawCurrentMenu();
+                    } catch (Exception ex) {
+                        handleFatalException(ex);
+                    }
+                }
+                case 'h' -> {
+                  if (gameManager.isGameState(GameState.IN_GAME)) {
+                    if (gameManager.getCamera().isCenteredObject(gameManager.getCurrentPlayer())) {
+                      gameManager.getCamera().stopCentering();
+                    } else {
+                      gameManager.getCamera().centerOnObject(gameManager.getCurrentPlayer());
+                    }
+                  }
+                }
+                case 'x' -> {
+                  handleFatalException(new RuntimeException("Test Crash"));
                 }
               }
             }
@@ -120,7 +145,7 @@ public class Game {
    * registered with unique keys and are loaded from specified paths. This method is crucial for
    * preparing all visual and audio assets needed for the game.
    */
-  private void loadResources() {
+  private void loadResources() throws Exception {
     resourceManager.registerResource(
         "menu_font", new GameFont(Font.TRUETYPE_FONT, "joystixmonospace.otf", "font"));
 
@@ -132,10 +157,6 @@ public class Game {
     resourceManager.registerResource(
         "npc_interact_arrow", new Sprite("interact_arrow.png", "game", "npc"));
 
-    resourceManager.registerResource("menu_music", new Sound("menu_music.wav", "menu", "audio"));
-
-    //    resourceManager.registerResource("main_menu_background", new
-    // Sprite("main.png","menu","backgrounds"));
 
     registerAnimationResource(
         "player_idle_down_animation",
@@ -173,7 +194,7 @@ public class Game {
     registerAnimationResource(
         "player_walk_down_animation",
         4,
-        8,
+            8,
         true,
         "WalkDown.png",
         "game",
@@ -193,7 +214,7 @@ public class Game {
     registerAnimationResource(
         "player_walk_right_animation",
         4,
-        8,
+            8,
         true,
         "WalkRight.png",
         "game",
@@ -207,7 +228,7 @@ public class Game {
       int fps,
       boolean loop,
       String sheetFile,
-      String... sheetPath) {
+      String... sheetPath) throws Exception {
 
     resourceManager.registerResource(
         animationKey + "_sheet", new Sprite(resourceManager.getResourceFile(sheetFile, sheetPath)));
@@ -238,6 +259,41 @@ public class Game {
     logger.addHandler(consoleHandler);
     logger.setLevel(Level.INFO);
   }
+
+  public void handleFatalException(Exception e) {
+    e.printStackTrace();
+    if(getGameFrame() != null)
+      getGameFrame().dispose();
+
+    AtomicReference<StringBuilder> message = new AtomicReference<>(new StringBuilder());
+    message
+        .get()
+        .append("Engine encountered fatal error\n\n")
+        .append("Their reality crashed for you but not for them..\n")
+        .append("Try again or let them be.. forever.\n\n")
+        .append("-- Debug --\n\n")
+        .append(e.getClass().getSimpleName())
+        .append(":\n")
+        .append(e.getMessage())
+        .append("\n\n")
+        .append("State: ")
+        .append(gameManager.getGameState().name())
+        .append("\n\n").append("Stack Trace:\n");
+
+    for (int i = 0; i < Math.min(e.getStackTrace().length,10); i++) {
+      message.get().append(e.getStackTrace()[i].toString()).append("\n");
+    }
+
+    JOptionPane.showConfirmDialog(
+            null,
+            message.toString(),
+            "Perceptionallity | Fatal Error - Reality crashed",
+            JOptionPane.DEFAULT_OPTION,
+            JOptionPane.ERROR_MESSAGE);
+
+    System.exit(0);
+  }
+
 }
 
 class CustomLogFormatter extends Formatter {
