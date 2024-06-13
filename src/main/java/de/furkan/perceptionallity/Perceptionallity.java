@@ -1,8 +1,7 @@
 package de.furkan.perceptionallity;
 
-import lombok.Getter;
-
 import javax.swing.*;
+import lombok.Getter;
 
 public class Perceptionallity {
 
@@ -10,14 +9,13 @@ public class Perceptionallity {
 
   public static void main(String[] args) {
     game = new Game();
-      try {
-          UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-      } catch (ClassNotFoundException | InstantiationException | IllegalAccessException |
-               UnsupportedLookAndFeelException e) {
-          throw new RuntimeException(e);
-      }
+    try {
+      UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
       enableHiResTimer();
-    game.start();
+      game.start();
+    } catch (Exception e) {
+      getGame().handleFatalException(e);
+    }
   }
 
   // Workaround for windows slowing down Frame time

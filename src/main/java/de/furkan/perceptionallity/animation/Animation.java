@@ -16,16 +16,18 @@ public class Animation implements Cloneable {
   @Setter private int framesPerSecond;
   private Iterator<Sprite> animationSprites;
   private Sprite currentFrame;
+  @Setter private boolean fresh;
 
   public Animation(Sprite[] sprites, int framesPerSecond, boolean loop) {
     this.sprites = sprites;
-    if (framesPerSecond > 30) {
-      throw new RuntimeException(
-          "Animations can only be played back with max 30 Frames per second and not more.");
+    if (framesPerSecond > 60) {
+      Perceptionallity.getGame()
+          .handleFatalException(
+              new RuntimeException(
+                  "Animations can only be played back with max 30 Frames per second and not more."));
     }
     this.framesPerSecond = framesPerSecond;
     this.loop = loop;
-    this.currentFrame = sprites[0];
     this.animationSprites = Arrays.asList(this.sprites).iterator();
   }
 
@@ -39,22 +41,18 @@ public class Animation implements Cloneable {
       return;
     } else if (loop) {
       resetAnimation();
-      currentFrame = animationSprites.next();
       return;
     }
     Perceptionallity.getGame().getLogger().warning("Animation has reached it's end.");
   }
 
-  private void resetAnimation() {
+  public void resetAnimation() {
     this.animationSprites = Arrays.asList(this.sprites).iterator();
+    currentFrame = animationSprites.next();
   }
 
   @Override
-  public Animation clone() {
-    try {
-      return (Animation) super.clone();
-    } catch (CloneNotSupportedException e) {
-      throw new AssertionError();
-    }
+  public Animation clone() throws CloneNotSupportedException {
+    return (Animation) super.clone();
   }
 }

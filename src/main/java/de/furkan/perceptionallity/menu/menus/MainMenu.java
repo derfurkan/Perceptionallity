@@ -5,13 +5,9 @@ import de.furkan.perceptionallity.animation.InterpolationType;
 import de.furkan.perceptionallity.animation.ValueIterator;
 import de.furkan.perceptionallity.menu.Menu;
 import de.furkan.perceptionallity.menu.components.MenuButton;
-import de.furkan.perceptionallity.menu.components.MenuButtonClick;
 import de.furkan.perceptionallity.menu.components.MenuLabel;
-import de.furkan.perceptionallity.sound.Sound;
 import java.awt.*;
-import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 
 public class MainMenu extends Menu {
 
@@ -21,16 +17,11 @@ public class MainMenu extends Menu {
   private final ValueIterator subTitleFadeAnimation =
       new ValueIterator(1.0f, 0.4f, 0.02f, InterpolationType.DEFAULT);
 
-  private final ValueIterator backgroundFadeAnimation =
-      new ValueIterator(0.0f, 1f, 0.04f, InterpolationType.DEFAULT);
-
   private final ValueIterator buttonInAnimation =
       new ValueIterator(-280, 20, 25, InterpolationType.SMOOTH_END);
 
-  // Menu Titles
+  // Menu Title
   private final String title = "Perceptionallity", subTitle = "A game by Furkan";
-
-  private final Sound mainMenuJam;
 
   // Components that are being animated (updated)
   MenuLabel titleLabel = new MenuLabel(0, 0, title, 50, Color.WHITE);
@@ -40,20 +31,15 @@ public class MainMenu extends Menu {
 
   // TODO: Make this better and less ew.. Maybe a method which takes an array and creates menu
   // components automatically?
-  MenuButton playButton = new MenuButton(0, 180, 50, "PLAY"); // TODO: Use arrow keys to navigate
+  // TODO: Use arrow keys to navigate
+  MenuButton newGameButton = new MenuButton(0, 180, 50, "NEW GAME");
+  MenuButton continueButton = new MenuButton(0, 180, 50, "CONTINUE");
   MenuButton optionsButton = new MenuButton(0, 0, 50, "OPTIONS");
   MenuButton githubButton = new MenuButton(0, 0, 50, "GITHUB");
   MenuButton discordButton = new MenuButton(0, 0, 50, "DISCORD");
   MenuButton exitButton = new MenuButton(0, 0, 50, "EXIT");
 
-  //  MenuSprite background =
-  //      new MenuSprite(
-  //          0,
-  //          0,
-  //          Perceptionallity.getGame().getWindowDimension(),
-  //          getResourceManager().getResource("main_menu_background", Sprite.class));
-
-  public MainMenu() {
+  public MainMenu() throws Exception {
     super(30, Color.BLACK);
 
     titleInAnimation =
@@ -64,12 +50,14 @@ public class MainMenu extends Menu {
             6,
             InterpolationType.SMOOTH_END);
 
-    mainMenuJam = getResourceManager().getResource("menu_music", Sound.class);
+    continueButton.setActive(false);
+    continueButton.setOpacity(0.3f);
 
-    optionsButton.setBelow(playButton);
-    githubButton.setBelow(optionsButton);
-    discordButton.setBelow(githubButton);
-    exitButton.setBelow(discordButton);
+    continueButton.setBelow(newGameButton, 0);
+    optionsButton.setBelow(continueButton, 0);
+    githubButton.setBelow(optionsButton, 0);
+    discordButton.setBelow(githubButton, 0);
+    exitButton.setBelow(discordButton, 0);
 
     addButtonFunctionality();
   }
@@ -80,7 +68,7 @@ public class MainMenu extends Menu {
   }
 
   @Override
-  public void initComponents() {
+  public void initComponents() throws Exception {
 
     MenuLabel credits =
         new MenuLabel(
@@ -106,70 +94,30 @@ public class MainMenu extends Menu {
   }
 
   private void addButtonFunctionality() {
-    playButton.setButtonClick(
-        new MenuButtonClick() {
-          @Override
-          public void onClick() {
-            getMenuManager().getCurrentMenu().unLoadMenu();
-            Perceptionallity.getGame().getGameManager().initialize();
-          }
+    newGameButton.setButtonClick(
+        () -> {
+          getMenuManager().getCurrentMenu().unLoadMenu();
+          Perceptionallity.getGame().getGameManager().initialize();
         });
 
     optionsButton.setButtonClick(
-        new MenuButtonClick() {
-          @Override
-          public void onClick() {
-            Perceptionallity.getGame().getMenuManager().setCurrentMenu(new OptionsMenu());
-            Perceptionallity.getGame().getMenuManager().drawCurrentMenu();
-          }
+        () -> {
+          Perceptionallity.getGame().getMenuManager().setCurrentMenu(new OptionsMenu());
+          Perceptionallity.getGame().getMenuManager().drawCurrentMenu();
         });
 
     githubButton.setButtonClick(
-        new MenuButtonClick() {
-          @Override
-          public void onClick() {
+        () ->
+            Desktop.getDesktop().browse(new URI("https://github.com/derfurkan/Perceptionallity")));
 
-            try {
-              Desktop.getDesktop().browse(new URI("https://github.com/derfurkan/Perceptionallity"));
-            } catch (IOException | URISyntaxException e) {
-              throw new RuntimeException(e);
-            }
-          }
-        });
-
-    exitButton.setButtonClick(
-        new MenuButtonClick() {
-          @Override
-          public void onClick() {
-            System.exit(0);
-          }
-        });
+    exitButton.setButtonClick(() -> System.exit(0));
 
     discordButton.setButtonClick(
-        new MenuButtonClick() {
-          @Override
-          public void onClick() {
-
-            try {
-              Desktop.getDesktop().browse(new URI("https://discord.gg/pF5FnwDxBj"));
-            } catch (IOException | URISyntaxException e) {
-              throw new RuntimeException(e);
-            }
-          }
-        });
+        () -> Desktop.getDesktop().browse(new URI("https://discord.gg/pF5FnwDxBj")));
   }
 
   @Override
   public void onUpdate() {
-
-    //    if (!backgroundFadeAnimation.isFinished()) {
-    //      background.setOpacity(backgroundFadeAnimation.getCurrentValue());
-    //      background.buildComponent();
-    //      addTempComponent(background.getJComponent(), 0);
-    //      backgroundFadeAnimation.updateValue();
-    //      return;
-    //    }
-    //    addSteadyComponent(background.getJComponent(), 0);
     if (!titleInAnimation.isFinished()) {
       // Titles move in animation
       titleLabel.setX(centerTitle[0]);
@@ -197,34 +145,34 @@ public class MainMenu extends Menu {
 
       // Button in animation start
       if (!buttonInAnimation.isFinished()) {
-        playButton.setX((int) buttonInAnimation.getCurrentValue());
+        newGameButton.setX((int) buttonInAnimation.getCurrentValue());
+        continueButton.setX((int) buttonInAnimation.getCurrentValue());
         optionsButton.setX((int) buttonInAnimation.getCurrentValue());
         githubButton.setX((int) buttonInAnimation.getCurrentValue());
         discordButton.setX((int) buttonInAnimation.getCurrentValue());
         exitButton.setX((int) buttonInAnimation.getCurrentValue());
 
-        playButton.buildComponent();
+        newGameButton.buildComponent();
+        continueButton.buildComponent();
         optionsButton.buildComponent();
         githubButton.buildComponent();
         discordButton.buildComponent();
         exitButton.buildComponent();
 
         buttonInAnimation.updateValue();
-        addTempComponent(playButton.getJComponent(), 1);
+        addTempComponent(newGameButton.getJComponent(), 1);
+        addTempComponent(continueButton.getJComponent(), 1);
         addTempComponent(optionsButton.getJComponent(), 1);
         addTempComponent(githubButton.getJComponent(), 1);
         addTempComponent(discordButton.getJComponent(), 1);
         addTempComponent(exitButton.getJComponent(), 1);
       } else {
-        addSteadyComponent(playButton.getJComponent(), 1);
+        addSteadyComponent(newGameButton.getJComponent(), 1);
+        addSteadyComponent(continueButton.getJComponent(), 1);
         addSteadyComponent(optionsButton.getJComponent(), 1);
         addSteadyComponent(githubButton.getJComponent(), 1);
         addSteadyComponent(discordButton.getJComponent(), 1);
         addSteadyComponent(exitButton.getJComponent(), 1);
-        //          if
-        // (!Perceptionallity.getGame().getSoundEngine().isAudioAlreadyPlaying(mainMenuJam)) {
-        //            Perceptionallity.getGame().getSoundEngine().playAudio(mainMenuJam, 1f, true);
-        //          }
       }
     }
     addTempComponent(subTitleLabel.getJComponent(), 1);

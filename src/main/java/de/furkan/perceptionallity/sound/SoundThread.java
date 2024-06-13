@@ -1,5 +1,6 @@
 package de.furkan.perceptionallity.sound;
 
+import de.furkan.perceptionallity.Perceptionallity;
 import javax.sound.sampled.*;
 import lombok.Getter;
 
@@ -21,8 +22,10 @@ public class SoundThread extends Thread {
 
   @Override
   public void run() {
+
     try {
       sourceDataLine = AudioSystem.getSourceDataLine(audioFormat);
+
       sourceDataLine.open(audioFormat);
       setVolume(volume);
 
@@ -40,8 +43,8 @@ public class SoundThread extends Thread {
         sourceDataLine.write(currentAudioData, 0, currentAudioData.length);
         currentAudioData = null;
       }
-    } catch (LineUnavailableException e) {
-      throw new RuntimeException(e);
+    } catch (Exception e) {
+      Perceptionallity.getGame().handleFatalException(new RuntimeException(e));
     }
   }
 

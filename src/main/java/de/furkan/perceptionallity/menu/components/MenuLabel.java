@@ -19,7 +19,7 @@ public class MenuLabel extends MenuComponent {
     recalculateDimension();
   }
 
-  public MenuLabel(int x, int y, String text, float size, Color color) {
+  public MenuLabel(int x, int y, String text, float size, Color color) throws Exception {
     super(x, y, new Dimension());
     rawComponent = new JLabel(text);
     rawComponent.setForeground(color);
