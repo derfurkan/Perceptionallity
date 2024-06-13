@@ -1,5 +1,6 @@
 package de.furkan.perceptionallity.game;
 
+import java.awt.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -26,6 +27,10 @@ public class WorldLocation {
   public void setXY(int x, int y) {
     setX(x);
     setY(y);
+  }
+
+  public WorldLocation toCenterLocation(Dimension dimension) {
+    return new WorldLocation(x + dimension.width / 2, y + dimension.height / 2);
   }
 
   public void set(WorldLocation worldLocation) {

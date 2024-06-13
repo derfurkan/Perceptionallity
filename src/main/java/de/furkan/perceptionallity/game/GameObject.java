@@ -17,11 +17,11 @@ public abstract class GameObject {
   private final Dimension dimension;
   private final boolean passToCollisionCheck;
   private final GameVelocity currentVelocity;
+  private final JLabel component = new JLabel();
   @Setter private Dimension collisionBoundaries;
   @Setter private GameAction onCollision;
   private Animation currentPlayingAnimation;
-  @Setter private boolean isAnimationFresh = true;
-  private final JLabel component = new JLabel();
+  private Animation lastPlayedAnimation;
 
   public GameObject(
       Dimension dimension, WorldLocation worldLocation, boolean passToCollisionCheck) {
@@ -31,17 +31,20 @@ public abstract class GameObject {
     this.dimension = dimension;
   }
 
-  public void playAnimation(Animation animation) {
+  public void playAnimation(Animation animation, boolean fresh) throws CloneNotSupportedException {
+    if (currentPlayingAnimation != null) lastPlayedAnimation = currentPlayingAnimation.clone();
     currentPlayingAnimation = animation.clone();
     currentPlayingAnimation.resizeTo(getDimension());
-    setAnimationFresh(true);
+    currentPlayingAnimation.setFresh(fresh);
   }
 
-  public void playAnimation(Animation animation, int fps) {
+  public void playAnimation(Animation animation, int fps, boolean fresh)
+      throws CloneNotSupportedException {
+    if (currentPlayingAnimation != null) lastPlayedAnimation = currentPlayingAnimation.clone();
     currentPlayingAnimation = animation.clone();
     currentPlayingAnimation.resizeTo(getDimension());
     currentPlayingAnimation.setFramesPerSecond(fps);
-    setAnimationFresh(true);
+    currentPlayingAnimation.setFresh(fresh);
   }
 
   public Rectangle buildRectangle() {
@@ -51,7 +54,7 @@ public abstract class GameObject {
 
   public void initializeGameObject(int layer) {
     Perceptionallity.getGame().getGameManager().registerGameObject(this);
-    if(this instanceof GameNPC)
+    if (this instanceof GameNPC)
       Perceptionallity.getGame().getGameManager().registerNPC((GameNPC) this);
     component.setBounds(
         getWorldLocation().getX(),
@@ -62,7 +65,10 @@ public abstract class GameObject {
   }
 
   public int distanceTo(WorldLocation worldLocation) {
-    return (int) Math.hypot(worldLocation.getX() - getWorldLocation().getX(), worldLocation.getY() - getWorldLocation().getY());
+    return (int)
+        Math.hypot(
+            worldLocation.getX() - getWorldLocation().toCenterLocation(getDimension()).getX(),
+            worldLocation.getY() - getWorldLocation().toCenterLocation(getDimension()).getY());
   }
 
   public ResourceManager getResourceManager() {

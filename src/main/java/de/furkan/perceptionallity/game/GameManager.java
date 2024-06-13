@@ -12,10 +12,8 @@ import java.awt.event.KeyEvent;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import javax.swing.*;
 import javax.swing.Timer;
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
 public class GameManager extends Manager {
@@ -23,28 +21,30 @@ public class GameManager extends Manager {
   private final Camera camera = new Camera();
 
   private final List<GameObject> gameObjects = new ArrayList<>();
+
   private final List<GameKeyEvent> keyEvents = new ArrayList<>();
   private final List<GameAction> loopCalls = new ArrayList<>();
+
   private final List<GameNPC> gameNPCs = new ArrayList<>();
-  @Setter
-  private GameState gameState;
   private final Timer gameTimer;
   private final Set<Integer> pressedKeys = new HashSet<>();
   private final int GAME_UPDATE_MS = 15;
+  private GameState gameState = GameState.NONE;
   private GamePlayer currentPlayer;
   private long updatesPassed = 0;
   private MenuLabel statsLabel;
 
   public GameManager() {
-    gameTimer = new Timer(GAME_UPDATE_MS, e -> {
-        try {
-            loopCalls.forEach(GameAction::onAction); 
-        } catch (Exception exception) {
-            getGame().getGameFrame().dispose();
-            JOptionPane.showConfirmDialog(null,"Engine encountered fatal error\n\nTheir reality crashed for you but not for them..\nTry again or let them rest.. forever.\n\n-- Debug --\n" + exception.getMessage() + "\n\n"+exception.getClass().getSimpleName(),"Perceptionallity | Fatal Error - Reality crashed",JOptionPane.DEFAULT_OPTION,JOptionPane.ERROR_MESSAGE);
-            System.exit(0);
-        }
-    });
+    gameTimer =
+        new Timer(
+            GAME_UPDATE_MS,
+            e -> {
+              try {
+                loopCalls.forEach(GameAction::onAction);
+              } catch (Exception exception) {
+                getGame().handleFatalException(exception);
+              }
+            });
 
     // Each frame render loop
     registerLoopAction(
@@ -58,21 +58,23 @@ public class GameManager extends Manager {
             if (updatesPassed == Long.MAX_VALUE) updatesPassed = 0;
             updatesPassed += 1;
 
-            // KeyEvent pass
+            // KeyEvent Pass
             pressedKeys.forEach(
-                integer -> {
-                  keyEvents.stream()
-                      .filter(
-                          gameKeyEvent ->
-                              Arrays.asList(gameKeyEvent.getKeyRegister()).contains(integer))
-                      .forEach(
-                          gameKeyEvent -> {
-                            if (!gameKeyEvent.getPressedKeys().contains(integer))
-                              gameKeyEvent.getPressedKeys().add(integer);
-
-                            gameKeyEvent.getKeyListener().whileKeyPressed(integer);
-                          });
-                });
+                integer ->
+                    keyEvents.stream()
+                        .filter(
+                            gameKeyEvent ->
+                                Arrays.asList(gameKeyEvent.getKeyRegister()).contains(integer))
+                        .forEach(
+                            gameKeyEvent -> {
+                              if (!gameKeyEvent.getPressedKeys().contains(integer))
+                                gameKeyEvent.getPressedKeys().add(integer);
+                              try {
+                                gameKeyEvent.getKeyListener().whileKeyPressed(integer);
+                              } catch (Exception e) {
+                                getGame().handleFatalException(new RuntimeException(e));
+                              }
+                            }));
 
             // GameObject Pass
             gameObjects.forEach(
@@ -80,18 +82,6 @@ public class GameManager extends Manager {
                   gameObject.getLastLocation().set(gameObject.getWorldLocation());
 
                   gameObject.getWorldLocation().applyVelocity(gameObject.getCurrentVelocity());
-
-                  if (gameObject instanceof GamePlayer gamePlayer) {
-
-                    gameNPCs.forEach(
-                        gameNPC -> {
-                          if (gamePlayer.distanceTo(gameNPC.getWorldLocation()) < 75) {
-                            gameNPC.showInteractArrow();
-                          } else {
-                            gameNPC.hideInteractArrow();
-                          }
-                        });
-                  }
 
                   if (gameObject.isPassToCollisionCheck() && gameObject.getOnCollision() != null) {
                     if (gameObject.getCollisionBoundaries() == null) {
@@ -112,14 +102,22 @@ public class GameManager extends Manager {
                         });
                   }
 
+                  // Animation Pass
                   if (gameObject.getCurrentPlayingAnimation() != null) {
                     if ((updatesPassed
                                 % ((1000 / GAME_UPDATE_MS)
                                     / gameObject.getCurrentPlayingAnimation().getFramesPerSecond())
                             == 0)
-                        || gameObject.isAnimationFresh()) {
-                      if (gameObject.isAnimationFresh()) gameObject.setAnimationFresh(false);
+                        || gameObject.getCurrentPlayingAnimation().isFresh()) {
 
+                      // Unga bunga workaround:
+                      if (gameObject.getCurrentPlayingAnimation().isFresh()) {
+                        if (gameObject.getLastPlayedAnimation() != null)
+                          gameObject.getLastPlayedAnimation().resetAnimation();
+                        gameObject.getCurrentPlayingAnimation().setFresh(false);
+                      }
+
+                      gameObject.getCurrentPlayingAnimation().nextFrame();
                       gameObject
                           .getComponent()
                           .setIcon(
@@ -127,19 +125,19 @@ public class GameManager extends Manager {
                                   .getCurrentPlayingAnimation()
                                   .getCurrentFrame()
                                   .getRawImageIcon());
-
-                      gameObject.getCurrentPlayingAnimation().nextFrame();
                     }
                   }
                 });
 
-            if (updatesPassed % (100 / GAME_UPDATE_MS) == 0) {
+            // Telemetry Pass
+            if (updatesPassed % (100 / GAME_UPDATE_MS) == 0 && getGame().isDebug()) {
               var frameTime = (System.currentTimeMillis() - startTime);
               statsLabel.setText(1000 / frameTime + " fps, " + frameTime + " ms");
               statsLabel.recalculateDimension();
               statsLabel.buildComponent();
             }
             startTime = System.currentTimeMillis();
+
             getGame().getGamePanel().repaint();
             getGame().getGamePanel().revalidate();
           }
@@ -147,7 +145,9 @@ public class GameManager extends Manager {
   }
 
   @Override
-  public void initialize() {
+  public void initialize() throws Exception {
+    getLogger().info("Initializing game");
+
     statsLabel =
         new MenuLabel(
             3,
@@ -156,6 +156,7 @@ public class GameManager extends Manager {
             20,
             Color.BLACK,
             getResourceManager().getResource("ingame_font", GameFont.class));
+
     getGame().getGamePanel().add(statsLabel.getJComponent(), 0);
 
     getGame().getGamePanel().setBackground(Color.WHITE);
@@ -182,12 +183,17 @@ public class GameManager extends Manager {
                     .forEach(
                         gameKeyEvent -> {
                           gameKeyEvent.getPressedKeys().remove((Object) e.getKeyCode());
-                          gameKeyEvent.getKeyListener().keyReleased(e);
+                          try {
+                            gameKeyEvent.getKeyListener().keyReleased(e);
+                          } catch (Exception ex) {
+                            getGame().handleFatalException(new RuntimeException(ex));
+                          }
                         });
                 pressedKeys.remove(e.getKeyCode());
               }
             });
 
+    // Delete this after testing:
     TestNPC testNPC = new TestNPC(new WorldLocation(100, 100));
     testNPC.initializeGameObject(1);
 
@@ -197,19 +203,20 @@ public class GameManager extends Manager {
     currentPlayer.registerKeyEvent();
     currentPlayer.initializeGameObject(1);
 
-      testNPC.setCollisionBoundaries(new Dimension(30,40));
-      currentPlayer.setCollisionBoundaries(new Dimension(30,40));
+    testNPC.setCollisionBoundaries(new Dimension(30, 40));
+    currentPlayer.setCollisionBoundaries(new Dimension(30, 40));
 
-      currentPlayer.setOnCollision(() -> {
+    currentPlayer.setOnCollision(
+        () -> {
           currentPlayer.getWorldLocation().set(currentPlayer.getLastLocation());
-                camera.flushCalculation();
-            });
+          camera.flushCalculation();
+        });
 
-      camera.centerOnObject(currentPlayer);
-
+    camera.centerOnObject(currentPlayer);
 
     // When everything is loaded and in place we start the actual game loop
-      setGameState(GameState.IN_GAME);
+    setGameState(GameState.IN_GAME);
+    getLogger().info("Initialized game");
     startGameLoop();
   }
 
@@ -249,11 +256,17 @@ public class GameManager extends Manager {
     return gameObjects.stream()
         .filter(gameObject -> gameObject.getComponent() == component)
         .findFirst()
-        .get();
+        .orElseThrow();
   }
 
   public boolean isGameState(GameState gameState) {
-      return this.gameState == gameState;
+    return this.gameState == gameState;
+  }
+
+  public void setGameState(GameState gameState) {
+    getLogger()
+        .info("Setting new GameState (" + this.gameState.name() + " -> " + gameState.name() + ")");
+    this.gameState = gameState;
   }
 
   public void registerGameObject(GameObject gameObject) {

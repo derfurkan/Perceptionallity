@@ -2,6 +2,7 @@ package de.furkan.perceptionallity.util.font;
 
 import de.furkan.perceptionallity.Perceptionallity;
 import java.awt.*;
+import java.io.IOException;
 import lombok.Getter;
 
 @Getter
@@ -18,14 +19,11 @@ public class GameFont {
    * @param fontPath additional path components leading to the font file
    * @throws RuntimeException if the font cannot be loaded, encapsulating the original exception
    */
-  public GameFont(int fontType, String fontKey, String... fontPath) {
-    try {
-      this.font =
-          Font.createFont(
-              fontType,
-              Perceptionallity.getGame().getResourceManager().getResourceFile(fontKey, fontPath));
-    } catch (Exception e) {
-      throw new RuntimeException("Failed to load font: " + e.getMessage());
-    }
+  public GameFont(int fontType, String fontKey, String... fontPath)
+      throws IOException, FontFormatException {
+    this.font =
+        Font.createFont(
+            fontType,
+            Perceptionallity.getGame().getResourceManager().getResourceFile(fontKey, fontPath));
   }
 }

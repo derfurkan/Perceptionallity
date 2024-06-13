@@ -6,9 +6,9 @@ import java.awt.*;
 
 public class TestNPC extends GameNPC {
 
-  public TestNPC(WorldLocation worldLocation) {
+  public TestNPC(WorldLocation worldLocation) throws Exception {
     super(new Dimension(100, 110), worldLocation);
     playAnimation(
-        getResourceManager().getResource("player_idle_down_animation", Animation.class), 1);
+        getResourceManager().getResource("player_idle_down_animation", Animation.class), 1, true);
   }
 }

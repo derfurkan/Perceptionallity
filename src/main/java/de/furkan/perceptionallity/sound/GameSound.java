@@ -10,22 +10,19 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import lombok.Getter;
 
 @Getter
-public class Sound {
+public class GameSound {
 
   private final File soundFile;
   private final byte[] audioBytes;
   private final AudioFormat audioFormat;
 
-  public Sound(String soundKey, String... soundPath) {
+  public GameSound(String soundKey, String... soundPath)
+      throws UnsupportedAudioFileException, IOException {
     this.soundFile =
         Perceptionallity.getGame().getResourceManager().getResourceFile(soundKey, soundPath);
 
-    try {
-      AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(this.soundFile);
-      audioBytes = audioInputStream.readAllBytes();
-      audioFormat = audioInputStream.getFormat();
-    } catch (IOException | UnsupportedAudioFileException e) {
-      throw new RuntimeException(e);
-    }
+    AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(this.soundFile);
+    audioBytes = audioInputStream.readAllBytes();
+    audioFormat = audioInputStream.getFormat();
   }
 }

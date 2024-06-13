@@ -37,7 +37,9 @@ public class ResourceManager {
                 + resourceValue.getClass().getSimpleName()
                 + ")");
     if (resources.containsKey(resourceKey)) {
-      throw new IllegalArgumentException("Resource key already registered: " + resourceKey);
+      Perceptionallity.getGame()
+          .handleFatalException(
+              new IllegalArgumentException("Resource key already registered: " + resourceKey));
     }
     resources.put(resourceKey, new Resource<>(resourceValue));
   }
@@ -54,10 +56,12 @@ public class ResourceManager {
    * @throws IllegalArgumentException if the resource key is invalid or the resource is not loaded
    */
   @SuppressWarnings("unchecked")
-  public <T> T getResource(String resourceKey, Class<T> type) {
+  public <T> T getResource(String resourceKey, Class<T> type) throws Exception {
     Resource<?> resource = resources.get(resourceKey);
     if (resource == null || !type.isInstance(resource.data())) {
-      throw new IllegalArgumentException("Invalid or unloaded resource key: " + resourceKey);
+      Perceptionallity.getGame()
+          .handleFatalException(
+              new IllegalArgumentException("Invalid or unloaded resource key: " + resourceKey));
     }
     return (T) resource.clone().data();
   }
@@ -81,11 +85,13 @@ public class ResourceManager {
     Optional<URL> resource =
         Optional.ofNullable(getClass().getResource("/" + resourcePathString + "/" + resourceKey));
     if (resource.isEmpty()) {
-      throw new RuntimeException(
-          "Could not retrieve resource file because of invalid resourceKey or resourcePath. key: "
-              + resourceKey
-              + " path: "
-              + resourcePathString);
+      Perceptionallity.getGame()
+          .handleFatalException(
+              new RuntimeException(
+                  "Could not retrieve resource file because of invalid resourceKey or resourcePath. key: "
+                      + resourceKey
+                      + " path: "
+                      + resourcePathString));
     }
     File resourceFile = new File(resource.get().getFile());
     resourceFileCache.put(resourcePathString, resourceFile);
@@ -114,7 +120,9 @@ public class ResourceManager {
 
       return sprites;
     } else {
-      throw new RuntimeException("Sprite image is not a BufferedImage.");
+      Perceptionallity.getGame()
+          .handleFatalException(new RuntimeException("Sprite image is not a BufferedImage."));
+      return null;
     }
   }
 }

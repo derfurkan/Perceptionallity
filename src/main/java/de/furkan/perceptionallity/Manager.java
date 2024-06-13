@@ -6,7 +6,7 @@ import java.util.logging.Logger;
 
 public abstract class Manager {
 
-  public abstract void initialize();
+  public abstract void initialize() throws Exception;
 
   public ResourceManager getResourceManager() {
     return getGame().getResourceManager();
