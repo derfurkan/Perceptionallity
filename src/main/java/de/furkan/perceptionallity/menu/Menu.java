@@ -51,7 +51,7 @@ public abstract class Menu {
               try {
                 onUpdate();
               } catch (Exception ex) {
-                Perceptionallity.getGame().handleFatalException(new RuntimeException(ex));
+                Perceptionallity.getGame().handleFatalException(ex);
               }
               getGamePanel().repaint();
               getGamePanel().revalidate();
@@ -102,7 +102,7 @@ public abstract class Menu {
     getLogger().info("Initialized components for menu (" + getMenuName() + ")");
 
     // Discord Pass
-    Perceptionallity.getDiscordRPCHandler().setState(RPCStates.IN_MENU,getMenuName());
+    Perceptionallity.getDiscordRPCHandler().setState(RPCStates.IN_MENU, getMenuName());
   }
 
   /**
@@ -117,7 +117,7 @@ public abstract class Menu {
       return;
     }
     steadyComponents.add(component);
-    getGamePanel().add(component, order, 0);
+    getGamePanel().add(component, order, 1);
   }
 
   /**
@@ -129,7 +129,7 @@ public abstract class Menu {
    */
   public void addTempComponent(Component component, int order) {
     updatingComponents.add(component);
-    getGamePanel().add(component, order, 0);
+    getGamePanel().add(component, order, 1);
   }
 
   public void removeComponent(Component component) {

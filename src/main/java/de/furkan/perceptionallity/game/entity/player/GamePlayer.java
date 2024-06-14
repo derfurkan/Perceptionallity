@@ -111,7 +111,7 @@ public class GamePlayer extends GameEntity {
                           }
                           successWalk = integer;
 
-                            playAnimation(
+                          playAnimation(
                               getResourceManager()
                                   .getResource(newKey.animationKey, Animation.class),
                               8,
@@ -144,7 +144,8 @@ public class GamePlayer extends GameEntity {
                     VK_A,
                     VK_S,
                     VK_D,
-                    VK_ENTER));
+                    VK_ENTER,
+                    VK_ESCAPE));
   }
 
   private void handleDialogueKey(int key) {}
