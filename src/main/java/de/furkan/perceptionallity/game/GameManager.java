@@ -1,6 +1,8 @@
 package de.furkan.perceptionallity.game;
 
 import de.furkan.perceptionallity.Manager;
+import de.furkan.perceptionallity.Perceptionallity;
+import de.furkan.perceptionallity.discord.RPCStates;
 import de.furkan.perceptionallity.game.entity.EntityAttributes;
 import de.furkan.perceptionallity.game.entity.npc.GameNPC;
 import de.furkan.perceptionallity.game.entity.npc.TestNPC;
@@ -55,7 +57,8 @@ public class GameManager extends Manager {
           public void onAction() {
 
             // Just in case if a player has no real-life:
-            if (updatesPassed == Long.MAX_VALUE) updatesPassed = 0;
+            if (updatesPassed == Long.MAX_VALUE)
+                updatesPassed = 0;
             updatesPassed += 1;
 
             // KeyEvent Pass
@@ -72,7 +75,7 @@ public class GameManager extends Manager {
                               try {
                                 gameKeyEvent.getKeyListener().whileKeyPressed(integer);
                               } catch (Exception e) {
-                                getGame().handleFatalException(new RuntimeException(e));
+                                getGame().handleFatalException(e);
                               }
                             }));
 
@@ -83,6 +86,7 @@ public class GameManager extends Manager {
 
                   gameObject.getWorldLocation().applyVelocity(gameObject.getCurrentVelocity());
 
+                    // GameObject Collision Pass
                   if (gameObject.isPassToCollisionCheck() && gameObject.getOnCollision() != null) {
                     if (gameObject.getCollisionBoundaries() == null) {
                       getLogger()
@@ -102,7 +106,7 @@ public class GameManager extends Manager {
                         });
                   }
 
-                  // Animation Pass
+                  // GameObject Animation Pass
                   if (gameObject.getCurrentPlayingAnimation() != null) {
                     if ((updatesPassed
                                 % ((1000 / GAME_UPDATE_MS)
@@ -213,6 +217,8 @@ public class GameManager extends Manager {
         });
 
     camera.centerOnObject(currentPlayer);
+
+    Perceptionallity.getDiscordRPCHandler().setState(RPCStates.IN_GAME,"Test Area");
 
     // When everything is loaded and in place we start the actual game loop
     setGameState(GameState.IN_GAME);

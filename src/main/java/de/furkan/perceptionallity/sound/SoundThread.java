@@ -5,7 +5,7 @@ import javax.sound.sampled.*;
 import lombok.Getter;
 
 @Getter
-public class SoundThread extends Thread {
+class SoundThread extends Thread {
 
   private final boolean loop;
   private final float volume;
