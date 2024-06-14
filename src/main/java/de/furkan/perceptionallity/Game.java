@@ -5,8 +5,8 @@ import de.furkan.perceptionallity.game.GameManager;
 import de.furkan.perceptionallity.game.GamePanel;
 import de.furkan.perceptionallity.game.GameState;
 import de.furkan.perceptionallity.menu.MenuManager;
-import de.furkan.perceptionallity.menu.menus.MainMenu;
 import de.furkan.perceptionallity.menu.menus.StartMenu;
+import de.furkan.perceptionallity.menu.menus.TestMenu;
 import de.furkan.perceptionallity.resources.ResourceManager;
 import de.furkan.perceptionallity.sound.SoundEngine;
 import de.furkan.perceptionallity.util.font.GameFont;
@@ -71,7 +71,7 @@ public class Game {
     logger.info("Finished creating game frame");
     menuManager.initialize();
 
-    menuManager.setCurrentMenu(isDebug() ? new MainMenu() : new StartMenu());
+    menuManager.setCurrentMenu(isDebug() ? new TestMenu() : new StartMenu());
 
     menuManager.drawCurrentMenu();
   }
@@ -135,8 +135,11 @@ public class Game {
                     }
                   }
                 }
-                case 'x' -> {
-                  handleFatalException(new RuntimeException("Test Crash"));
+                case 'x' -> handleFatalException(new RuntimeException("Test Crash"));
+                case 'p' -> {
+                  if (gameManager.isGameState(GameState.IN_GAME)) {
+                    gameManager.setGamePaused(!gameManager.isGamePaused());
+                  }
                 }
               }
             }
@@ -174,6 +177,7 @@ public class Game {
     registerAnimationResource(
         "player_idle_down_animation",
         2,
+        1,
         8,
         true,
         "IdleDown.png",
@@ -182,11 +186,20 @@ public class Game {
         "animation_sheets");
 
     registerAnimationResource(
-        "player_idle_up_animation", 2, 8, true, "IdleUp.png", "game", "player", "animation_sheets");
+        "player_idle_up_animation",
+        2,
+        1,
+        8,
+        true,
+        "IdleUp.png",
+        "game",
+        "player",
+        "animation_sheets");
 
     registerAnimationResource(
         "player_idle_left_animation",
         2,
+        1,
         8,
         true,
         "IdleLeft.png",
@@ -197,6 +210,7 @@ public class Game {
     registerAnimationResource(
         "player_idle_right_animation",
         2,
+        1,
         8,
         true,
         "IdleRight.png",
@@ -207,6 +221,7 @@ public class Game {
     registerAnimationResource(
         "player_walk_down_animation",
         4,
+        1,
         8,
         true,
         "WalkDown.png",
@@ -214,10 +229,19 @@ public class Game {
         "player",
         "animation_sheets");
     registerAnimationResource(
-        "player_walk_up_animation", 4, 8, true, "WalkUp.png", "game", "player", "animation_sheets");
+        "player_walk_up_animation",
+        4,
+        1,
+        8,
+        true,
+        "WalkUp.png",
+        "game",
+        "player",
+        "animation_sheets");
     registerAnimationResource(
         "player_walk_left_animation",
         4,
+        1,
         8,
         true,
         "WalkLeft.png",
@@ -227,17 +251,22 @@ public class Game {
     registerAnimationResource(
         "player_walk_right_animation",
         4,
+        1,
         8,
         true,
         "WalkRight.png",
         "game",
         "player",
         "animation_sheets");
+
+    registerAnimationResource(
+        "campfire_animation", 4, 1, 12, true, "campfire_animation.png", "game", "campfire");
   }
 
   private void registerAnimationResource(
       String animationKey,
       int columns,
+      int rows,
       int fps,
       boolean loop,
       String sheetFile,
@@ -251,7 +280,7 @@ public class Game {
         animationKey,
         new Animation(
             resourceManager.cutSpriteSheet(
-                resourceManager.getResource(animationKey + "_sheet", Sprite.class), 1, columns),
+                resourceManager.getResource(animationKey + "_sheet", Sprite.class), rows, columns),
             fps,
             loop));
   }

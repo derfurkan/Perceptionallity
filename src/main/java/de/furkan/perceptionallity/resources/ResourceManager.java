@@ -100,8 +100,8 @@ public class ResourceManager {
 
   // Idk where to put this
   public Sprite[] cutSpriteSheet(Sprite spriteSheet, int rows, int columns) {
-    Image sheetImage = spriteSheet.getRawImage();
-    if (sheetImage instanceof BufferedImage bufferedSheet) {
+    if (spriteSheet.getRawImage() instanceof BufferedImage bufferedSheet) {
+
       int spriteWidth = bufferedSheet.getWidth() / columns;
       int spriteHeight = bufferedSheet.getHeight() / rows;
       Sprite[] sprites = new Sprite[rows * columns];
@@ -112,7 +112,6 @@ public class ResourceManager {
           int yCord = y * spriteHeight;
           BufferedImage subImage =
               bufferedSheet.getSubimage(xCord, yCord, spriteWidth, spriteHeight);
-
           sprites[index++] =
               new Sprite(subImage, new Dimension(subImage.getWidth(), subImage.getHeight()));
         }

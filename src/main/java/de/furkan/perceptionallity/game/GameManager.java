@@ -4,6 +4,7 @@ import de.furkan.perceptionallity.Manager;
 import de.furkan.perceptionallity.Perceptionallity;
 import de.furkan.perceptionallity.discord.RPCStates;
 import de.furkan.perceptionallity.game.entity.EntityAttributes;
+import de.furkan.perceptionallity.game.entity.environment.GameCampfire;
 import de.furkan.perceptionallity.game.entity.npc.GameNPC;
 import de.furkan.perceptionallity.game.entity.npc.TestNPC;
 import de.furkan.perceptionallity.game.entity.player.GamePlayer;
@@ -14,23 +15,27 @@ import java.awt.event.KeyEvent;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ThreadLocalRandom;
 import javax.swing.Timer;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 public class GameManager extends Manager {
 
   private final Camera camera = new Camera();
-
   private final List<GameObject> gameObjects = new ArrayList<>();
-
   private final List<GameKeyEvent> keyEvents = new ArrayList<>();
   private final List<GameAction> loopCalls = new ArrayList<>();
-
   private final List<GameNPC> gameNPCs = new ArrayList<>();
   private final Timer gameTimer;
   private final Set<Integer> pressedKeys = new HashSet<>();
   private final int GAME_UPDATE_MS = 15;
+  @Getter
+  private final int DISTANCE_UNTIL_DISPOSE =
+      1500; // The min distance towards the Player until a GameObject is being disposed from
+  @Setter private boolean gamePaused = false;
+            // rendering
   private GameState gameState = GameState.NONE;
   private GamePlayer currentPlayer;
   private long updatesPassed = 0;
@@ -41,6 +46,7 @@ public class GameManager extends Manager {
         new Timer(
             GAME_UPDATE_MS,
             e -> {
+              if (gamePaused) return;
               try {
                 loopCalls.forEach(GameAction::onAction);
               } catch (Exception exception) {
@@ -57,8 +63,7 @@ public class GameManager extends Manager {
           public void onAction() {
 
             // Just in case if a player has no real-life:
-            if (updatesPassed == Long.MAX_VALUE)
-                updatesPassed = 0;
+            if (updatesPassed == Long.MAX_VALUE) updatesPassed = 0;
             updatesPassed += 1;
 
             // KeyEvent Pass
@@ -82,11 +87,18 @@ public class GameManager extends Manager {
             // GameObject Pass
             gameObjects.forEach(
                 (gameObject) -> {
+                  if (!(gameObject instanceof GamePlayer)
+                      && gameObject.distanceTo(currentPlayer.getWorldLocation())
+                          > DISTANCE_UNTIL_DISPOSE) {
+                    gameObject.getComponent().setVisible(false);
+                    return;
+                  }
+                  gameObject.getComponent().setVisible(true);
                   gameObject.getLastLocation().set(gameObject.getWorldLocation());
 
                   gameObject.getWorldLocation().applyVelocity(gameObject.getCurrentVelocity());
 
-                    // GameObject Collision Pass
+                  // GameObject Collision Pass
                   if (gameObject.isPassToCollisionCheck() && gameObject.getOnCollision() != null) {
                     if (gameObject.getCollisionBoundaries() == null) {
                       getLogger()
@@ -95,6 +107,7 @@ public class GameManager extends Manager {
                                   + gameObject.getClass().getSimpleName()
                                   + ")");
                     }
+
                     CompletableFuture<Boolean> collisionFuture = new CompletableFuture<>();
                     getGame().getGamePanel().passToCollisionCheck(gameObject, collisionFuture);
 
@@ -107,7 +120,9 @@ public class GameManager extends Manager {
                   }
 
                   // GameObject Animation Pass
+
                   if (gameObject.getCurrentPlayingAnimation() != null) {
+
                     if ((updatesPassed
                                 % ((1000 / GAME_UPDATE_MS)
                                     / gameObject.getCurrentPlayingAnimation().getFramesPerSecond())
@@ -133,9 +148,18 @@ public class GameManager extends Manager {
                   }
                 });
 
+            var frameTime = (System.currentTimeMillis() - startTime);
+
+            if (frameTime < GAME_UPDATE_MS) {
+              try {
+                Thread.sleep(GAME_UPDATE_MS - frameTime);
+              } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+              }
+            }
+            frameTime = (System.currentTimeMillis() - startTime);
             // Telemetry Pass
             if (updatesPassed % (100 / GAME_UPDATE_MS) == 0 && getGame().isDebug()) {
-              var frameTime = (System.currentTimeMillis() - startTime);
               statsLabel.setText(1000 / frameTime + " fps, " + frameTime + " ms");
               statsLabel.recalculateDimension();
               statsLabel.buildComponent();
@@ -198,10 +222,22 @@ public class GameManager extends Manager {
             });
 
     // Delete this after testing:
+
+    int distance = 5000;
+
+    for (int i = 0; i < 2000; i++) {
+      GameCampfire gameCampfire =
+          new GameCampfire(
+              new WorldLocation(
+                  ThreadLocalRandom.current().nextInt(-distance, distance),
+                  ThreadLocalRandom.current().nextInt(-distance, distance)));
+      gameCampfire.initializeGameObject(1);
+    }
+
     TestNPC testNPC = new TestNPC(new WorldLocation(100, 100));
     testNPC.initializeGameObject(1);
 
-    currentPlayer = new GamePlayer(new WorldLocation(20, 20), true);
+    currentPlayer = new GamePlayer(new WorldLocation(-20, -20), true);
     currentPlayer.setAttribute(EntityAttributes.MOVEMENT_SPEED, 5);
     currentPlayer.setAttribute(EntityAttributes.RUN_SPEED_FACTOR, 5);
     currentPlayer.registerKeyEvent();
@@ -212,13 +248,13 @@ public class GameManager extends Manager {
 
     currentPlayer.setOnCollision(
         () -> {
-          currentPlayer.getWorldLocation().set(currentPlayer.getLastLocation());
-          camera.flushCalculation();
+          //          currentPlayer.getWorldLocation().set(currentPlayer.getLastLocation());
+          //          camera.flushCalculation();
         });
 
     camera.centerOnObject(currentPlayer);
 
-    Perceptionallity.getDiscordRPCHandler().setState(RPCStates.IN_GAME,"Test Area");
+    Perceptionallity.getDiscordRPCHandler().setState(RPCStates.IN_GAME, "Test Area");
 
     // When everything is loaded and in place we start the actual game loop
     setGameState(GameState.IN_GAME);
