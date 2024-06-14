@@ -5,8 +5,8 @@ import de.furkan.perceptionallity.game.GameManager;
 import de.furkan.perceptionallity.game.GamePanel;
 import de.furkan.perceptionallity.game.GameState;
 import de.furkan.perceptionallity.menu.MenuManager;
+import de.furkan.perceptionallity.menu.menus.MainMenu;
 import de.furkan.perceptionallity.menu.menus.StartMenu;
-import de.furkan.perceptionallity.menu.menus.TestMenu;
 import de.furkan.perceptionallity.resources.ResourceManager;
 import de.furkan.perceptionallity.sound.SoundEngine;
 import de.furkan.perceptionallity.util.font.GameFont;
@@ -29,9 +29,9 @@ public class Game {
   private final ResourceManager resourceManager;
   private final SoundEngine soundEngine;
   private final GamePanel gamePanel = new GamePanel();
-  private final int WINDOW_WIDTH = 900,WINDOW_HEIGHT = 500;
-  private final int DISPLAY_WIDTH,DISPLAY_HEIGHT;
-  private final Dimension windowDimension = new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT);
+  private final int WINDOW_WIDTH, WINDOW_HEIGHT;
+  private final int DISPLAY_WIDTH, DISPLAY_HEIGHT;
+  private final Dimension windowDimension;
   public boolean showDebugLines = false;
   private Logger logger;
   private JFrame gameFrame;
@@ -39,6 +39,10 @@ public class Game {
   public Game() {
     DISPLAY_WIDTH = Toolkit.getDefaultToolkit().getScreenSize().width;
     DISPLAY_HEIGHT = Toolkit.getDefaultToolkit().getScreenSize().height;
+    WINDOW_WIDTH = DISPLAY_WIDTH;
+    WINDOW_HEIGHT = DISPLAY_HEIGHT;
+    windowDimension = new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT);
+
     resourceManager = new ResourceManager();
     menuManager = new MenuManager();
     gameManager = new GameManager();
@@ -60,17 +64,16 @@ public class Game {
    */
   public void start() throws Exception {
     buildLogger();
-    gameManager.setGameState(GameState. RESOURCE_LOADING);
+    gameManager.setGameState(GameState.RESOURCE_LOADING);
     loadResources();
     logger.info("Finished loading resources");
     createGameFrame();
     logger.info("Finished creating game frame");
     menuManager.initialize();
 
-    menuManager.setCurrentMenu(isDebug() ? new TestMenu() : new StartMenu());
+    menuManager.setCurrentMenu(isDebug() ? new MainMenu() : new StartMenu());
 
     menuManager.drawCurrentMenu();
-
   }
 
   /**
@@ -82,10 +85,17 @@ public class Game {
     this.gameFrame = new JFrame("Perceptionallity");
     gameFrame.setResizable(false);
     gameFrame.setContentPane(menuManager.getGamePanel());
-    gameFrame.setBounds(DISPLAY_WIDTH/2-WINDOW_WIDTH/2, DISPLAY_HEIGHT/2-WINDOW_HEIGHT/2, WINDOW_WIDTH, WINDOW_HEIGHT + 30);
+    gameFrame.setBounds(
+        DISPLAY_WIDTH / 2 - WINDOW_WIDTH / 2,
+        DISPLAY_HEIGHT / 2 - WINDOW_HEIGHT / 2,
+        WINDOW_WIDTH,
+        WINDOW_HEIGHT + 30);
     gameFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     gameFrame.setIconImage(
         getResourceManager().getResource("game_icon", Sprite.class).getRawImage());
+
+    gameFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+    gameFrame.setUndecorated(true);
     gameFrame.setVisible(true);
 
     gameFrame.addKeyListener(
@@ -95,26 +105,26 @@ public class Game {
             if (Perceptionallity.getGame().isDebug()) {
               switch (e.getKeyChar()) {
                 case 'r' -> {
-                    try {
-                        menuManager.reloadCurrentMenu();
-                    } catch (Exception ex) {
-                      handleFatalException(ex);
-                    }
+                  try {
+                    menuManager.reloadCurrentMenu();
+                  } catch (Exception ex) {
+                    handleFatalException(ex);
+                  }
                 }
                 case 'f' ->
                     Perceptionallity.getGame().showDebugLines =
                         !Perceptionallity.getGame().showDebugLines;
                 case 'g' -> {
-                    try {
-                        menuManager.setCurrentMenu(new StartMenu());
-                    } catch (Exception ex) {
-                      Perceptionallity.getGame().handleFatalException(ex);
-                    }
-                    try {
-                        menuManager.drawCurrentMenu();
-                    } catch (Exception ex) {
-                        handleFatalException(ex);
-                    }
+                  try {
+                    menuManager.setCurrentMenu(new StartMenu());
+                  } catch (Exception ex) {
+                    Perceptionallity.getGame().handleFatalException(ex);
+                  }
+                  try {
+                    menuManager.drawCurrentMenu();
+                  } catch (Exception ex) {
+                    handleFatalException(ex);
+                  }
                 }
                 case 'h' -> {
                   if (gameManager.isGameState(GameState.IN_GAME)) {
@@ -146,6 +156,10 @@ public class Game {
    * preparing all visual and audio assets needed for the game.
    */
   private void loadResources() throws Exception {
+
+    resourceManager.registerResource(
+        "discord_sdk", resourceManager.getResourceFile("discord_game_sdk.dll", "discord"));
+
     resourceManager.registerResource(
         "menu_font", new GameFont(Font.TRUETYPE_FONT, "joystixmonospace.otf", "font"));
 
@@ -156,7 +170,6 @@ public class Game {
 
     resourceManager.registerResource(
         "npc_interact_arrow", new Sprite("interact_arrow.png", "game", "npc"));
-
 
     registerAnimationResource(
         "player_idle_down_animation",
@@ -194,7 +207,7 @@ public class Game {
     registerAnimationResource(
         "player_walk_down_animation",
         4,
-            8,
+        8,
         true,
         "WalkDown.png",
         "game",
@@ -214,7 +227,7 @@ public class Game {
     registerAnimationResource(
         "player_walk_right_animation",
         4,
-            8,
+        8,
         true,
         "WalkRight.png",
         "game",
@@ -228,7 +241,8 @@ public class Game {
       int fps,
       boolean loop,
       String sheetFile,
-      String... sheetPath) throws Exception {
+      String... sheetPath)
+      throws Exception {
 
     resourceManager.registerResource(
         animationKey + "_sheet", new Sprite(resourceManager.getResourceFile(sheetFile, sheetPath)));
@@ -262,8 +276,7 @@ public class Game {
 
   public void handleFatalException(Exception e) {
     e.printStackTrace();
-    if(getGameFrame() != null)
-      getGameFrame().dispose();
+    if (getGameFrame() != null) getGameFrame().dispose();
 
     AtomicReference<StringBuilder> message = new AtomicReference<>(new StringBuilder());
     message
@@ -278,22 +291,22 @@ public class Game {
         .append("\n\n")
         .append("State: ")
         .append(gameManager.getGameState().name())
-        .append("\n\n").append("Stack Trace:\n");
+        .append("\n\n")
+        .append("Stack Trace:\n");
 
-    for (int i = 0; i < Math.min(e.getStackTrace().length,10); i++) {
+    for (int i = 0; i < Math.min(e.getStackTrace().length, 10); i++) {
       message.get().append(e.getStackTrace()[i].toString()).append("\n");
     }
 
     JOptionPane.showConfirmDialog(
-            null,
-            message.toString(),
-            "Perceptionallity | Fatal Error - Reality crashed",
-            JOptionPane.DEFAULT_OPTION,
-            JOptionPane.ERROR_MESSAGE);
+        null,
+        message.toString(),
+        "Perceptionallity | Fatal Error - Reality crashed",
+        JOptionPane.DEFAULT_OPTION,
+        JOptionPane.ERROR_MESSAGE);
 
     System.exit(0);
   }
-
 }
 
 class CustomLogFormatter extends Formatter {

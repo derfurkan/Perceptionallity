@@ -24,14 +24,15 @@ public class StartMenu extends Menu {
 
     MenuComponent lastComponent = null;
     for (String word : startText.split(" ")) {
-      MenuComponent component = new MenuLabel(40, 0, word, 30, Color.WHITE);
+      MenuComponent component = new MenuLabel(40, 0, word, 70, Color.WHITE);
+
       component.setY(getMenuManager().centerLocation(component.getDimension())[1] - 40);
       if (lastComponent != null) {
         if (word.contains("\n")) {
-          component.setBelow(lastComponent, 0);
+          component.setBelow(lastComponent, 20);
         } else {
           component.setAsideRight(lastComponent);
-          component.setX(component.getX() + 15);
+          component.setX(component.getX() + 30);
           component.setY(lastComponent.getY());
         }
       }

@@ -23,6 +23,7 @@ public class GamePanel extends JLayeredPane {
     super.paintComponent(g);
 
     getCamera().flushCalculation();
+
     for (Component component : getComponents()) {
       if (Perceptionallity.getGame().getGameManager().isGameComponent(component)) {
         GameObject gameObject =

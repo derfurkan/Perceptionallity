@@ -1,6 +1,7 @@
 package de.furkan.perceptionallity.menu;
 
 import de.furkan.perceptionallity.Perceptionallity;
+import de.furkan.perceptionallity.discord.RPCStates;
 import de.furkan.perceptionallity.resources.ResourceManager;
 import java.awt.*;
 import java.util.ArrayList;
@@ -99,6 +100,9 @@ public abstract class Menu {
     }
     initComponents();
     getLogger().info("Initialized components for menu (" + getMenuName() + ")");
+
+    // Discord Pass
+    Perceptionallity.getDiscordRPCHandler().setState(RPCStates.IN_MENU,getMenuName());
   }
 
   /**
