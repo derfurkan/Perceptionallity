@@ -19,7 +19,7 @@ public class Perceptionallity {
     } catch (Exception e) {
       getGame().handleFatalException(e);
     }
-    
+
     try {
       discordRPCHandler.initializeRPC();
     } catch (Exception e) {
@@ -27,8 +27,6 @@ public class Perceptionallity {
       // Ignore
     }
   }
-
-
 
   // Workaround for windows slowing down Frame time
   static void enableHiResTimer() {

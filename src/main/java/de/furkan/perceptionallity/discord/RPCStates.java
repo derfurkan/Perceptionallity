@@ -4,15 +4,12 @@ import lombok.Getter;
 
 @Getter
 public enum RPCStates {
+  IN_MENU("In Menu"),
+  IN_GAME("In Game");
 
-    IN_MENU("In Menu"),
-    IN_GAME("In Game");
+  private final String value;
 
-
-    private final String value;
-
-    RPCStates(String value) {
-        this.value = value;
-    }
-
+  RPCStates(String value) {
+    this.value = value;
+  }
 }

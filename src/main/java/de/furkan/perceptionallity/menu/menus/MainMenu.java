@@ -31,12 +31,12 @@ public class MainMenu extends Menu {
   // TODO: Make this better and less ew.. Maybe a method which takes an array and creates menu
   // components automatically?
   // TODO: Use arrow keys to navigate
-  MenuButton newGameButton = new MenuButton(0, 0, 70, "NEW GAME");
-  MenuButton continueButton = new MenuButton(0, 0, 70, "CONTINUE");
-  MenuButton optionsButton = new MenuButton(0, 0, 70, "OPTIONS");
-  MenuButton githubButton = new MenuButton(0, 0, 70, "GITHUB");
-  MenuButton discordButton = new MenuButton(0, 0, 70, "DISCORD");
-  MenuButton exitButton = new MenuButton(0, 0, 70, "EXIT");
+  MenuButton newGameButton = new MenuButton(0, 0, 75, "NEW GAME");
+  MenuButton continueButton = new MenuButton(0, 0, 75, "CONTINUE");
+  MenuButton optionsButton = new MenuButton(0, 0, 75, "OPTIONS");
+  MenuButton githubButton = new MenuButton(0, 0, 75, "GITHUB");
+  MenuButton discordButton = new MenuButton(0, 0, 75, "DISCORD");
+  MenuButton exitButton = new MenuButton(0, 0, 75, "EXIT");
 
   public MainMenu() throws Exception {
     super(30, Color.BLACK);
@@ -49,20 +49,21 @@ public class MainMenu extends Menu {
             12,
             InterpolationType.SMOOTH_END);
 
+    newGameButton.setY(
+        getMenuManager().edgeLocation(newGameButton.getDimension())[1]
+            - ((newGameButton.getDimension().height + 5) * 5));
 
-    newGameButton.setY(getMenuManager().edgeLocation(newGameButton.getDimension())[1] - ((newGameButton.getDimension().height+5)*5));
-
-     buttonInAnimation   =
-    new ValueIterator(-newGameButton.getDimension().width, 15, 30, InterpolationType.SMOOTH_END);
-
+    buttonInAnimation =
+        new ValueIterator(
+            -newGameButton.getDimension().width, 30, 30, InterpolationType.SMOOTH_END);
 
     continueButton.setActive(false);
-    continueButton.setOpacity(0.3f);
+    continueButton.setOpacity(0.2f);
     continueButton.setBelow(newGameButton, 5);
     optionsButton.setBelow(continueButton, 5);
-    githubButton.setBelow(optionsButton,   5);
-    discordButton.setBelow(githubButton,   5);
-    exitButton.setBelow(discordButton,   5);
+    githubButton.setBelow(optionsButton, 5);
+    discordButton.setBelow(githubButton, 5);
+    exitButton.setBelow(discordButton, 5);
 
     addButtonFunctionality();
   }
