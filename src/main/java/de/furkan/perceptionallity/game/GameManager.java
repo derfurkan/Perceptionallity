@@ -8,14 +8,14 @@ import de.furkan.perceptionallity.game.entity.environment.GameCampfire;
 import de.furkan.perceptionallity.game.entity.npc.GameNPC;
 import de.furkan.perceptionallity.game.entity.npc.TestNPC;
 import de.furkan.perceptionallity.game.entity.player.GamePlayer;
-import de.furkan.perceptionallity.menu.components.MenuLabel;
+import de.furkan.perceptionallity.menu.components.label.MenuLabel;
 import de.furkan.perceptionallity.util.font.GameFont;
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.text.DecimalFormat;
 import java.util.*;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.*;
 import javax.swing.Timer;
 import lombok.Getter;
 import lombok.Setter;
@@ -24,22 +24,28 @@ import lombok.Setter;
 public class GameManager extends Manager {
 
   private final Camera camera = new Camera();
-  private final List<GameObject> gameObjects = new ArrayList<>();
+  private final List<GameObject> gameObjects = Collections.synchronizedList(new ArrayList<>());
   private final List<GameKeyEvent> keyEvents = new ArrayList<>();
   private final List<GameAction> loopCalls = new ArrayList<>();
   private final List<GameNPC> gameNPCs = new ArrayList<>();
   private final Timer gameTimer;
   private final Set<Integer> pressedKeys = new HashSet<>();
   private final int GAME_UPDATE_MS = 15;
+
+
   @Getter
   private final int DISTANCE_UNTIL_DISPOSE =
-      1500; // The min distance towards the Player until a GameObject is being disposed from
+      2000; // The min distance afar from the Player until a GameObject is being disposed from
+
+  // rendering
+
   @Setter private boolean gamePaused = false;
-            // rendering
+
   private GameState gameState = GameState.NONE;
   private GamePlayer currentPlayer;
   private long updatesPassed = 0;
-  private MenuLabel statsLabel;
+  private MenuLabel statsLabel, objectLabel,locationLabel;
+
 
   public GameManager() {
     gameTimer =
@@ -62,11 +68,52 @@ public class GameManager extends Manager {
           @Override
           public void onAction() {
 
+
             // Just in case if a player has no real-life:
             if (updatesPassed == Long.MAX_VALUE) updatesPassed = 0;
             updatesPassed += 1;
 
-            // KeyEvent Pass
+            var cameraRectangle = new Rectangle();
+            cameraRectangle.setBounds(
+                getCamera().getCameraViewLocation().getX(),
+                getCamera().getCameraViewLocation().getY(),
+                getGame().getWINDOW_WIDTH(),
+                getGame().getWINDOW_HEIGHT());
+
+            //               Remove objects which are not in camera view (Using Multi-Threaded
+            // rendering
+            //             calculations)
+            List<List<GameObject>> splitGameObjectLists = splitArrayList(getGameObjects(), 100);
+            List<GameObject> validGameObjects = Collections.synchronizedList(new ArrayList<>());
+
+            ExecutorService executorService =
+                Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+            splitGameObjectLists.forEach(
+                gameObjects -> {
+                  executorService.submit(
+                      () -> {
+                        gameObjects.forEach(
+                            gameObject -> {
+                                gameObject.getLastLocation().set(gameObject.getWorldLocation());
+
+                                gameObject.getWorldLocation().applyVelocity(gameObject.getCurrentVelocity());
+
+                                if (gameObject.buildRectangle().intersects(cameraRectangle)) {
+                                  validGameObjects.add(gameObject);
+                              } else {
+                                  getGame().getGamePanel().remove(gameObject.getComponent());
+                              }
+                            });
+                      });
+                });
+            executorService.shutdown();
+            try {
+              executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+            } catch (InterruptedException e) {
+              getGame().handleFatalException(e);
+            }
+
+              // KeyEvent Pass
             pressedKeys.forEach(
                 integer ->
                     keyEvents.stream()
@@ -85,18 +132,13 @@ public class GameManager extends Manager {
                             }));
 
             // GameObject Pass
-            gameObjects.forEach(
+            validGameObjects.forEach(
                 (gameObject) -> {
-                  if (!(gameObject instanceof GamePlayer)
-                      && gameObject.distanceTo(currentPlayer.getWorldLocation())
-                          > DISTANCE_UNTIL_DISPOSE) {
-                    gameObject.getComponent().setVisible(false);
-                    return;
-                  }
-                  gameObject.getComponent().setVisible(true);
-                  gameObject.getLastLocation().set(gameObject.getWorldLocation());
 
-                  gameObject.getWorldLocation().applyVelocity(gameObject.getCurrentVelocity());
+                  if (Arrays.stream(getGame().getGamePanel().getComponents())
+                      .noneMatch(component -> component == gameObject.getComponent())) {
+                    getGame().getGamePanel().add(gameObject.getComponent(),gameObject.getObjectLayer());
+                  }
 
                   // GameObject Collision Pass
                   if (gameObject.isPassToCollisionCheck() && gameObject.getOnCollision() != null) {
@@ -124,17 +166,9 @@ public class GameManager extends Manager {
                   if (gameObject.getCurrentPlayingAnimation() != null) {
 
                     if ((updatesPassed
-                                % ((1000 / GAME_UPDATE_MS)
-                                    / gameObject.getCurrentPlayingAnimation().getFramesPerSecond())
-                            == 0)
-                        || gameObject.getCurrentPlayingAnimation().isFresh()) {
-
-                      // Unga bunga workaround:
-                      if (gameObject.getCurrentPlayingAnimation().isFresh()) {
-                        if (gameObject.getLastPlayedAnimation() != null)
-                          gameObject.getLastPlayedAnimation().resetAnimation();
-                        gameObject.getCurrentPlayingAnimation().setFresh(false);
-                      }
+                            % ((1000 / GAME_UPDATE_MS)
+                                / gameObject.getCurrentPlayingAnimation().getFramesPerSecond())
+                        == 0)) {
 
                       gameObject.getCurrentPlayingAnimation().nextFrame();
                       gameObject
@@ -148,6 +182,7 @@ public class GameManager extends Manager {
                   }
                 });
 
+            // Telemetry Pass
             var frameTime = (System.currentTimeMillis() - startTime);
 
             if (frameTime < GAME_UPDATE_MS) {
@@ -157,12 +192,25 @@ public class GameManager extends Manager {
                 throw new RuntimeException(e);
               }
             }
+
             frameTime = (System.currentTimeMillis() - startTime);
-            // Telemetry Pass
+
             if (updatesPassed % (100 / GAME_UPDATE_MS) == 0 && getGame().isDebug()) {
-              statsLabel.setText(1000 / frameTime + " fps, " + frameTime + " ms");
+              statsLabel.setText(
+                  1000 / frameTime
+                      + " fps, "
+                      + frameTime
+                      + " ms");
+              objectLabel.setText(validGameObjects.size()+" / "+new DecimalFormat("#,###").format(gameObjects.size()) + " Objects");
+
+              locationLabel.setText(currentPlayer.getWorldLocation().getX() + " X, " + currentPlayer.getWorldLocation().getY()+" Y");
+
+              objectLabel.recalculateDimension();
+              objectLabel.buildComponent();
               statsLabel.recalculateDimension();
               statsLabel.buildComponent();
+                locationLabel.recalculateDimension();
+                locationLabel.buildComponent();
             }
             startTime = System.currentTimeMillis();
 
@@ -173,93 +221,125 @@ public class GameManager extends Manager {
   }
 
   @Override
-  public void initialize() throws Exception {
-    getLogger().info("Initializing game");
+  public void initialize() {
 
-    statsLabel =
-        new MenuLabel(
-            3,
-            3,
-            "0 fps, 0 ms",
-            20,
-            Color.BLACK,
-            getResourceManager().getResource("ingame_font", GameFont.class));
+    new Thread(
+            () -> {
+              try {
+                getLogger().info("Initializing game");
 
-    getGame().getGamePanel().add(statsLabel.getJComponent(), 0);
+                statsLabel =
+                    new MenuLabel(
+                        3,
+                        3,
+                        "",
+                        20,
+                        Color.BLACK,
+                        getResourceManager().getResource("ingame_font", GameFont.class));
 
-    getGame().getGamePanel().setBackground(Color.WHITE);
-    getGame()
-        .getGameFrame()
-        .addKeyListener(
-            new java.awt.event.KeyListener() {
-              @Override
-              public void keyTyped(KeyEvent e) {}
 
-              @Override
-              public void keyPressed(KeyEvent e) {
-                pressedKeys.add(e.getKeyCode());
-              }
+                  objectLabel =
+                          new MenuLabel(
+                                  3,
+                                  0,
+                                  "",
+                                  20,
+                                  Color.BLACK,
+                                  getResourceManager().getResource("ingame_font", GameFont.class));
+                  locationLabel =
+                          new MenuLabel(
+                                  3,
+                                  0,
+                                  "",
+                                  20,
+                                  Color.BLACK,
+                                  getResourceManager().getResource("ingame_font", GameFont.class));
+                  objectLabel.setBelow(statsLabel,0);
+                  locationLabel.setBelow(objectLabel,0);
+                getGame()
+                    .getGameFrame()
+                    .addKeyListener(
+                        new java.awt.event.KeyListener() {
+                          @Override
+                          public void keyTyped(KeyEvent e) {}
 
-              @Override
-              public void keyReleased(KeyEvent e) {
+                          @Override
+                          public void keyPressed(KeyEvent e) {
+                            pressedKeys.add(e.getKeyCode());
+                          }
 
-                keyEvents.stream()
-                    .filter(
-                        gameKeyEvent ->
-                            Arrays.stream(gameKeyEvent.getKeyRegister())
-                                .anyMatch(integer -> integer == e.getKeyCode()))
-                    .forEach(
-                        gameKeyEvent -> {
-                          gameKeyEvent.getPressedKeys().remove((Object) e.getKeyCode());
-                          try {
-                            gameKeyEvent.getKeyListener().keyReleased(e);
-                          } catch (Exception ex) {
-                            getGame().handleFatalException(new RuntimeException(ex));
+                          @Override
+                          public void keyReleased(KeyEvent e) {
+
+                            keyEvents.stream()
+                                .filter(
+                                    gameKeyEvent ->
+                                        Arrays.stream(gameKeyEvent.getKeyRegister())
+                                            .anyMatch(integer -> integer == e.getKeyCode()))
+                                .forEach(
+                                    gameKeyEvent -> {
+                                      gameKeyEvent.getPressedKeys().remove((Object) e.getKeyCode());
+                                      try {
+                                        gameKeyEvent.getKeyListener().keyReleased(e);
+                                      } catch (Exception ex) {
+                                        getGame().handleFatalException(new RuntimeException(ex));
+                                      }
+                                    });
+                            pressedKeys.remove(e.getKeyCode());
                           }
                         });
-                pressedKeys.remove(e.getKeyCode());
+
+                // Delete this after testing:
+
+                int distance = 10000;
+
+                for (int i = 0; i < 2_000; i++) {
+                  GameCampfire gameCampfire =
+                      new GameCampfire(
+                          new WorldLocation(
+                              ThreadLocalRandom.current().nextInt(-distance, distance),
+                              ThreadLocalRandom.current().nextInt(-distance, distance)));
+                  gameCampfire.initializeGameObject(1);
+                }
+
+                TestNPC testNPC = new TestNPC(new WorldLocation(100, 100));
+                testNPC.initializeGameObject(1);
+
+                currentPlayer = new GamePlayer(new WorldLocation(-20, -20), true);
+                currentPlayer.setAttribute(EntityAttributes.MOVEMENT_SPEED, 5);
+                currentPlayer.setAttribute(EntityAttributes.RUN_SPEED_FACTOR, 5);
+                currentPlayer.registerKeyEvent();
+                currentPlayer.initializeGameObject(1);
+
+                testNPC.setCollisionBoundaries(new Dimension(30, 40));
+                currentPlayer.setCollisionBoundaries(new Dimension(30, 40));
+
+                currentPlayer.setOnCollision(
+                    () -> {
+                      //
+                      // currentPlayer.getWorldLocation().set(currentPlayer.getLastLocation());
+                      //                    camera.flushCalculation();
+                    });
+
+                camera.centerOnObject(currentPlayer);
+
+                Perceptionallity.getDiscordRPCHandler().setState(RPCStates.IN_GAME, "Test Area");
+
+                // When everything is loaded and in place we start the actual game loop
+                setGameState(GameState.IN_GAME);
+                getLogger().info("Initialized game");
+                startGameLoop();
+                getGame().getGamePanel().add(statsLabel.getJComponent(), 0);
+                getGame().getGamePanel().add(objectLabel.getJComponent(), 0);
+                getGame().getGamePanel().add(locationLabel.getJComponent(), 0);
+                getGame().getGamePanel().setBackground(Color.WHITE);
+
+                Perceptionallity.getGame().getMenuManager().getCurrentMenu().unLoadMenu();
+              } catch (Exception e) {
+                getGame().handleFatalException(e);
               }
-            });
-
-    // Delete this after testing:
-
-    int distance = 5000;
-
-    for (int i = 0; i < 2000; i++) {
-      GameCampfire gameCampfire =
-          new GameCampfire(
-              new WorldLocation(
-                  ThreadLocalRandom.current().nextInt(-distance, distance),
-                  ThreadLocalRandom.current().nextInt(-distance, distance)));
-      gameCampfire.initializeGameObject(1);
-    }
-
-    TestNPC testNPC = new TestNPC(new WorldLocation(100, 100));
-    testNPC.initializeGameObject(1);
-
-    currentPlayer = new GamePlayer(new WorldLocation(-20, -20), true);
-    currentPlayer.setAttribute(EntityAttributes.MOVEMENT_SPEED, 5);
-    currentPlayer.setAttribute(EntityAttributes.RUN_SPEED_FACTOR, 5);
-    currentPlayer.registerKeyEvent();
-    currentPlayer.initializeGameObject(1);
-
-    testNPC.setCollisionBoundaries(new Dimension(30, 40));
-    currentPlayer.setCollisionBoundaries(new Dimension(30, 40));
-
-    currentPlayer.setOnCollision(
-        () -> {
-          //          currentPlayer.getWorldLocation().set(currentPlayer.getLastLocation());
-          //          camera.flushCalculation();
-        });
-
-    camera.centerOnObject(currentPlayer);
-
-    Perceptionallity.getDiscordRPCHandler().setState(RPCStates.IN_GAME, "Test Area");
-
-    // When everything is loaded and in place we start the actual game loop
-    setGameState(GameState.IN_GAME);
-    getLogger().info("Initialized game");
-    startGameLoop();
+            })
+        .start();
   }
 
   public void registerNPC(GameNPC gameNPC) {
@@ -298,7 +378,11 @@ public class GameManager extends Manager {
     return gameObjects.stream()
         .filter(gameObject -> gameObject.getComponent() == component)
         .findFirst()
-        .orElseThrow();
+        .orElseThrow(() -> {
+            RuntimeException runtimeException = new RuntimeException("GameObject not found by Component");
+            getGame().handleFatalException(runtimeException);
+            return runtimeException;
+        });
   }
 
   public boolean isGameState(GameState gameState) {
@@ -320,4 +404,24 @@ public class GameManager extends Manager {
     getLogger().info("Unregistered GameObject (" + gameObject.getClass().getSimpleName() + ")");
     gameObjects.remove(gameObject);
   }
+
+
+    private <T> List<List<T>> splitArrayList(List<T> list, int chunkSize) {
+        List<List<T>> chunks = new ArrayList<>();
+
+        if (chunkSize == 0) {
+            chunks.add(list);
+            return chunks;
+        }
+
+        int listSize = list.size();
+
+        for (int i = 0; i < listSize; i += chunkSize) {
+            int end = Math.min(listSize, i + chunkSize);
+            chunks.add(new ArrayList<>(list.subList(i, end)));
+        }
+
+        return chunks;
+    }
+
 }

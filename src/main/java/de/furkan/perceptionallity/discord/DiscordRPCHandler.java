@@ -6,7 +6,6 @@ import de.jcm.discordgamesdk.CreateParams;
 import de.jcm.discordgamesdk.activity.Activity;
 import de.jcm.discordgamesdk.activity.ActivityType;
 import java.awt.*;
-import java.io.File;
 import java.time.Instant;
 import lombok.Getter;
 
@@ -22,13 +21,20 @@ public class DiscordRPCHandler {
   }
 
   public void initializeRPC() throws Exception {
+    if (ProcessHandle.allProcesses()
+        .noneMatch(
+            processHandle ->
+                processHandle.info().command().orElse("").toLowerCase().contains("discord"))) {
+      game.getLogger().warning("Discord not active. RPC initialization cancelled.");
+      return;
+    }
     if (discordCore != null) {
       game.getLogger()
           .warning(
               "Discord core has already been initialized. Please close it first before initializing it again.");
       return;
     }
-    Core.init(getGame().getResourceManager().getResource("discord_sdk", File.class));
+    Core.initDownload();
 
     createParams = new CreateParams();
     createParams.setClientID(1250987665940152411L);

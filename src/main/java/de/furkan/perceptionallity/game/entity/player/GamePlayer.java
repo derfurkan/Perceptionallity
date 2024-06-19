@@ -23,8 +23,7 @@ public class GamePlayer extends GameEntity {
 
   public GamePlayer(WorldLocation worldLocation, boolean passToCollisionCheck) throws Exception {
     super(new Dimension(100, 110), worldLocation, passToCollisionCheck);
-    playAnimation(
-        getResourceManager().getResource("player_idle_down_animation", Animation.class), true);
+    playAnimation(getResourceManager().getResource("player_idle_down_animation", Animation.class));
     getGameManager()
         .registerLoopAction(
             new GameAction() {
@@ -103,6 +102,7 @@ public class GamePlayer extends GameEntity {
                               return;
                             }
                           }
+
                           if (newKey == null) {
                             getGame()
                                 .handleFatalException(
@@ -114,8 +114,7 @@ public class GamePlayer extends GameEntity {
                           playAnimation(
                               getResourceManager()
                                   .getResource(newKey.animationKey, Animation.class),
-                              8,
-                              true);
+                              8);
                         }
                       }
 
@@ -135,8 +134,7 @@ public class GamePlayer extends GameEntity {
 
                           playAnimation(
                               getResourceManager()
-                                  .getResource(idleAnimation.animationKey, Animation.class),
-                              true);
+                                  .getResource(idleAnimation.animationKey, Animation.class));
                         }
                       }
                     },

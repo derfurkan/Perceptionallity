@@ -4,8 +4,10 @@ import de.furkan.perceptionallity.Perceptionallity;
 import de.furkan.perceptionallity.util.sprite.Sprite;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
+import java.io.*;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.Getter;
@@ -79,11 +81,13 @@ public class ResourceManager {
    */
   public File getResourceFile(String resourceKey, String... resourcePath) {
     String resourcePathString = String.join("/", resourcePath);
-    if (resourceFileCache.containsKey(resourcePathString + resourceKey)) {
-      return resourceFileCache.get(resourcePathString + resourceKey);
+    String fullPath = resourcePathString + "/" + resourceKey;
+
+    if (resourceFileCache.containsKey(fullPath)) {
+      return resourceFileCache.get(fullPath);
     }
-    Optional<URL> resource =
-        Optional.ofNullable(getClass().getResource("/" + resourcePathString + "/" + resourceKey));
+
+    Optional<URL> resource = Optional.ofNullable(getClass().getResource("/" + fullPath));
     if (resource.isEmpty()) {
       Perceptionallity.getGame()
           .handleFatalException(
@@ -93,9 +97,18 @@ public class ResourceManager {
                       + " path: "
                       + resourcePathString));
     }
-    File resourceFile = new File(resource.get().getFile());
-    resourceFileCache.put(resourcePathString, resourceFile);
-    return resourceFile;
+
+    File tempFile = null;
+    try (InputStream inputStream = resource.get().openStream()) {
+      tempFile = File.createTempFile("resource-", ".tmp");
+      tempFile.deleteOnExit();
+      Files.copy(inputStream, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+    } catch (IOException e) {
+      Perceptionallity.getGame().handleFatalException(e);
+    }
+
+    resourceFileCache.put(fullPath, tempFile);
+    return tempFile;
   }
 
   // Idk where to put this
