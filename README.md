@@ -4,16 +4,19 @@ Perceptionallity is simply the result of my desire to share the thoughts and sto
 Consider this GitHub page as a diary documenting my **trial** of translating my thoughts into the last corner of the internet in the form of a story game, ensuring they're preserved online where they'll never be lost.
 
 ## How to run
-Currently there is no compiled executable so you need to compile it yourself. Only Lombok as dependency is needed.
+Currently there is no compiled executable so you need to compile it yourself.
  </br>
 ### Debug keys
-* F = Show outlines of the Components
+* F = Show outlines of Components
 * R = Reload the last displayed Menu
 * H = Toggle camera view (In-Game only)
-* G = Reset to Start Menu
+* G = Reset to Boot Menu
 * X = Crash game ._.
+* P = Resume/Pause Game
+
 
 ### Preview Images
-![image1](https://i.ibb.co/6PFSnrZ/Screenshot-2024-05-06-231538.png)
 
-![image2](https://i.ibb.co/LgLHkWf/Screenshot-2024-05-06-231642.png)
+![image1](https://i.ibb.co/KrmfSPm/Screenshot-2024-06-19-090831.png)
+
+![image2](https://i.ibb.co/z6h0DGD/Screenshot-2024-06-19-090935.png)
