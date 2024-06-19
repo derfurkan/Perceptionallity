@@ -3,18 +3,17 @@ package de.furkan.perceptionallity.menu.menus;
 import de.furkan.perceptionallity.animation.InterpolationType;
 import de.furkan.perceptionallity.animation.ValueIterator;
 import de.furkan.perceptionallity.menu.Menu;
-import de.furkan.perceptionallity.menu.components.MenuComponent;
-import de.furkan.perceptionallity.menu.components.MenuLabel;
+import de.furkan.perceptionallity.menu.components.label.MenuLabel;
 import java.awt.*;
-import java.util.HashMap;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class StartMenu extends Menu {
 
-  final HashMap<MenuComponent, ValueIterator> menuComponents = new HashMap<>();
+  private final HashMap<MenuLabel, ValueIterator> textComponents = new HashMap<>();
   String startText =
       "We are all alone on life's journey, held\n captive by the limitations of human\n consciousness.";
+
   boolean fadeOutStarted = false;
 
   public StartMenu() throws Exception {
@@ -22,27 +21,26 @@ public class StartMenu extends Menu {
 
     // Build menu components
 
-    MenuComponent lastComponent = null;
+    MenuLabel lastComponent = null;
     for (String word : startText.split(" ")) {
-      MenuComponent component = new MenuLabel(40, 0, word, 70, Color.WHITE);
+      MenuLabel component = new MenuLabel(40, 0, word, 70, Color.WHITE);
 
       component.setY(getMenuManager().centerLocation(component.getDimension())[1] - 40);
       if (lastComponent != null) {
         if (word.contains("\n")) {
           component.setBelow(lastComponent, 20);
         } else {
-          component.setAsideRight(lastComponent);
-          component.setX(component.getX() + 30);
+          component.setAsideRight(lastComponent, 30);
           component.setY(lastComponent.getY());
         }
       }
 
       lastComponent = component;
       component.setOpacity(0.0f);
-      menuComponents.put(
+      textComponents.put(
           component,
           new ValueIterator(
-              0f, 1f, new Random().nextFloat(0.01f, 0.1f), InterpolationType.DEFAULT));
+              0f, 1f, new Random().nextFloat(0.007f, 0.015f), InterpolationType.DEFAULT));
     }
   }
 
@@ -59,7 +57,7 @@ public class StartMenu extends Menu {
     if (getMsElapsed() < 500) return;
     AtomicBoolean atomicBoolean = new AtomicBoolean(false);
 
-    menuComponents
+    textComponents
         .values()
         .forEach(
             valueIterator -> {
@@ -67,26 +65,34 @@ public class StartMenu extends Menu {
             });
 
     if (atomicBoolean.get()) {
-      menuComponents.forEach(
+      textComponents.forEach(
           (menuComponent, valueIterator) -> {
             menuComponent.setOpacity(valueIterator.getCurrentValue());
             menuComponent.buildComponent();
             valueIterator.updateValue();
           });
     } else {
-      if (getSecondsElapsed() >= 6) {
+      if (getSecondsElapsed() >= 8) {
         if (!fadeOutStarted) {
           fadeOutStarted = true;
-          menuComponents.values().forEach(ValueIterator::reverse);
+          textComponents
+              .values()
+              .forEach(
+                  valueIterator -> {
+                    valueIterator.setStep(
+                        new Random()
+                            .nextFloat(valueIterator.getStep(), valueIterator.getStep() + 0.015f));
+                    valueIterator.reverse();
+                  });
         } else {
-          if (getSecondsElapsed() >= 7) {
-            getMenuManager().setCurrentMenu(new MainMenu());
-            getMenuManager().drawCurrentMenu();
+          if (getSecondsElapsed() >= 9) {
+                        getMenuManager().setCurrentMenu(new MainMenu());
+                        getMenuManager().drawCurrentMenu();
           }
         }
       }
     }
-    menuComponents
+    textComponents
         .keySet()
         .forEach(menuComponent -> addTempComponent(menuComponent.getJComponent(), 1));
   }

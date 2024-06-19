@@ -10,13 +10,14 @@ import java.util.logging.Logger;
 import javax.swing.*;
 import lombok.Getter;
 
+@Getter
 public abstract class Menu {
 
   private final List<Component> updatingComponents = new ArrayList<>();
   private final List<Component> steadyComponents = new ArrayList<>();
-  @Getter private final int msPerUpdate;
+  private final int msPerUpdate;
   private Timer updateTimer;
-  @Getter private long updates = 0;
+  private long updates = 0;
 
   public Menu(int msPerUpdate, Color backgroundColor) {
     this.msPerUpdate = msPerUpdate;
@@ -143,11 +144,14 @@ public abstract class Menu {
    */
   public void unLoadMenu() {
     if (updateTimer != null) updateTimer.stop();
-    steadyComponents.clear();
-    updatingComponents.clear();
-    for (Component component : getGamePanel().getComponents()) {
+    for (Component component : steadyComponents) {
       getGamePanel().remove(component);
     }
+    for (Component component : updatingComponents) {
+      getGamePanel().remove(component);
+    }
+    steadyComponents.clear();
+    updatingComponents.clear();
     getGamePanel().repaint();
     getGamePanel().revalidate();
   }

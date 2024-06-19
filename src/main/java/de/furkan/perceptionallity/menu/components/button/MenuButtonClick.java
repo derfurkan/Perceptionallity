@@ -1,4 +1,4 @@
-package de.furkan.perceptionallity.menu.components;
+package de.furkan.perceptionallity.menu.components.button;
 
 public interface MenuButtonClick {
 

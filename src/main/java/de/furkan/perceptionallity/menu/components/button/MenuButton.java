@@ -1,6 +1,8 @@
-package de.furkan.perceptionallity.menu.components;
+package de.furkan.perceptionallity.menu.components.button;
 
 import de.furkan.perceptionallity.Perceptionallity;
+import de.furkan.perceptionallity.menu.components.MenuComponent;
+import de.furkan.perceptionallity.menu.components.label.MenuLabel;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;

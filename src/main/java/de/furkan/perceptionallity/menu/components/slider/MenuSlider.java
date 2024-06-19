@@ -1,5 +1,6 @@
-package de.furkan.perceptionallity.menu.components;
+package de.furkan.perceptionallity.menu.components.slider;
 
+import de.furkan.perceptionallity.menu.components.MenuComponent;
 import java.awt.*;
 import java.awt.geom.RoundRectangle2D;
 import javax.swing.*;

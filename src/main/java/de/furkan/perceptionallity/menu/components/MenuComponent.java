@@ -1,6 +1,7 @@
 package de.furkan.perceptionallity.menu.components;
 
 import de.furkan.perceptionallity.Perceptionallity;
+import de.furkan.perceptionallity.menu.components.sprite.MenuSprite;
 import de.furkan.perceptionallity.resources.ResourceManager;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -30,12 +31,19 @@ public abstract class MenuComponent {
     setY((menuComponent.getY() + menuComponent.getDimension().height) + additional);
   }
 
-  public void setAsideRight(MenuComponent menuComponent) {
-    setX(menuComponent.getX() + menuComponent.getDimension().width); // + getx
+  public void setAsideRight(MenuComponent menuComponent, int additional) {
+    setX(menuComponent.getX() + menuComponent.getDimension().width + additional); // + getx
   }
 
   public void setAsideLeft(MenuComponent menuComponent) {
     setX(menuComponent.getX() - menuComponent.getDimension().width); // + getx
+  }
+
+  public void setCenteredHeight(MenuComponent menuComponent) {
+    setY(
+        menuComponent.getY()
+            + (menuComponent.getDimension().height / 2)
+            - (getDimension().height / 2));
   }
 
   public void setSameHeight(MenuComponent menuComponent) {

@@ -17,6 +17,7 @@ class SoundThread extends Thread {
     this.loop = loop;
     this.volume = volume;
     this.audioFormat = audioFormat;
+
     start();
   }
 
@@ -33,18 +34,19 @@ class SoundThread extends Thread {
       sourceDataLine.addLineListener(
           event -> {
             if (event.getType() == LineEvent.Type.STOP && loop) {
+              // TODO: Close current Thread
               new SoundThread(true, volume, audioFormat);
             }
           });
 
       while (true) {
-        if (currentAudioData == null) return;
+        if (currentAudioData == null) return; // Maybe break?
         sourceDataLine.flush();
         sourceDataLine.write(currentAudioData, 0, currentAudioData.length);
         currentAudioData = null;
       }
     } catch (Exception e) {
-      Perceptionallity.getGame().handleFatalException(new RuntimeException(e));
+      Perceptionallity.getGame().handleFatalException(e);
     }
   }
 

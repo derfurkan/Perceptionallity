@@ -22,6 +22,7 @@ public abstract class GameObject {
   @Setter private GameAction onCollision;
   private Animation currentPlayingAnimation;
   private Animation lastPlayedAnimation;
+  private int objectLayer;
 
   public GameObject(
       Dimension dimension, WorldLocation worldLocation, boolean passToCollisionCheck) {
@@ -31,20 +32,17 @@ public abstract class GameObject {
     this.dimension = dimension;
   }
 
-  public void playAnimation(Animation animation, boolean fresh) throws CloneNotSupportedException {
+  public void playAnimation(Animation animation) throws CloneNotSupportedException {
     if (currentPlayingAnimation != null) lastPlayedAnimation = currentPlayingAnimation.clone();
     currentPlayingAnimation = animation.clone();
     currentPlayingAnimation.resizeTo(getDimension());
-    currentPlayingAnimation.setFresh(fresh);
   }
 
-  public void playAnimation(Animation animation, int fps, boolean fresh)
-      throws CloneNotSupportedException {
+  public void playAnimation(Animation animation, int fps) throws CloneNotSupportedException {
     if (currentPlayingAnimation != null) lastPlayedAnimation = currentPlayingAnimation.clone();
     currentPlayingAnimation = animation.clone();
     currentPlayingAnimation.resizeTo(getDimension());
     currentPlayingAnimation.setFramesPerSecond(fps);
-    currentPlayingAnimation.setFresh(fresh);
   }
 
   public Rectangle buildRectangle() {
@@ -61,7 +59,15 @@ public abstract class GameObject {
         getWorldLocation().getY(),
         (int) getDimension().getWidth(),
         (int) getDimension().getHeight());
-    Perceptionallity.getGame().getGamePanel().add(getComponent(), layer);
+    objectLayer = layer;
+  }
+
+
+  public void unInitializeGameObject() {
+    Perceptionallity.getGame().getGameManager().unregisterGameObject(this);
+    if (this instanceof GameNPC)
+      Perceptionallity.getGame().getGameManager().unregisterNPC((GameNPC) this);
+    Perceptionallity.getGame().getGamePanel().remove(getComponent());
   }
 
   public int distanceTo(WorldLocation worldLocation) {
