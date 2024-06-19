@@ -5,8 +5,8 @@ import de.furkan.perceptionallity.game.GameManager;
 import de.furkan.perceptionallity.game.GamePanel;
 import de.furkan.perceptionallity.game.GameState;
 import de.furkan.perceptionallity.menu.MenuManager;
-import de.furkan.perceptionallity.menu.menus.StartMenu;
-import de.furkan.perceptionallity.menu.menus.TestMenu;
+import de.furkan.perceptionallity.menu.menus.BootMenu;
+import de.furkan.perceptionallity.menu.menus.MainMenu;
 import de.furkan.perceptionallity.resources.ResourceManager;
 import de.furkan.perceptionallity.sound.SoundEngine;
 import de.furkan.perceptionallity.util.font.GameFont;
@@ -30,7 +30,7 @@ public class Game {
   private final SoundEngine soundEngine;
   private final GamePanel gamePanel = new GamePanel();
   private final int WINDOW_WIDTH, WINDOW_HEIGHT;
-  private final int DISPLAY_WIDTH, DISPLAY_HEIGHT;
+  protected final int DISPLAY_WIDTH, DISPLAY_HEIGHT;
   private final Dimension windowDimension;
   public boolean showDebugLines = false;
   private Logger logger;
@@ -50,7 +50,7 @@ public class Game {
   }
 
   public boolean isDebug() {
-    return true;
+    return false;
   }
 
   public String getBuildString() {
@@ -71,7 +71,7 @@ public class Game {
     logger.info("Finished creating game frame");
     menuManager.initialize();
 
-    menuManager.setCurrentMenu(isDebug() ? new TestMenu() : new StartMenu());
+    menuManager.setCurrentMenu(isDebug() ? new MainMenu() : new BootMenu());
 
     menuManager.drawCurrentMenu();
   }
@@ -116,7 +116,7 @@ public class Game {
                         !Perceptionallity.getGame().showDebugLines;
                 case 'g' -> {
                   try {
-                    menuManager.setCurrentMenu(new StartMenu());
+                    menuManager.setCurrentMenu(new BootMenu());
                   } catch (Exception ex) {
                     Perceptionallity.getGame().handleFatalException(ex);
                   }
@@ -159,9 +159,6 @@ public class Game {
    * preparing all visual and audio assets needed for the game.
    */
   private void loadResources() throws Exception {
-
-    resourceManager.registerResource(
-        "discord_sdk", resourceManager.getResourceFile("discord_game_sdk.dll", "discord"));
 
     resourceManager.registerResource(
         "menu_font", new GameFont(Font.TRUETYPE_FONT, "joystixmonospace.otf", "font"));
@@ -261,6 +258,8 @@ public class Game {
 
     registerAnimationResource(
         "campfire_animation", 4, 1, 12, true, "campfire_animation.png", "game", "campfire");
+
+    registerAnimationResource("engine_animation_logo", 4, 1, 3, true, "engine_logo.png", "game");
   }
 
   private void registerAnimationResource(

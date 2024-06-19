@@ -16,7 +16,6 @@ public class Animation implements Cloneable {
   @Setter private int framesPerSecond;
   private Iterator<Sprite> animationSprites;
   private Sprite currentFrame;
-  @Setter private boolean fresh;
 
   public Animation(Sprite[] sprites, int framesPerSecond, boolean loop) {
     this.sprites = sprites;

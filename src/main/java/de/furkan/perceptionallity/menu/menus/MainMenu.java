@@ -4,30 +4,23 @@ import de.furkan.perceptionallity.Perceptionallity;
 import de.furkan.perceptionallity.animation.InterpolationType;
 import de.furkan.perceptionallity.animation.ValueIterator;
 import de.furkan.perceptionallity.menu.Menu;
-import de.furkan.perceptionallity.menu.components.MenuButton;
-import de.furkan.perceptionallity.menu.components.MenuLabel;
+import de.furkan.perceptionallity.menu.components.button.MenuButton;
+import de.furkan.perceptionallity.menu.components.label.MenuLabel;
 import java.awt.*;
 import java.net.URI;
+import javax.swing.*;
 
 public class MainMenu extends Menu {
 
-  // Menu Animations
-  private final ValueIterator titleInAnimation;
-
   private final ValueIterator subTitleFadeAnimation =
       new ValueIterator(1.0f, 0.4f, 0.02f, InterpolationType.DEFAULT);
-
-  private final ValueIterator buttonInAnimation;
-
   // Menu Title
   private final String title = "Perceptionallity", subTitle = "A game by Furkan";
-
   // Components that are being animated (updated)
   MenuLabel titleLabel = new MenuLabel(0, 0, title, 120, Color.WHITE);
   int[] centerTitle = getMenuManager().centerLocation(titleLabel.getDimension());
   MenuLabel subTitleLabel = new MenuLabel(0, 0, subTitle, 70, Color.WHITE);
   int[] centerSubTitle = getMenuManager().centerLocation(subTitleLabel.getDimension());
-
   // TODO: Make this better and less ew.. Maybe a method which takes an array and creates menu
   // components automatically?
   // TODO: Use arrow keys to navigate
@@ -37,10 +30,21 @@ public class MainMenu extends Menu {
   MenuButton githubButton = new MenuButton(0, 0, 75, "GITHUB");
   MenuButton discordButton = new MenuButton(0, 0, 75, "DISCORD");
   MenuButton exitButton = new MenuButton(0, 0, 75, "EXIT");
+  // Menu Animations
+  private ValueIterator titleInAnimation;
+  private ValueIterator buttonInAnimation;
 
   public MainMenu() throws Exception {
     super(30, Color.BLACK);
+  }
 
+  @Override
+  public String getMenuName() {
+    return "Main";
+  }
+
+  @Override
+  public void initComponents() throws Exception {
     titleInAnimation =
         new ValueIterator(
             (float)
@@ -55,7 +59,7 @@ public class MainMenu extends Menu {
 
     buttonInAnimation =
         new ValueIterator(
-            -newGameButton.getDimension().width, 30, 30, InterpolationType.SMOOTH_END);
+            -newGameButton.getDimension().width, 30, 35, InterpolationType.SMOOTH_END);
 
     continueButton.setActive(false);
     continueButton.setOpacity(0.2f);
@@ -66,15 +70,6 @@ public class MainMenu extends Menu {
     exitButton.setBelow(discordButton, 5);
 
     addButtonFunctionality();
-  }
-
-  @Override
-  public String getMenuName() {
-    return "Main";
-  }
-
-  @Override
-  public void initComponents() throws Exception {
 
     MenuLabel credits =
         new MenuLabel(
@@ -102,7 +97,8 @@ public class MainMenu extends Menu {
   private void addButtonFunctionality() {
     newGameButton.setButtonClick(
         () -> {
-          getMenuManager().getCurrentMenu().unLoadMenu();
+          getMenuManager().setCurrentMenu(new LoadingMenu());
+          getMenuManager().drawCurrentMenu();
           Perceptionallity.getGame().getGameManager().initialize();
         });
 

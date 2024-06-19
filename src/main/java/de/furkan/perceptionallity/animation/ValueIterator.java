@@ -12,7 +12,8 @@ public class ValueIterator {
   private float[] targetValues;
   @Setter @Getter private float currentValue, initialValue;
   private float[] currentValues, initialValues;
-  private float step;
+
+  @Setter @Getter private float step;
 
   /**
    * Constructs a new ValueIterator for single float values. This constructor initializes the

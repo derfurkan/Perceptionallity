@@ -1,5 +1,6 @@
-package de.furkan.perceptionallity.menu.components;
+package de.furkan.perceptionallity.menu.components.label;
 
+import de.furkan.perceptionallity.menu.components.MenuComponent;
 import de.furkan.perceptionallity.util.font.GameFont;
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
@@ -28,6 +29,10 @@ public class MenuLabel extends MenuComponent {
 
     // Calculating dimension by font metrics
     recalculateDimension();
+  }
+
+  public String getText() {
+    return rawComponent.getText();
   }
 
   public void setText(String newText) {
