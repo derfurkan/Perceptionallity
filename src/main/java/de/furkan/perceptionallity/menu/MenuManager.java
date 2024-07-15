@@ -23,11 +23,11 @@ public class MenuManager extends Manager {
   }
 
   public JLayeredPane getGamePanel() {
-    return Perceptionallity.getGame().getGamePanel();
+    return Perceptionallity.getGame().getGameRenderer();
   }
 
   // Debug
-  public void reloadCurrentMenu() throws Exception {
+  public void reloadCurrentMenu() {
     getLogger().warning("Reloading current Menu (" + currentMenu.getMenuName() + ")");
     getSoundEngine().stopAllAudio();
     Menu newMenu = null;
@@ -42,24 +42,29 @@ public class MenuManager extends Manager {
     // Class.forName(currentMenu.getClass().getModule(),currentMenu.getClass().getName());
 
     if (newMenu == null) {
-      getGame()
-          .handleFatalException(
-              new RuntimeException(
-                  "Unknown Menu to reload. Please specify a class for the menu. ("
-                      + currentMenu.getMenuName()
-                      + ")"));
+      //      getGame()
+      //          .handleFatalException(
+      //              new RuntimeException(
+      //                  "Unknown Menu to reload. Please specify a class for the menu. ("
+      //                      + currentMenu.getMenuName()
+      //                      + ")"));
     }
 
     setCurrentMenu(newMenu);
     drawCurrentMenu();
   }
 
-  public void drawCurrentMenu() throws Exception {
+  public void drawCurrentMenu() {
     if (currentMenu == null) {
-      getGame().handleFatalException(new RuntimeException("No current menu set!"));
+      getLogger().warning("drawCurrentMethod Used was called without a specified currentMenu.");
+      return;
     }
     getGame().getGameManager().setGameState(GameState.MENU);
-    currentMenu.drawMenu();
+    try {
+      currentMenu.drawMenu();
+    } catch (Exception e) {
+      Perceptionallity.handleFatalException(e);
+    }
   }
 
   public void setCurrentMenu(Menu currentMenu) {

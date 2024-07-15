@@ -10,7 +10,7 @@ public class GameNPC extends GameEntity {
 
   private final GameSprite interactArrow;
 
-  public GameNPC(Dimension dimension, WorldLocation worldLocation) throws Exception {
+  public GameNPC(Dimension dimension, WorldLocation worldLocation) {
     super(dimension, worldLocation, false);
     Sprite sprite = getResourceManager().getResource("npc_interact_arrow", Sprite.class);
     interactArrow = new GameSprite(new Dimension(50, 50), new WorldLocation(), sprite);

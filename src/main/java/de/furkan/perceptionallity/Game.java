@@ -2,7 +2,7 @@ package de.furkan.perceptionallity;
 
 import de.furkan.perceptionallity.animation.Animation;
 import de.furkan.perceptionallity.game.GameManager;
-import de.furkan.perceptionallity.game.GamePanel;
+import de.furkan.perceptionallity.game.GameRenderer;
 import de.furkan.perceptionallity.game.GameState;
 import de.furkan.perceptionallity.menu.MenuManager;
 import de.furkan.perceptionallity.menu.menus.BootMenu;
@@ -16,7 +16,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.*;
 import javax.swing.*;
 import lombok.Getter;
@@ -24,13 +23,13 @@ import lombok.Getter;
 @Getter
 public class Game {
 
+  protected final int DISPLAY_WIDTH, DISPLAY_HEIGHT;
   private final MenuManager menuManager;
   private final GameManager gameManager;
   private final ResourceManager resourceManager;
   private final SoundEngine soundEngine;
-  private final GamePanel gamePanel = new GamePanel();
+  private final GameRenderer gameRenderer = new GameRenderer();
   private final int WINDOW_WIDTH, WINDOW_HEIGHT;
-  protected final int DISPLAY_WIDTH, DISPLAY_HEIGHT;
   private final Dimension windowDimension;
   public boolean showDebugLines = false;
   private Logger logger;
@@ -50,7 +49,7 @@ public class Game {
   }
 
   public boolean isDebug() {
-    return false;
+    return true;
   }
 
   public String getBuildString() {
@@ -70,9 +69,7 @@ public class Game {
     createGameFrame();
     logger.info("Finished creating game frame");
     menuManager.initialize();
-
     menuManager.setCurrentMenu(isDebug() ? new MainMenu() : new BootMenu());
-
     menuManager.drawCurrentMenu();
   }
 
@@ -81,7 +78,7 @@ public class Game {
    * commands. The game frame is set to be non-resizable and will close the application on exit. Key
    * listeners support debug functionalities like reloading menus and toggling debug lines.
    */
-  private void createGameFrame() throws Exception {
+  private void createGameFrame() {
     this.gameFrame = new JFrame("Perceptionallity");
     gameFrame.setResizable(false);
     gameFrame.setContentPane(menuManager.getGamePanel());
@@ -98,6 +95,7 @@ public class Game {
     gameFrame.setUndecorated(true);
     gameFrame.setVisible(true);
 
+    // Debug Keys
     gameFrame.addKeyListener(
         new KeyListener() {
           @Override
@@ -105,26 +103,14 @@ public class Game {
             if (Perceptionallity.getGame().isDebug()) {
               switch (e.getKeyChar()) {
                 case 'r' -> {
-                  try {
-                    menuManager.reloadCurrentMenu();
-                  } catch (Exception ex) {
-                    handleFatalException(ex);
-                  }
+                  menuManager.reloadCurrentMenu();
                 }
                 case 'f' ->
                     Perceptionallity.getGame().showDebugLines =
                         !Perceptionallity.getGame().showDebugLines;
                 case 'g' -> {
-                  try {
-                    menuManager.setCurrentMenu(new BootMenu());
-                  } catch (Exception ex) {
-                    Perceptionallity.getGame().handleFatalException(ex);
-                  }
-                  try {
-                    menuManager.drawCurrentMenu();
-                  } catch (Exception ex) {
-                    handleFatalException(ex);
-                  }
+                  menuManager.setCurrentMenu(new BootMenu());
+                  menuManager.drawCurrentMenu();
                 }
                 case 'h' -> {
                   if (gameManager.isGameState(GameState.IN_GAME)) {
@@ -135,7 +121,8 @@ public class Game {
                     }
                   }
                 }
-                case 'x' -> handleFatalException(new RuntimeException("Test Crash"));
+                case 'x' ->
+                    Perceptionallity.handleFatalException(new RuntimeException("Test Crash"));
                 case 'p' -> {
                   if (gameManager.isGameState(GameState.IN_GAME)) {
                     gameManager.setGamePaused(!gameManager.isGamePaused());
@@ -300,40 +287,6 @@ public class Game {
     consoleHandler.setFormatter(new CustomLogFormatter());
     logger.addHandler(consoleHandler);
     logger.setLevel(Level.INFO);
-  }
-
-  public void handleFatalException(Exception e) {
-    e.printStackTrace();
-    if (getGameFrame() != null) getGameFrame().dispose();
-
-    AtomicReference<StringBuilder> message = new AtomicReference<>(new StringBuilder());
-    message
-        .get()
-        .append("Engine encountered fatal error\n\n")
-        .append("Their reality crashed for you but not for them..\n")
-        .append("Try again or let them be.. forever.\n\n")
-        .append("-- Debug --\n\n")
-        .append(e.getClass().getSimpleName())
-        .append(":\n")
-        .append(e.getMessage())
-        .append("\n\n")
-        .append("State: ")
-        .append(gameManager.getGameState().name())
-        .append("\n\n")
-        .append("Stack Trace:\n");
-
-    for (int i = 0; i < Math.min(e.getStackTrace().length, 10); i++) {
-      message.get().append(e.getStackTrace()[i].toString()).append("\n");
-    }
-
-    JOptionPane.showConfirmDialog(
-        null,
-        message.toString(),
-        "Perceptionallity | Fatal Error - Reality crashed",
-        JOptionPane.DEFAULT_OPTION,
-        JOptionPane.ERROR_MESSAGE);
-
-    System.exit(0);
   }
 }
 

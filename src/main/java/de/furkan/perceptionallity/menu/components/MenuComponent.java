@@ -23,8 +23,8 @@ public abstract class MenuComponent {
     this.dimension = dimension;
   }
 
-  public void setAbove(MenuComponent menuComponent) {
-    setY(menuComponent.getY() - menuComponent.getDimension().height); // + getx
+  public void setAbove(MenuComponent menuComponent, int additional) {
+    setY((menuComponent.getY() - menuComponent.getDimension().height) + additional); // + getx
   }
 
   public void setBelow(MenuComponent menuComponent, int additional) {
@@ -32,18 +32,19 @@ public abstract class MenuComponent {
   }
 
   public void setAsideRight(MenuComponent menuComponent, int additional) {
-    setX(menuComponent.getX() + menuComponent.getDimension().width + additional); // + getx
+    setX((menuComponent.getX() + menuComponent.getDimension().width) + additional); // + getx
   }
 
-  public void setAsideLeft(MenuComponent menuComponent) {
-    setX(menuComponent.getX() - menuComponent.getDimension().width); // + getx
+  public void setAsideLeft(MenuComponent menuComponent, int additional) {
+    setX((menuComponent.getX() - menuComponent.getDimension().width) + additional); // + getx
   }
 
-  public void setCenteredHeight(MenuComponent menuComponent) {
+  public void setCenteredHeight(MenuComponent menuComponent, int additional) {
     setY(
-        menuComponent.getY()
-            + (menuComponent.getDimension().height / 2)
-            - (getDimension().height / 2));
+        (menuComponent.getY()
+                + (menuComponent.getDimension().height / 2)
+                - (getDimension().height / 2))
+            + additional);
   }
 
   public void setSameHeight(MenuComponent menuComponent) {

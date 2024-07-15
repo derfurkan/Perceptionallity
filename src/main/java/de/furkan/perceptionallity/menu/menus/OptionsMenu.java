@@ -19,30 +19,30 @@ public class OptionsMenu extends Menu {
   }
 
   @Override
-  public void initComponents() throws Exception {
+  public void initComponents() {
     MenuLabel optionsLabel = new MenuLabel(20, 10, "OPTIONS", 120, Color.WHITE);
 
-    MenuLabel multiThreadedRenderingLabel = new MenuLabel(30, 0, "Multi-Threaded Rendering", 50, Color.WHITE);
-    multiThreadedRenderingLabel.setBelow(optionsLabel,30);
+    MenuLabel multiThreadedRenderingLabel =
+        new MenuLabel(30, 0, "Multi-Threaded Rendering", 50, Color.WHITE);
+    multiThreadedRenderingLabel.setBelow(optionsLabel, 30);
 
-    MenuCheckbox multiThreadedRenderingCheckbox = new MenuCheckbox(0,0,50,5);
-    multiThreadedRenderingCheckbox.setAsideRight(multiThreadedRenderingLabel,5);
-    multiThreadedRenderingCheckbox.setCenteredHeight(multiThreadedRenderingLabel);
-
+    MenuCheckbox multiThreadedRenderingCheckbox = new MenuCheckbox(0, 0, 50, 5);
+    multiThreadedRenderingCheckbox.setAsideRight(multiThreadedRenderingLabel, 5);
+    multiThreadedRenderingCheckbox.setCenteredHeight(multiThreadedRenderingLabel, 0);
 
     MenuLabel discordRPCLabel = new MenuLabel(30, 0, "Discord Integration", 50, Color.WHITE);
-    discordRPCLabel.setBelow(multiThreadedRenderingLabel,10);
+    discordRPCLabel.setBelow(multiThreadedRenderingLabel, 10);
 
-    MenuCheckbox discordRPCCheckbox = new MenuCheckbox(0,0,50,5);
-    discordRPCCheckbox.setAsideRight(discordRPCLabel,5);
-    discordRPCCheckbox.setCenteredHeight(discordRPCLabel);
+    MenuCheckbox discordRPCCheckbox = new MenuCheckbox(0, 0, 50, 5);
+    discordRPCCheckbox.setAsideRight(discordRPCLabel, 5);
+    discordRPCCheckbox.setCenteredHeight(discordRPCLabel, 0);
 
     MenuButton backButton = new MenuButton(20, 0, 50, "BACK");
 
     backButton.setButtonClick(
         new MenuButtonClick() {
           @Override
-          public void onClick() throws Exception {
+          public void onClick() {
             getMenuManager().setCurrentMenu(new MainMenu());
             getMenuManager().drawCurrentMenu();
           }

@@ -5,10 +5,12 @@ import de.furkan.perceptionallity.animation.InterpolationType;
 import de.furkan.perceptionallity.animation.ValueIterator;
 import de.furkan.perceptionallity.menu.Menu;
 import de.furkan.perceptionallity.menu.components.button.MenuButton;
+import de.furkan.perceptionallity.menu.components.button.MenuButtonClick;
 import de.furkan.perceptionallity.menu.components.label.MenuLabel;
 import java.awt.*;
 import java.net.URI;
 import javax.swing.*;
+import lombok.SneakyThrows;
 
 public class MainMenu extends Menu {
 
@@ -34,7 +36,7 @@ public class MainMenu extends Menu {
   private ValueIterator titleInAnimation;
   private ValueIterator buttonInAnimation;
 
-  public MainMenu() throws Exception {
+  public MainMenu() {
     super(30, Color.BLACK);
   }
 
@@ -44,7 +46,7 @@ public class MainMenu extends Menu {
   }
 
   @Override
-  public void initComponents() throws Exception {
+  public void initComponents() {
     titleInAnimation =
         new ValueIterator(
             (float)
@@ -109,13 +111,25 @@ public class MainMenu extends Menu {
         });
 
     githubButton.setButtonClick(
-        () ->
-            Desktop.getDesktop().browse(new URI("https://github.com/derfurkan/Perceptionallity")));
+        new MenuButtonClick() {
+
+          @SneakyThrows
+          @Override
+          public void onClick() {
+            Desktop.getDesktop().browse(new URI("https://github.com/derfurkan/Perceptionallity"));
+          }
+        });
 
     exitButton.setButtonClick(() -> System.exit(0));
 
     discordButton.setButtonClick(
-        () -> Desktop.getDesktop().browse(new URI("https://discord.gg/pF5FnwDxBj")));
+        new MenuButtonClick() {
+          @SneakyThrows
+          @Override
+          public void onClick() {
+            Desktop.getDesktop().browse(new URI("https://discord.gg/pF5FnwDxBj"));
+          }
+        });
   }
 
   @Override

@@ -20,10 +20,11 @@ public class Animation implements Cloneable {
   public Animation(Sprite[] sprites, int framesPerSecond, boolean loop) {
     this.sprites = sprites;
     if (framesPerSecond > 60) {
-      Perceptionallity.getGame()
-          .handleFatalException(
-              new RuntimeException(
-                  "Animations can only be played back with max 30 Frames per second and not more."));
+      //      Perceptionallity.getGame()
+      //          .handleFatalException(
+      //              new RuntimeException(
+      //                  "Animations can only be played back with max 30 Frames per second and not
+      // more."));
     }
     this.framesPerSecond = framesPerSecond;
     this.loop = loop;

@@ -16,7 +16,7 @@ public class StartMenu extends Menu {
 
   boolean fadeOutStarted = false;
 
-  public StartMenu() throws Exception {
+  public StartMenu() {
     super(30, Color.BLACK);
 
     // Build menu components
@@ -53,7 +53,7 @@ public class StartMenu extends Menu {
   public void initComponents() {}
 
   @Override
-  public void onUpdate() throws Exception {
+  public void onUpdate() {
     if (getMsElapsed() < 500) return;
     AtomicBoolean atomicBoolean = new AtomicBoolean(false);
 
@@ -86,8 +86,8 @@ public class StartMenu extends Menu {
                   });
         } else {
           if (getSecondsElapsed() >= 9) {
-                        getMenuManager().setCurrentMenu(new MainMenu());
-                        getMenuManager().drawCurrentMenu();
+            getMenuManager().setCurrentMenu(new MainMenu());
+            getMenuManager().drawCurrentMenu();
           }
         }
       }
