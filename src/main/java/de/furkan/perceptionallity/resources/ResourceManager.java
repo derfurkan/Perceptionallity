@@ -10,6 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Logger;
 import lombok.Getter;
 
 public class ResourceManager {
@@ -18,6 +19,10 @@ public class ResourceManager {
   private final ConcurrentHashMap<String, Resource<?>> resources = new ConcurrentHashMap<>();
 
   private final ConcurrentHashMap<String, File> resourceFileCache = new ConcurrentHashMap<>();
+
+  private Logger getLogger() {
+    return Perceptionallity.getGame().getLogger();
+  }
 
   /**
    * Registers a new resource with a specified key and value in the resource map. Logs the action of
@@ -39,9 +44,8 @@ public class ResourceManager {
                 + resourceValue.getClass().getSimpleName()
                 + ")");
     if (resources.containsKey(resourceKey)) {
-      Perceptionallity.getGame()
-          .handleFatalException(
-              new IllegalArgumentException("Resource key already registered: " + resourceKey));
+      getLogger().warning("Resource key already registered. (" + resourceKey + ")");
+      return;
     }
     resources.put(resourceKey, new Resource<>(resourceValue));
   }
@@ -58,14 +62,34 @@ public class ResourceManager {
    * @throws IllegalArgumentException if the resource key is invalid or the resource is not loaded
    */
   @SuppressWarnings("unchecked")
-  public <T> T getResource(String resourceKey, Class<T> type) throws Exception {
+  public <T> T getResource(String resourceKey, Class<T> type) {
     Resource<?> resource = resources.get(resourceKey);
-    if (resource == null || !type.isInstance(resource.data())) {
-      Perceptionallity.getGame()
-          .handleFatalException(
-              new IllegalArgumentException("Invalid or unloaded resource key: " + resourceKey));
+    if (!type.isInstance(resource.data())) {
+      Perceptionallity.handleFatalException(
+          "The given resource does to correspond to the provided type.");
+      return null;
     }
-    return (T) resource.clone().data();
+    try {
+      return (T) resource.clone().data();
+    } catch (Exception e) {
+      Perceptionallity.handleFatalException(e);
+    }
+    return null;
+  }
+
+  public String getKeyFromResource(Object resource) {
+    if (resources.values().stream().anyMatch(resource1 -> resource1 == resource)) {
+      return resources.keySet().stream()
+          .filter(resource1 -> resources.get(resource1) == resource)
+          .findFirst()
+          .get();
+    }
+    getLogger()
+        .warning(
+            "Could not trace resource ("
+                + resource.getClass().getSimpleName()
+                + ") back to it's position in resource register. (Invalid registration?");
+    return "";
   }
 
   /**
@@ -89,24 +113,19 @@ public class ResourceManager {
 
     Optional<URL> resource = Optional.ofNullable(getClass().getResource("/" + fullPath));
     if (resource.isEmpty()) {
-      Perceptionallity.getGame()
-          .handleFatalException(
-              new RuntimeException(
-                  "Could not retrieve resource file because of invalid resourceKey or resourcePath. key: "
-                      + resourceKey
-                      + " path: "
-                      + resourcePathString));
+      Perceptionallity.handleFatalException(
+          "Could not retrieve resource file. (" + resourceKey + " -> " + resourcePathString + ")");
     }
 
-    File tempFile = null;
+    File tempFile;
     try (InputStream inputStream = resource.get().openStream()) {
       tempFile = File.createTempFile("resource-", ".tmp");
       tempFile.deleteOnExit();
       Files.copy(inputStream, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
     } catch (IOException e) {
-      Perceptionallity.getGame().handleFatalException(e);
+      Perceptionallity.handleFatalException(e);
+      return null;
     }
-
     resourceFileCache.put(fullPath, tempFile);
     return tempFile;
   }
@@ -129,11 +148,9 @@ public class ResourceManager {
               new Sprite(subImage, new Dimension(subImage.getWidth(), subImage.getHeight()));
         }
       }
-
       return sprites;
     } else {
-      Perceptionallity.getGame()
-          .handleFatalException(new RuntimeException("Sprite image is not a BufferedImage."));
+      Perceptionallity.handleFatalException("Sprite image is not a BufferedImage.");
       return null;
     }
   }

@@ -16,7 +16,6 @@ import java.text.DecimalFormat;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.*;
-import javax.swing.Timer;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -26,12 +25,12 @@ public class GameManager extends Manager {
   private final Camera camera = new Camera();
   private final List<GameObject> gameObjects = Collections.synchronizedList(new ArrayList<>());
   private final List<GameKeyEvent> keyEvents = new ArrayList<>();
-  private final List<GameAction> loopCalls = new ArrayList<>();
+  private final List<GameAction> gameThreadLoopCalls = new ArrayList<>();
   private final List<GameNPC> gameNPCs = new ArrayList<>();
-  private final Timer gameTimer;
+  private final TimerTask gameTimer;
+  private final Timer gameTimerExecutor;
   private final Set<Integer> pressedKeys = new HashSet<>();
   private final int GAME_UPDATE_MS = 15;
-
 
   @Getter
   private final int DISTANCE_UNTIL_DISPOSE =
@@ -44,21 +43,25 @@ public class GameManager extends Manager {
   private GameState gameState = GameState.NONE;
   private GamePlayer currentPlayer;
   private long updatesPassed = 0;
-  private MenuLabel statsLabel, objectLabel,locationLabel;
-
+  private MenuLabel statsLabel, objectLabel, locationLabel;
 
   public GameManager() {
+
     gameTimer =
-        new Timer(
-            GAME_UPDATE_MS,
-            e -> {
-              if (gamePaused) return;
-              try {
-                loopCalls.forEach(GameAction::onAction);
-              } catch (Exception exception) {
-                getGame().handleFatalException(exception);
-              }
-            });
+        new TimerTask() {
+
+          @Override
+          public void run() {
+            if (gamePaused) return;
+            try {
+              gameThreadLoopCalls.forEach(GameAction::onAction);
+            } catch (Exception exception) {
+              Perceptionallity.handleFatalException(exception);
+            }
+          }
+        };
+
+    gameTimerExecutor = new Timer("GameThread");
 
     // Each frame render loop
     registerLoopAction(
@@ -68,52 +71,11 @@ public class GameManager extends Manager {
           @Override
           public void onAction() {
 
-
             // Just in case if a player has no real-life:
             if (updatesPassed == Long.MAX_VALUE) updatesPassed = 0;
             updatesPassed += 1;
 
-            var cameraRectangle = new Rectangle();
-            cameraRectangle.setBounds(
-                getCamera().getCameraViewLocation().getX(),
-                getCamera().getCameraViewLocation().getY(),
-                getGame().getWINDOW_WIDTH(),
-                getGame().getWINDOW_HEIGHT());
-
-            //               Remove objects which are not in camera view (Using Multi-Threaded
-            // rendering
-            //             calculations)
-            List<List<GameObject>> splitGameObjectLists = splitArrayList(getGameObjects(), 100);
-            List<GameObject> validGameObjects = Collections.synchronizedList(new ArrayList<>());
-
-            ExecutorService executorService =
-                Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-            splitGameObjectLists.forEach(
-                gameObjects -> {
-                  executorService.submit(
-                      () -> {
-                        gameObjects.forEach(
-                            gameObject -> {
-                                gameObject.getLastLocation().set(gameObject.getWorldLocation());
-
-                                gameObject.getWorldLocation().applyVelocity(gameObject.getCurrentVelocity());
-
-                                if (gameObject.buildRectangle().intersects(cameraRectangle)) {
-                                  validGameObjects.add(gameObject);
-                              } else {
-                                  getGame().getGamePanel().remove(gameObject.getComponent());
-                              }
-                            });
-                      });
-                });
-            executorService.shutdown();
-            try {
-              executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
-            } catch (InterruptedException e) {
-              getGame().handleFatalException(e);
-            }
-
-              // KeyEvent Pass
+            // KeyEvent Pass
             pressedKeys.forEach(
                 integer ->
                     keyEvents.stream()
@@ -124,45 +86,22 @@ public class GameManager extends Manager {
                             gameKeyEvent -> {
                               if (!gameKeyEvent.getPressedKeys().contains(integer))
                                 gameKeyEvent.getPressedKeys().add(integer);
-                              try {
-                                gameKeyEvent.getKeyListener().whileKeyPressed(integer);
-                              } catch (Exception e) {
-                                getGame().handleFatalException(e);
-                              }
+                              gameKeyEvent.getKeyListener().whileKeyPressed(integer);
                             }));
 
             // GameObject Pass
-            validGameObjects.forEach(
+            gameObjects.forEach(
                 (gameObject) -> {
-
-                  if (Arrays.stream(getGame().getGamePanel().getComponents())
+                  if (Arrays.stream(getGame().getGameRenderer().getComponents())
                       .noneMatch(component -> component == gameObject.getComponent())) {
-                    getGame().getGamePanel().add(gameObject.getComponent(),gameObject.getObjectLayer());
+                    getGame()
+                        .getGameRenderer()
+                        .add(gameObject.getComponent(), gameObject.getObjectLayer());
                   }
 
-                  // GameObject Collision Pass
-                  if (gameObject.isPassToCollisionCheck() && gameObject.getOnCollision() != null) {
-                    if (gameObject.getCollisionBoundaries() == null) {
-                      getLogger()
-                          .warning(
-                              "This GameObject does not have collision boundaries set ("
-                                  + gameObject.getClass().getSimpleName()
-                                  + ")");
-                    }
-
-                    CompletableFuture<Boolean> collisionFuture = new CompletableFuture<>();
-                    getGame().getGamePanel().passToCollisionCheck(gameObject, collisionFuture);
-
-                    collisionFuture.whenComplete(
-                        (isColliding, throwable) -> {
-                          if (isColliding) {
-                            gameObject.getOnCollision().onAction();
-                          }
-                        });
-                  }
+                  gameObject.getWorldLocation().applyVelocity(gameObject.getCurrentVelocity());
 
                   // GameObject Animation Pass
-
                   if (gameObject.getCurrentPlayingAnimation() != null) {
 
                     if ((updatesPassed
@@ -185,6 +124,7 @@ public class GameManager extends Manager {
             // Telemetry Pass
             var frameTime = (System.currentTimeMillis() - startTime);
 
+            //  Over-Render Protection
             if (frameTime < GAME_UPDATE_MS) {
               try {
                 Thread.sleep(GAME_UPDATE_MS - frameTime);
@@ -196,26 +136,30 @@ public class GameManager extends Manager {
             frameTime = (System.currentTimeMillis() - startTime);
 
             if (updatesPassed % (100 / GAME_UPDATE_MS) == 0 && getGame().isDebug()) {
-              statsLabel.setText(
-                  1000 / frameTime
-                      + " fps, "
-                      + frameTime
-                      + " ms");
-              objectLabel.setText(validGameObjects.size()+" / "+new DecimalFormat("#,###").format(gameObjects.size()) + " Objects");
+              statsLabel.setText(1000 / frameTime + " fps, " + frameTime + " ms");
+              objectLabel.setText(
+                  gameObjects.size()
+                      + " / "
+                      + new DecimalFormat("#,###").format(gameObjects.size())
+                      + " Objects");
 
-              locationLabel.setText(currentPlayer.getWorldLocation().getX() + " X, " + currentPlayer.getWorldLocation().getY()+" Y");
+              locationLabel.setText(
+                  currentPlayer.getWorldLocation().getX()
+                      + " X, "
+                      + currentPlayer.getWorldLocation().getY()
+                      + " Y");
 
               objectLabel.recalculateDimension();
               objectLabel.buildComponent();
               statsLabel.recalculateDimension();
               statsLabel.buildComponent();
-                locationLabel.recalculateDimension();
-                locationLabel.buildComponent();
+              locationLabel.recalculateDimension();
+              locationLabel.buildComponent();
             }
             startTime = System.currentTimeMillis();
 
-            getGame().getGamePanel().repaint();
-            getGame().getGamePanel().revalidate();
+            getGame().getGameRenderer().repaint();
+            getGame().getGameRenderer().revalidate();
           }
         });
   }
@@ -223,123 +167,111 @@ public class GameManager extends Manager {
   @Override
   public void initialize() {
 
-    new Thread(
-            () -> {
-              try {
-                getLogger().info("Initializing game");
+    getLogger().info("Initializing game");
 
-                statsLabel =
-                    new MenuLabel(
-                        3,
-                        3,
-                        "",
-                        20,
-                        Color.BLACK,
-                        getResourceManager().getResource("ingame_font", GameFont.class));
+    statsLabel =
+        new MenuLabel(
+            3,
+            3,
+            "",
+            20,
+            Color.BLACK,
+            getResourceManager().getResource("ingame_font", GameFont.class));
 
+    objectLabel =
+        new MenuLabel(
+            3,
+            0,
+            "",
+            20,
+            Color.BLACK,
+            getResourceManager().getResource("ingame_font", GameFont.class));
+    locationLabel =
+        new MenuLabel(
+            3,
+            0,
+            "",
+            20,
+            Color.BLACK,
+            getResourceManager().getResource("ingame_font", GameFont.class));
+    objectLabel.setBelow(statsLabel, 0);
+    locationLabel.setBelow(objectLabel, 0);
 
-                  objectLabel =
-                          new MenuLabel(
-                                  3,
-                                  0,
-                                  "",
-                                  20,
-                                  Color.BLACK,
-                                  getResourceManager().getResource("ingame_font", GameFont.class));
-                  locationLabel =
-                          new MenuLabel(
-                                  3,
-                                  0,
-                                  "",
-                                  20,
-                                  Color.BLACK,
-                                  getResourceManager().getResource("ingame_font", GameFont.class));
-                  objectLabel.setBelow(statsLabel,0);
-                  locationLabel.setBelow(objectLabel,0);
-                getGame()
-                    .getGameFrame()
-                    .addKeyListener(
-                        new java.awt.event.KeyListener() {
-                          @Override
-                          public void keyTyped(KeyEvent e) {}
+    getGame()
+        .getGameFrame()
+        .addKeyListener(
+            new java.awt.event.KeyListener() {
+              @Override
+              public void keyTyped(KeyEvent e) {}
 
-                          @Override
-                          public void keyPressed(KeyEvent e) {
-                            pressedKeys.add(e.getKeyCode());
-                          }
-
-                          @Override
-                          public void keyReleased(KeyEvent e) {
-
-                            keyEvents.stream()
-                                .filter(
-                                    gameKeyEvent ->
-                                        Arrays.stream(gameKeyEvent.getKeyRegister())
-                                            .anyMatch(integer -> integer == e.getKeyCode()))
-                                .forEach(
-                                    gameKeyEvent -> {
-                                      gameKeyEvent.getPressedKeys().remove((Object) e.getKeyCode());
-                                      try {
-                                        gameKeyEvent.getKeyListener().keyReleased(e);
-                                      } catch (Exception ex) {
-                                        getGame().handleFatalException(new RuntimeException(ex));
-                                      }
-                                    });
-                            pressedKeys.remove(e.getKeyCode());
-                          }
-                        });
-
-                // Delete this after testing:
-
-                int distance = 10000;
-
-                for (int i = 0; i < 2_000; i++) {
-                  GameCampfire gameCampfire =
-                      new GameCampfire(
-                          new WorldLocation(
-                              ThreadLocalRandom.current().nextInt(-distance, distance),
-                              ThreadLocalRandom.current().nextInt(-distance, distance)));
-                  gameCampfire.initializeGameObject(1);
-                }
-
-                TestNPC testNPC = new TestNPC(new WorldLocation(100, 100));
-                testNPC.initializeGameObject(1);
-
-                currentPlayer = new GamePlayer(new WorldLocation(-20, -20), true);
-                currentPlayer.setAttribute(EntityAttributes.MOVEMENT_SPEED, 5);
-                currentPlayer.setAttribute(EntityAttributes.RUN_SPEED_FACTOR, 5);
-                currentPlayer.registerKeyEvent();
-                currentPlayer.initializeGameObject(1);
-
-                testNPC.setCollisionBoundaries(new Dimension(30, 40));
-                currentPlayer.setCollisionBoundaries(new Dimension(30, 40));
-
-                currentPlayer.setOnCollision(
-                    () -> {
-                      //
-                      // currentPlayer.getWorldLocation().set(currentPlayer.getLastLocation());
-                      //                    camera.flushCalculation();
-                    });
-
-                camera.centerOnObject(currentPlayer);
-
-                Perceptionallity.getDiscordRPCHandler().setState(RPCStates.IN_GAME, "Test Area");
-
-                // When everything is loaded and in place we start the actual game loop
-                setGameState(GameState.IN_GAME);
-                getLogger().info("Initialized game");
-                startGameLoop();
-                getGame().getGamePanel().add(statsLabel.getJComponent(), 0);
-                getGame().getGamePanel().add(objectLabel.getJComponent(), 0);
-                getGame().getGamePanel().add(locationLabel.getJComponent(), 0);
-                getGame().getGamePanel().setBackground(Color.WHITE);
-
-                Perceptionallity.getGame().getMenuManager().getCurrentMenu().unLoadMenu();
-              } catch (Exception e) {
-                getGame().handleFatalException(e);
+              @Override
+              public void keyPressed(KeyEvent e) {
+                pressedKeys.add(e.getKeyCode());
               }
-            })
-        .start();
+
+              @Override
+              public void keyReleased(KeyEvent e) {
+
+                keyEvents.stream()
+                    .filter(
+                        gameKeyEvent ->
+                            Arrays.stream(gameKeyEvent.getKeyRegister())
+                                .anyMatch(integer -> integer == e.getKeyCode()))
+                    .forEach(
+                        gameKeyEvent -> {
+                          gameKeyEvent.getPressedKeys().remove((Object) e.getKeyCode());
+                          gameKeyEvent.getKeyListener().keyReleased(e);
+                        });
+                pressedKeys.remove(e.getKeyCode());
+              }
+            });
+
+    // Delete this after testing:
+
+    int distance = 2000;
+
+    for (int i = 0; i < 400; i++) {
+      GameCampfire gameCampfire =
+          new GameCampfire(
+              new WorldLocation(
+                  ThreadLocalRandom.current().nextInt(-distance, distance),
+                  ThreadLocalRandom.current().nextInt(-distance, distance)));
+      gameCampfire.initializeGameObject(1);
+    }
+
+    TestNPC testNPC = new TestNPC(new WorldLocation(100, 100));
+    testNPC.initializeGameObject(1);
+
+    currentPlayer = new GamePlayer(new WorldLocation(-20, -20), true);
+    currentPlayer.setAttribute(EntityAttributes.MOVEMENT_SPEED, 5);
+    currentPlayer.setAttribute(EntityAttributes.RUN_SPEED_FACTOR, 5);
+    currentPlayer.registerKeyEvent();
+    currentPlayer.initializeGameObject(1);
+
+    testNPC.setCollisionBoundaries(new Dimension(30, 40));
+    currentPlayer.setCollisionBoundaries(new Dimension(30, 40));
+
+    currentPlayer.setOnCollision(
+        () -> {
+          //
+          // currentPlayer.getWorldLocation().set(currentPlayer.getLastLocation());
+          //                    camera.flushCalculation();
+        });
+
+    camera.centerOnObject(currentPlayer);
+
+    Perceptionallity.getDiscordRPCHandler().setState(RPCStates.IN_GAME, "Test Area");
+
+    // When everything is loaded and in place we start the actual game loop
+    setGameState(GameState.IN_GAME);
+    getLogger().info("Initialized game");
+    startGameLoop();
+    getGame().getGameRenderer().add(statsLabel.getJComponent(), 0);
+    getGame().getGameRenderer().add(objectLabel.getJComponent(), 0);
+    getGame().getGameRenderer().add(locationLabel.getJComponent(), 0);
+    getGame().getGameRenderer().setBackground(Color.WHITE);
+
+    Perceptionallity.getGame().getMenuManager().getCurrentMenu().unLoadMenu();
   }
 
   public void registerNPC(GameNPC gameNPC) {
@@ -351,7 +283,7 @@ public class GameManager extends Manager {
   }
 
   public void registerLoopAction(GameAction gameAction) {
-    loopCalls.add(gameAction);
+    gameThreadLoopCalls.add(gameAction);
   }
 
   public void registerKeyEvent(GameKeyEvent gameKeyListener) {
@@ -362,12 +294,12 @@ public class GameManager extends Manager {
 
   private void startGameLoop() {
     getLogger().info("Started game loop");
-    gameTimer.start();
+    gameTimerExecutor.scheduleAtFixedRate(gameTimer, 0, GAME_UPDATE_MS);
   }
 
   private void stopGameLoop() {
     getLogger().info("Stopped game loop");
-    gameTimer.stop();
+    gameTimerExecutor.cancel();
   }
 
   public boolean isGameComponent(Component component) {
@@ -378,11 +310,7 @@ public class GameManager extends Manager {
     return gameObjects.stream()
         .filter(gameObject -> gameObject.getComponent() == component)
         .findFirst()
-        .orElseThrow(() -> {
-            RuntimeException runtimeException = new RuntimeException("GameObject not found by Component");
-            getGame().handleFatalException(runtimeException);
-            return runtimeException;
-        });
+        .get();
   }
 
   public boolean isGameState(GameState gameState) {
@@ -405,23 +333,21 @@ public class GameManager extends Manager {
     gameObjects.remove(gameObject);
   }
 
+  private <T> List<List<T>> splitArrayList(List<T> list, int chunkSize) {
+    List<List<T>> chunks = new ArrayList<>();
 
-    private <T> List<List<T>> splitArrayList(List<T> list, int chunkSize) {
-        List<List<T>> chunks = new ArrayList<>();
-
-        if (chunkSize == 0) {
-            chunks.add(list);
-            return chunks;
-        }
-
-        int listSize = list.size();
-
-        for (int i = 0; i < listSize; i += chunkSize) {
-            int end = Math.min(listSize, i + chunkSize);
-            chunks.add(new ArrayList<>(list.subList(i, end)));
-        }
-
-        return chunks;
+    if (chunkSize == 0) {
+      chunks.add(list);
+      return chunks;
     }
 
+    int listSize = list.size();
+
+    for (int i = 0; i < listSize; i += chunkSize) {
+      int end = Math.min(listSize, i + chunkSize);
+      chunks.add(new ArrayList<>(list.subList(i, end)));
+    }
+
+    return chunks;
+  }
 }

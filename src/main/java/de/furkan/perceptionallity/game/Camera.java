@@ -6,14 +6,10 @@ import java.util.HashMap;
 import lombok.Getter;
 
 public class Camera {
-  @Getter
-  private final HashMap<GameObject, int[]> calculatedGameObjects = new HashMap<>();
-  @Getter
-  private GameObject centeredObject;
-  
-  private final WorldLocation cameraViewLocation = new WorldLocation(0,0);
-  private final WorldLocation centeredCameraViewLocation = new WorldLocation(0,0);
-
+  @Getter private final HashMap<GameObject, int[]> calculatedGameObjects = new HashMap<>();
+  private final WorldLocation cameraViewLocation = new WorldLocation(0, 0);
+  private final WorldLocation centeredCameraViewLocation = new WorldLocation(0, 0);
+  @Getter private GameObject centeredObject;
 
   /**
    * Centers the camera on a specified game object.
@@ -40,10 +36,11 @@ public class Camera {
    * @return An array of two integers representing the x and y coordinates.
    */
   public int[] calculateObjectPosition(GameObject gameObject) {
-    int[] calculatedPosition =  new int[] {
-            gameObject.getWorldLocation().getX() + cameraViewLocation.getX(),
-            gameObject.getWorldLocation().getY() + cameraViewLocation.getY()
-    };
+    int[] calculatedPosition =
+        new int[] {
+          gameObject.getWorldLocation().getX() + cameraViewLocation.getX(),
+          gameObject.getWorldLocation().getY() + cameraViewLocation.getY()
+        };
 
     if (centeredObject != null && centeredObject != gameObject) {
       int diffX = gameObject.getWorldLocation().getX() - centeredObject.getWorldLocation().getX();
@@ -58,8 +55,11 @@ public class Camera {
       calculatedPosition =
           Perceptionallity.getGame().getMenuManager().centerLocation(gameObject.getDimension());
 
-      centeredCameraViewLocation.setXY((centeredObject.getWorldLocation().getX() + centeredObject.getDimension().width/2) - (Perceptionallity.getGame().getWINDOW_WIDTH()/2), (centeredObject.getWorldLocation().getY()  + centeredObject.getDimension().height/2) - (Perceptionallity.getGame().getWINDOW_HEIGHT()/2));
-
+      centeredCameraViewLocation.setXY(
+          (centeredObject.getWorldLocation().getX() + centeredObject.getDimension().width / 2)
+              - (Perceptionallity.getGame().getWINDOW_WIDTH() / 2),
+          (centeredObject.getWorldLocation().getY() + centeredObject.getDimension().height / 2)
+              - (Perceptionallity.getGame().getWINDOW_HEIGHT() / 2));
     }
 
     return calculatedPosition;

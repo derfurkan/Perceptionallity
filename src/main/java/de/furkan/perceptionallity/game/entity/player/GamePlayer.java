@@ -2,6 +2,7 @@ package de.furkan.perceptionallity.game.entity.player;
 
 import static java.awt.event.KeyEvent.*;
 
+import de.furkan.perceptionallity.Perceptionallity;
 import de.furkan.perceptionallity.animation.Animation;
 import de.furkan.perceptionallity.game.*;
 import de.furkan.perceptionallity.game.entity.EntityAttributes;
@@ -21,7 +22,7 @@ public class GamePlayer extends GameEntity {
   private DIRECTION lastDirection = DIRECTION.SOUTH;
   private int successWalk;
 
-  public GamePlayer(WorldLocation worldLocation, boolean passToCollisionCheck) throws Exception {
+  public GamePlayer(WorldLocation worldLocation, boolean passToCollisionCheck) {
     super(new Dimension(100, 110), worldLocation, passToCollisionCheck);
     playAnimation(getResourceManager().getResource("player_idle_down_animation", Animation.class));
     getGameManager()
@@ -57,7 +58,7 @@ public class GamePlayer extends GameEntity {
                     new GameKeyListener() {
 
                       @Override
-                      public void whileKeyPressed(int integer) throws Exception {
+                      public void whileKeyPressed(int integer) {
 
                         if (getGameManager().isGameState(GameState.IN_DIALOGUE)) {
                           handleDialogueKey(integer);
@@ -104,10 +105,8 @@ public class GamePlayer extends GameEntity {
                           }
 
                           if (newKey == null) {
-                            getGame()
-                                .handleFatalException(
-                                    new RuntimeException(
-                                        "This exception should never ever come up. If it did came up there is something horrible going on."));
+                            Perceptionallity.handleFatalException(
+                                "This exception should never ever come up. If it did came up there is something horrible going on.");
                           }
                           successWalk = integer;
 
@@ -119,7 +118,7 @@ public class GamePlayer extends GameEntity {
                       }
 
                       @Override
-                      public void keyReleased(KeyEvent keyEvent) throws Exception {
+                      public void keyReleased(KeyEvent keyEvent) {
                         if (keyEvent.getKeyCode() == successWalk) {
                           getCurrentVelocity().set(0, 0);
 
