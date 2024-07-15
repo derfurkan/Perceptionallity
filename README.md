@@ -10,8 +10,8 @@ Currently there is no compiled executable so you need to compile it yourself.
 * F = Show outlines of Components
 * R = Reload the last displayed Menu
 * H = Toggle camera view (In-Game only)
-* G = Reset to Boot Menu
-* X = Crash game ._.
+* G = Reset to Entry Menu
+* X = Test Crash
 * P = Resume/Pause Game
 
 
@@ -19,4 +19,4 @@ Currently there is no compiled executable so you need to compile it yourself.
 
 ![image1](https://i.ibb.co/KrmfSPm/Screenshot-2024-06-19-090831.png)
 
-![image2](https://i.ibb.co/z6h0DGD/Screenshot-2024-06-19-090935.png)
+![image2](https://pouch.jumpshare.com/preview/t_ojhBSvL439pUlm1fN8kprbAf-wL4cPulovrQEiWzSH4YYc3MziGjbqG9vHQfqFd1urJq-EzcqVnUkvrnSZJroEOaIGYuISaUJJmEmNHQ4)
