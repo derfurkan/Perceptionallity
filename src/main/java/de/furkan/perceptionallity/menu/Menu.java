@@ -52,7 +52,7 @@ public abstract class Menu {
               try {
                 onUpdate();
               } catch (Exception ex) {
-                Perceptionallity.getGame().handleFatalException(ex);
+                Perceptionallity.handleFatalException(ex);
               }
               getGamePanel().repaint();
               getGamePanel().revalidate();
@@ -168,5 +168,5 @@ public abstract class Menu {
    * Handles the update logic for the menu. This method is called periodically according to the
    * msPerUpdate setting. It should contain logic to update the state or appearance of the menu.
    */
-  public abstract void onUpdate() throws Exception;
+  public abstract void onUpdate();
 }

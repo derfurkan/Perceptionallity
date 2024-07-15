@@ -25,7 +25,7 @@ public class BootMenu extends Menu {
   }
 
   @Override
-  public void initComponents() throws Exception {
+  public void initComponents() {
     engineLogoSprite = new MenuSprite(0, 0, new Dimension(550, 600), null);
     Animation spriteAnimation =
         getResourceManager().getResource("engine_animation_logo", Animation.class);
@@ -37,7 +37,7 @@ public class BootMenu extends Menu {
 
     engineLogoSprite.buildComponent();
 
-    engineTitleLabel = new MenuLabel(0, 0, "ENGINE NAME HIER DU NIGGA", 80, Color.WHITE);
+    engineTitleLabel = new MenuLabel(0, 0, "ENGINE NAME HIER, NIGGA", 80, Color.WHITE);
 
     centeredLocation = getMenuManager().centerLocation(engineTitleLabel.getDimension());
     engineTitleLabel.setX(centeredLocation[0]);
@@ -47,35 +47,36 @@ public class BootMenu extends Menu {
   }
 
   @Override
-  public void onUpdate() throws Exception {
-    if (engineLogoSprite.getSpriteAnimation() == null) return;
+  public void onUpdate() {
 
-    if ((getUpdates()
-            % ((1000 / getMsPerUpdate())
-                / engineLogoSprite.getSpriteAnimation().getFramesPerSecond())
-        == 0)) {
-      engineLogoSprite.displayNextAnimationFrame();
-    }
+    if (engineLogoSprite.getSpriteAnimation() != null) {
 
-    if (engineLogoSprite.getSprite() == null) return;
-
-    if (engineLogoFadeIn.isFinished()) {
-      addSteadyComponent(engineLogoSprite.getJComponent(), 1);
-      addSteadyComponent(engineTitleLabel.getJComponent(), 1);
-      if (getSecondsElapsed() == 7) {
-        engineLogoFadeIn.setStep(.025f);
-        engineLogoFadeIn.reverse();
-
-      } else if (getSecondsElapsed() == 8) {
-        getMenuManager().setCurrentMenu(new StartMenu());
-        getMenuManager().drawCurrentMenu();
+      if ((getUpdates()
+              % ((1000 / getMsPerUpdate())
+                  / engineLogoSprite.getSpriteAnimation().getFramesPerSecond())
+          == 0)) {
+        engineLogoSprite.displayNextAnimationFrame();
       }
-    } else {
-      engineLogoSprite.setOpacity(engineLogoFadeIn.getCurrentValue());
-      engineTitleLabel.setOpacity(engineLogoFadeIn.getCurrentValue());
-      addTempComponent(engineLogoSprite.getJComponent(), 1);
-      addTempComponent(engineTitleLabel.getJComponent(), 1);
-      engineLogoFadeIn.updateValue();
+    }
+    if (engineLogoSprite.getSprite() != null) {
+      if (engineLogoFadeIn.isFinished()) {
+        addSteadyComponent(engineLogoSprite.getJComponent(), 1);
+        addSteadyComponent(engineTitleLabel.getJComponent(), 1);
+        if (getSecondsElapsed() == 7) {
+          engineLogoFadeIn.setStep(.025f);
+          engineLogoFadeIn.reverse();
+
+        } else if (getSecondsElapsed() == 8) {
+          getMenuManager().setCurrentMenu(new StartMenu());
+          getMenuManager().drawCurrentMenu();
+        }
+      } else {
+        engineLogoSprite.setOpacity(engineLogoFadeIn.getCurrentValue());
+        engineTitleLabel.setOpacity(engineLogoFadeIn.getCurrentValue());
+        addTempComponent(engineLogoSprite.getJComponent(), 1);
+        addTempComponent(engineTitleLabel.getJComponent(), 1);
+        engineLogoFadeIn.updateValue();
+      }
     }
   }
 }

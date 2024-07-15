@@ -15,7 +15,7 @@ public class MenuButton extends MenuComponent {
   @Setter private MenuButtonClick buttonClick;
   @Setter private boolean active = true;
 
-  public MenuButton(int x, int y, int size, String text) throws Exception {
+  public MenuButton(int x, int y, int size, String text) {
     super(x, y, new Dimension());
     MenuLabel menuLabel = new MenuLabel(0, 0, text, size, Color.WHITE);
     setDimension(menuLabel.getDimension());
@@ -42,7 +42,7 @@ public class MenuButton extends MenuComponent {
             try {
               buttonClick.onClick();
             } catch (Exception ex) {
-              Perceptionallity.getGame().handleFatalException(new RuntimeException(ex));
+              Perceptionallity.handleFatalException(new RuntimeException(ex));
             }
           }
 

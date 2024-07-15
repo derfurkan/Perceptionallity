@@ -16,7 +16,7 @@ public class TestMenu extends Menu {
   }
 
   @Override
-  public void initComponents() throws Exception {
+  public void initComponents() {
     getMenuManager().getCurrentMenu().unLoadMenu();
     Perceptionallity.getGame().getGameManager().initialize();
   }

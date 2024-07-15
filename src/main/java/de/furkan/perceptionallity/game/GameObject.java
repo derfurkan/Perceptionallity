@@ -32,16 +32,18 @@ public abstract class GameObject {
     this.dimension = dimension;
   }
 
-  public void playAnimation(Animation animation) throws CloneNotSupportedException {
-    if (currentPlayingAnimation != null) lastPlayedAnimation = currentPlayingAnimation.clone();
-    currentPlayingAnimation = animation.clone();
+  public void playAnimation(Animation animation) {
+    try {
+      if (currentPlayingAnimation != null) lastPlayedAnimation = currentPlayingAnimation.clone();
+      currentPlayingAnimation = animation.clone();
+    } catch (Exception e) {
+      Perceptionallity.handleFatalException(e);
+    }
     currentPlayingAnimation.resizeTo(getDimension());
   }
 
-  public void playAnimation(Animation animation, int fps) throws CloneNotSupportedException {
-    if (currentPlayingAnimation != null) lastPlayedAnimation = currentPlayingAnimation.clone();
-    currentPlayingAnimation = animation.clone();
-    currentPlayingAnimation.resizeTo(getDimension());
+  public void playAnimation(Animation animation, int fps) {
+    playAnimation(animation);
     currentPlayingAnimation.setFramesPerSecond(fps);
   }
 
@@ -60,14 +62,14 @@ public abstract class GameObject {
         (int) getDimension().getWidth(),
         (int) getDimension().getHeight());
     objectLayer = layer;
+    getGame().getGameRenderer().add(component, objectLayer);
   }
-
 
   public void unInitializeGameObject() {
     Perceptionallity.getGame().getGameManager().unregisterGameObject(this);
     if (this instanceof GameNPC)
       Perceptionallity.getGame().getGameManager().unregisterNPC((GameNPC) this);
-    Perceptionallity.getGame().getGamePanel().remove(getComponent());
+    Perceptionallity.getGame().getGameRenderer().remove(getComponent());
   }
 
   public int distanceTo(WorldLocation worldLocation) {

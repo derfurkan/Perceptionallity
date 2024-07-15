@@ -56,7 +56,12 @@ public class SoundEngine {
   public void setVolumeOf(GameSound gameSound, float newVolume) {
     if (!soundThreads.containsKey(gameSound)) {
       Perceptionallity.getGame()
-          .handleFatalException(new RuntimeException("This sound is not being played"));
+          .getLogger()
+          .warning(
+              "This sound is not being played. ("
+                  + Perceptionallity.getGame().getResourceManager().getKeyFromResource(gameSound)
+                  + ")");
+      return;
     }
     soundThreads.get(gameSound).setVolume(newVolume);
   }

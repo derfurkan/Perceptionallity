@@ -46,7 +46,7 @@ class SoundThread extends Thread {
         currentAudioData = null;
       }
     } catch (Exception e) {
-      Perceptionallity.getGame().handleFatalException(e);
+      Perceptionallity.handleFatalException(e);
     }
   }
 
