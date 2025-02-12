@@ -5,69 +5,71 @@ import de.furkan.perceptionallity.menu.components.button.MenuButton;
 import de.furkan.perceptionallity.menu.components.button.MenuButtonClick;
 import de.furkan.perceptionallity.menu.components.checkbox.MenuCheckbox;
 import de.furkan.perceptionallity.menu.components.label.MenuLabel;
+
 import java.awt.*;
 
 public class OptionsMenu extends Menu {
 
-  public OptionsMenu() {
-    super(-1, Color.BLACK);
-  }
+    public OptionsMenu() {
+        super(-1, Color.BLACK);
+    }
 
-  @Override
-  public String getMenuName() {
-    return "Options";
-  }
+    @Override
+    public String getMenuName() {
+        return "Options";
+    }
 
-  @Override
-  public void initComponents() {
-    MenuLabel optionsLabel = new MenuLabel(20, 10, "OPTIONS", 120, Color.WHITE);
+    @Override
+    public void initComponents() {
+        MenuLabel optionsLabel = new MenuLabel(20, 10, "OPTIONS", 120, Color.WHITE);
 
-    MenuLabel multiThreadedRenderingLabel =
-        new MenuLabel(30, 0, "Multi-Threaded Rendering", 50, Color.WHITE);
-    multiThreadedRenderingLabel.setBelow(optionsLabel, 30);
+        MenuLabel multiThreadedRenderingLabel =
+                new MenuLabel(30, 0, "Multi-Threaded Rendering", 50, Color.WHITE);
+        multiThreadedRenderingLabel.setBelow(optionsLabel, 30);
 
-    MenuCheckbox multiThreadedRenderingCheckbox = new MenuCheckbox(0, 0, 50, 5);
-    multiThreadedRenderingCheckbox.setAsideRight(multiThreadedRenderingLabel, 5);
-    multiThreadedRenderingCheckbox.setCenteredHeight(multiThreadedRenderingLabel, 0);
+        MenuCheckbox multiThreadedRenderingCheckbox = new MenuCheckbox(0, 0, 50, 5);
+        multiThreadedRenderingCheckbox.setAsideRight(multiThreadedRenderingLabel, 5);
+        multiThreadedRenderingCheckbox.setCenteredHeight(multiThreadedRenderingLabel, 0);
 
-    MenuLabel discordRPCLabel = new MenuLabel(30, 0, "Discord Integration", 50, Color.WHITE);
-    discordRPCLabel.setBelow(multiThreadedRenderingLabel, 10);
+        MenuLabel discordRPCLabel = new MenuLabel(30, 0, "Discord Integration", 50, Color.WHITE);
+        discordRPCLabel.setBelow(multiThreadedRenderingLabel, 10);
 
-    MenuCheckbox discordRPCCheckbox = new MenuCheckbox(0, 0, 50, 5);
-    discordRPCCheckbox.setAsideRight(discordRPCLabel, 5);
-    discordRPCCheckbox.setCenteredHeight(discordRPCLabel, 0);
+        MenuCheckbox discordRPCCheckbox = new MenuCheckbox(0, 0, 50, 5);
+        discordRPCCheckbox.setAsideRight(discordRPCLabel, 5);
+        discordRPCCheckbox.setCenteredHeight(discordRPCLabel, 0);
 
-    MenuButton backButton = new MenuButton(20, 0, 50, "BACK");
+        MenuButton backButton = new MenuButton(20, 0, 50, "BACK");
 
-    backButton.setButtonClick(
-        new MenuButtonClick() {
-          @Override
-          public void onClick() {
-            getMenuManager().setCurrentMenu(new MainMenu());
-            getMenuManager().drawCurrentMenu();
-          }
-        });
+        backButton.setButtonClick(
+                new MenuButtonClick() {
+                    @Override
+                    public void onClick() {
+                        getMenuManager().setCurrentMenu(new MainMenu());
+                        getMenuManager().drawCurrentMenu();
+                    }
+                });
 
-    int[] edgeLocation = getMenuManager().edgeLocation(backButton.getDimension());
-    backButton.setY(edgeLocation[1]);
+        int[] edgeLocation = getMenuManager().edgeLocation(backButton.getDimension());
+        backButton.setY(edgeLocation[1]);
 
-    backButton.buildComponent();
-    optionsLabel.buildComponent();
+        backButton.buildComponent();
+        optionsLabel.buildComponent();
 
-    multiThreadedRenderingLabel.buildComponent();
-    multiThreadedRenderingCheckbox.buildComponent();
+        multiThreadedRenderingLabel.buildComponent();
+        multiThreadedRenderingCheckbox.buildComponent();
 
-    discordRPCLabel.buildComponent();
-    discordRPCCheckbox.buildComponent();
+        discordRPCLabel.buildComponent();
+        discordRPCCheckbox.buildComponent();
 
-    addSteadyComponent(backButton.getJComponent(), 1);
-    addSteadyComponent(multiThreadedRenderingLabel.getJComponent(), 1);
-    addSteadyComponent(multiThreadedRenderingCheckbox.getJComponent(), 1);
-    addSteadyComponent(discordRPCLabel.getJComponent(), 1);
-    addSteadyComponent(discordRPCCheckbox.getJComponent(), 1);
-    addSteadyComponent(optionsLabel.getJComponent(), 1);
-  }
+        addSteadyComponent(backButton.getJComponent(), 1);
+        addSteadyComponent(multiThreadedRenderingLabel.getJComponent(), 1);
+        addSteadyComponent(multiThreadedRenderingCheckbox.getJComponent(), 1);
+        addSteadyComponent(discordRPCLabel.getJComponent(), 1);
+        addSteadyComponent(discordRPCCheckbox.getJComponent(), 1);
+        addSteadyComponent(optionsLabel.getJComponent(), 1);
+    }
 
-  @Override
-  public void onUpdate() {}
+    @Override
+    public void onUpdate() {
+    }
 }
