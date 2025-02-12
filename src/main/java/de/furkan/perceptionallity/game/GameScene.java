@@ -1,3 +1,4 @@
 package de.furkan.perceptionallity.game;
 
-public class GameScene {}
+public class GameScene {
+}
