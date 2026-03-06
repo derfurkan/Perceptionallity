@@ -99,7 +99,6 @@ public class Camera {
      * @param calculatedLocation The new calculated position of the game object.
      */
     public void finishGameObject(GameObject gameObject, int[] calculatedLocation) {
-        calculatedGameObjects.remove(gameObject);
         calculatedGameObjects.put(gameObject, calculatedLocation);
     }
 
