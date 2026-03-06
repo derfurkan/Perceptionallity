@@ -7,6 +7,7 @@ import de.furkan.perceptionallity.game.entity.environment.GameCampfire;
 import de.furkan.perceptionallity.game.entity.npc.GameNPC;
 import de.furkan.perceptionallity.game.entity.npc.TestNPC;
 import de.furkan.perceptionallity.game.entity.player.GamePlayer;
+import de.furkan.perceptionallity.game.lighting.GameLightingManager;
 import de.furkan.perceptionallity.menu.components.label.MenuLabel;
 import de.furkan.perceptionallity.util.font.GameFont;
 import lombok.Getter;
@@ -14,31 +15,29 @@ import lombok.Setter;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
-import java.text.DecimalFormat;
 import java.util.*;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Getter
 public class GameManager extends Manager {
 
     private final Camera camera = new Camera();
+    private final GameLightingManager lightingManager = new GameLightingManager();
     private final List<GameObject> gameObjects = Collections.synchronizedList(new ArrayList<>());
     private final List<GameKeyEvent> keyEvents = new ArrayList<>();
     private final List<GameAction> gameThreadLoopCalls = new ArrayList<>();
-    private final List<GameNPC> gameNPCs = new ArrayList<>();
+    public final List<GameNPC> gameNPCs = new ArrayList<>();
     private final TimerTask gameLogicTimer;
     private final Timer gameLogicTimerExecutor;
-    private final Set<Integer> pressedKeys = new HashSet<>();
+    private final Set<Integer> pressedKeys = ConcurrentHashMap.newKeySet();
     private final int GAME_UPDATE_MS = 15; // Fixed timestep for game logic (physics, collisions, etc.)
 
     @Getter
     private final int DISTANCE_UNTIL_DISPOSE =
             2000; // The min distance afar from the Player until a GameObject is being disposed from
 
-    // rendering
-    private volatile boolean renderingActive = false;
-    private final double accumulatedTime = 0;
 
     @Setter
     private boolean gamePaused = false;
@@ -134,7 +133,7 @@ public class GameManager extends Manager {
 
         int distance = 2000;
 
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 15; i++) {
             GameCampfire gameCampfire =
                     new GameCampfire(
                             new WorldLocation(
@@ -146,11 +145,11 @@ public class GameManager extends Manager {
         TestNPC testNPC = new TestNPC(new WorldLocation(100, 100));
         testNPC.initializeGameObject(1);
 
-        currentPlayer = new GamePlayer(new WorldLocation(-20, -20), true);
+        currentPlayer = new GamePlayer(new WorldLocation(-20, -20), false);
         currentPlayer.setAttribute(EntityAttributes.MOVEMENT_SPEED, 5);
         currentPlayer.setAttribute(EntityAttributes.RUN_SPEED_FACTOR, 5);
         currentPlayer.registerKeyEvent();
-        currentPlayer.initializeGameObject(1);
+        currentPlayer.initializeGameObject(2);
 
         testNPC.setCollisionBoundaries(new Dimension(30, 40));
         currentPlayer.setCollisionBoundaries(new Dimension(30, 40));
@@ -189,6 +188,9 @@ public class GameManager extends Manager {
                                                             gameKeyEvent.getKeyListener().whileKeyPressed(integer);
                                                         }));
 
+                        // Lighting Flicker Pass
+                        lightingManager.updateFlicker();
+
                         // GameObject Physics & Velocity Pass
                         gameObjects.forEach(
                                 (gameObject) -> {
@@ -211,21 +213,15 @@ public class GameManager extends Manager {
         setGameState(GameState.IN_GAME);
         getLogger().info("Initialized game");
         startGameLoop();
-        startRenderingLoop();
-        getGame().getGameRenderer().add(statsLabel.getJComponent(), 0);
-        getGame().getGameRenderer().add(objectLabel.getJComponent(), 0);
-        getGame().getGameRenderer().add(locationLabel.getJComponent(), 0);
+        getGame().getGameRenderer().startRenderingLoop();
+        getGame().getGameRenderer().add(lightingManager.getGlowComponent(), Integer.valueOf(GameLightingManager.GLOW_LAYER));
+        getGame().getGameRenderer().add(lightingManager.getDarknessComponent(), Integer.valueOf(GameLightingManager.DARKNESS_LAYER));
+        getGame().getGameRenderer().add(statsLabel.getJComponent(), Integer.valueOf(3));
+        getGame().getGameRenderer().add(objectLabel.getJComponent(), Integer.valueOf(3));
+        getGame().getGameRenderer().add(locationLabel.getJComponent(), Integer.valueOf(3));
         getGame().getGameRenderer().setBackground(Color.WHITE);
 
         Perceptionallity.getGame().getMenuManager().getCurrentMenu().unLoadMenu();
-    }
-
-    public void registerNPC(GameNPC gameNPC) {
-        gameNPCs.add(gameNPC);
-    }
-
-    public void unregisterNPC(GameNPC gameNPC) {
-        gameNPCs.remove(gameNPC);
     }
 
     public void registerLoopAction(GameAction gameAction) {
@@ -246,93 +242,6 @@ public class GameManager extends Manager {
     private void stopGameLoop() {
         getLogger().info("Stopped game logic loop");
         gameLogicTimerExecutor.cancel();
-    }
-
-    private void startRenderingLoop() {
-        getLogger().info("Started rendering loop");
-        renderingActive = true;
-        Thread renderThread = new Thread(() -> {
-            long lastFrameTime = 0;
-            double frameTime;
-
-            while (renderingActive) {
-
-
-                // Render Pass
-                gameObjects.forEach((gameObject) -> {
-                    if (gameObject.getCurrentPlayingAnimation() != null && gameObject.getComponent() != null && gameObject.getCurrentPlayingAnimation().getCurrentFrame() != null) {
-                        gameObject.getComponent().setIcon(
-                                gameObject.getCurrentPlayingAnimation().getCurrentFrame().getRawImageIcon());
-                    }
-                });
-
-
-                getCamera().flushCalculation();
-
-                getGameObjects().forEach(gameObject -> getCamera().finishGameObject(gameObject, getCamera().calculateObjectPosition(gameObject)));
-
-                // Render final game objects
-                getCamera()
-                        .getCalculatedGameObjects()
-                        .forEach(
-                                (gameObject, newLoc) ->
-                                        gameObject
-                                                .getComponent()
-                                                .setBounds(
-                                                        new Rectangle(
-                                                                newLoc[0],
-                                                                newLoc[1],
-                                                                (int) gameObject.getDimension().getWidth(),
-                                                                (int) gameObject.getDimension().getHeight())));
-
-
-                // Update UI Labels
-                if (updatesPassed % (100 / GAME_UPDATE_MS) == 0 && getGame().isDebug()) {
-                    frameTime = System.currentTimeMillis() - lastFrameTime;
-
-                    if (frameTime > 0) {
-                        statsLabel.setText(String.format("%.1f fps, %.1f ms", 1000 / frameTime, frameTime));
-                        statsLabel.recalculateDimension();
-                        statsLabel.buildComponent();
-                    }
-
-                    objectLabel.setText(
-                            gameObjects.size()
-                                    + " / "
-                                    + new DecimalFormat("#,###").format(gameObjects.size())
-                                    + " Objects");
-                    objectLabel.recalculateDimension();
-                    objectLabel.buildComponent();
-
-                    locationLabel.setText(
-                            currentPlayer.getWorldLocation().getX()
-                                    + " X, "
-                                    + currentPlayer.getWorldLocation().getY()
-                                    + " Y");
-                    locationLabel.recalculateDimension();
-                    locationLabel.buildComponent();
-                }
-
-                getGame().getGameRenderer().repaint();
-                getGame().getGameRenderer().revalidate();
-
-                lastFrameTime = System.currentTimeMillis();
-
-                try {
-                    Thread.sleep(15); // Minimal sleep to prevent 100% CPU usage
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    break;
-                }
-            }
-        }, "RenderingThread");
-        renderThread.setDaemon(true);
-        renderThread.start();
-    }
-
-    private void stopRenderingLoop() {
-        getLogger().info("Stopped rendering loop");
-        renderingActive = false;
     }
 
     public boolean isGameComponent(Component component) {

@@ -4,6 +4,7 @@ import de.furkan.perceptionallity.Game;
 import de.furkan.perceptionallity.Perceptionallity;
 import de.furkan.perceptionallity.animation.Animation;
 import de.furkan.perceptionallity.game.entity.npc.GameNPC;
+import de.furkan.perceptionallity.game.lighting.LightSource;
 import de.furkan.perceptionallity.resources.ResourceManager;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,15 +15,17 @@ import java.awt.*;
 @Getter
 public abstract class GameObject {
 
-    private final WorldLocation worldLocation, lastLocation = new WorldLocation(0, 0);
+    private final WorldLocation worldLocation;
     private final Dimension dimension;
     private final boolean passToCollisionCheck;
     private final GameVelocity currentVelocity;
     private final JLabel component = new JLabel();
+
     @Setter
     private Dimension collisionBoundaries;
     @Setter
     private GameAction onCollision;
+    private LightSource lightSource;
     private Animation currentPlayingAnimation;
     private Animation lastPlayedAnimation;
     private int objectLayer;
@@ -55,23 +58,34 @@ public abstract class GameObject {
                 worldLocation.getX(), worldLocation.getY(), dimension.width, dimension.height);
     }
 
+    public void setLightSource(LightSource lightSource) {
+        this.lightSource = lightSource;
+        if (lightSource != null) { // Why Claude why
+            lightSource.setParentObject(this);
+        }
+    }
+
     public void initializeGameObject(int layer) {
-        Perceptionallity.getGame().getGameManager().registerGameObject(this);
+        getGameManager().registerGameObject(this);
         if (this instanceof GameNPC)
-            Perceptionallity.getGame().getGameManager().registerNPC((GameNPC) this);
+            getGameManager().getGameNPCs().add((GameNPC) this);
+        if (lightSource != null)
+            getGameManager().getLightingManager().addLight(lightSource);
         component.setBounds(
                 getWorldLocation().getX(),
                 getWorldLocation().getY(),
                 (int) getDimension().getWidth(),
                 (int) getDimension().getHeight());
         objectLayer = layer;
-        getGame().getGameRenderer().add(component, objectLayer);
+        getGame().getGameRenderer().add(component, Integer.valueOf(objectLayer));
     }
 
     public void unInitializeGameObject() {
-        Perceptionallity.getGame().getGameManager().unregisterGameObject(this);
+        if (lightSource != null)
+            getGameManager().getLightingManager().removeLight(lightSource);
+        getGameManager().unregisterGameObject(this);
         if (this instanceof GameNPC)
-            Perceptionallity.getGame().getGameManager().unregisterNPC((GameNPC) this);
+            getGameManager().getGameNPCs().remove((GameNPC) this);
         Perceptionallity.getGame().getGameRenderer().remove(getComponent());
     }
 
