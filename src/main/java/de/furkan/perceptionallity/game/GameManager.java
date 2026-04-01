@@ -8,8 +8,6 @@ import de.furkan.perceptionallity.game.entity.npc.GameNPC;
 import de.furkan.perceptionallity.game.entity.npc.TestNPC;
 import de.furkan.perceptionallity.game.entity.player.GamePlayer;
 import de.furkan.perceptionallity.game.lighting.GameLightingManager;
-import de.furkan.perceptionallity.menu.components.label.MenuLabel;
-import de.furkan.perceptionallity.util.font.GameFont;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -45,7 +43,6 @@ public class GameManager extends Manager {
     private GameState gameState = GameState.NONE;
     private GamePlayer currentPlayer;
     private long updatesPassed = 0;
-    private MenuLabel statsLabel, objectLabel, locationLabel;
 
     public GameManager() {
 
@@ -70,34 +67,6 @@ public class GameManager extends Manager {
     public void initialize() {
 
         getLogger().info("Initializing game");
-
-        statsLabel =
-                new MenuLabel(
-                        3,
-                        3,
-                        "",
-                        20,
-                        Color.BLACK,
-                        getResourceManager().getResource("ingame_font", GameFont.class));
-
-        objectLabel =
-                new MenuLabel(
-                        3,
-                        0,
-                        "",
-                        20,
-                        Color.BLACK,
-                        getResourceManager().getResource("ingame_font", GameFont.class));
-        locationLabel =
-                new MenuLabel(
-                        3,
-                        0,
-                        "",
-                        20,
-                        Color.BLACK,
-                        getResourceManager().getResource("ingame_font", GameFont.class));
-        objectLabel.setBelow(statsLabel, 0);
-        locationLabel.setBelow(objectLabel, 0);
 
         getGame()
                 .getGameFrame()
@@ -139,17 +108,17 @@ public class GameManager extends Manager {
                             new WorldLocation(
                                     ThreadLocalRandom.current().nextInt(-distance, distance),
                                     ThreadLocalRandom.current().nextInt(-distance, distance)));
-            gameCampfire.initializeGameObject(1);
+            gameCampfire.initializeGameObject(1, true);
         }
 
         TestNPC testNPC = new TestNPC(new WorldLocation(100, 100));
-        testNPC.initializeGameObject(1);
+        testNPC.initializeGameObject(1, true);
 
         currentPlayer = new GamePlayer(new WorldLocation(-20, -20), false);
         currentPlayer.setAttribute(EntityAttributes.MOVEMENT_SPEED, 5);
         currentPlayer.setAttribute(EntityAttributes.RUN_SPEED_FACTOR, 5);
         currentPlayer.registerKeyEvent();
-        currentPlayer.initializeGameObject(2);
+        currentPlayer.initializeGameObject(1, true);
 
         testNPC.setCollisionBoundaries(new Dimension(30, 40));
         currentPlayer.setCollisionBoundaries(new Dimension(30, 40));
@@ -216,10 +185,8 @@ public class GameManager extends Manager {
         getGame().getGameRenderer().startRenderingLoop();
         getGame().getGameRenderer().add(lightingManager.getGlowComponent(), Integer.valueOf(GameLightingManager.GLOW_LAYER));
         getGame().getGameRenderer().add(lightingManager.getDarknessComponent(), Integer.valueOf(GameLightingManager.DARKNESS_LAYER));
-        getGame().getGameRenderer().add(statsLabel.getJComponent(), Integer.valueOf(3));
-        getGame().getGameRenderer().add(objectLabel.getJComponent(), Integer.valueOf(3));
-        getGame().getGameRenderer().add(locationLabel.getJComponent(), Integer.valueOf(3));
-        getGame().getGameRenderer().setBackground(Color.WHITE);
+        getGame().getGameRenderer().add(getGame().getGameRenderer().getDebugOverlay(), Integer.valueOf(GameDebugOverlay.DEBUG_LAYER));
+        getGame().getGameRenderer().setBackground(Color.BLACK);
 
         Perceptionallity.getGame().getMenuManager().getCurrentMenu().unLoadMenu();
     }

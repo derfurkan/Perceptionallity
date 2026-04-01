@@ -2,6 +2,7 @@ package de.furkan.perceptionallity.game.lighting;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.val;
 
 import javax.swing.*;
 
@@ -15,8 +16,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class GameLightingManager {
 
     public static final int GLOW_LAYER = 0;
-    public static final int DARKNESS_LAYER = 2;
-    private static final float LIGHT_MAP_SCALE = 0.5f;
+    public static final int DARKNESS_LAYER = 3;
+    private static final float LIGHT_MAP_SCALE = 0.3f;
 
     private final List<LightSource> lightSources = new CopyOnWriteArrayList<>();
     @Getter
@@ -27,9 +28,9 @@ public class GameLightingManager {
     private BufferedImage glowMap;
     private int lastWidth, lastHeight;
     @Getter @Setter
-    private float ambientDarkness = 0.9f;
+    private float ambientDarkness = 0.8f;
     private Color cachedAmbientColor;
-    private float cachedAmbientDarkness = -1f;
+    private float cachedAmbientDarkness;
 
     public void addLight(LightSource lightSource) {
         lightSources.add(lightSource);
@@ -37,6 +38,10 @@ public class GameLightingManager {
 
     public void removeLight(LightSource lightSource) {
         lightSources.remove(lightSource);
+    }
+
+    public int getLightCount() {
+        return lightSources.size();
     }
 
     public void updateFlicker() {

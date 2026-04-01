@@ -27,7 +27,7 @@ public class GamePlayer extends GameEntity {
     public GamePlayer(WorldLocation worldLocation, boolean passToCollisionCheck) {
         super(new Dimension(100, 110), worldLocation, passToCollisionCheck);
         playAnimation(getResourceManager().getResource("player_idle_down_animation", Animation.class));
-        setLightSource(new LightSource(worldLocation, 50, new Color(255,255,255), 0.01f));
+        setLightSource(new LightSource(worldLocation, 70, new Color(255,255,255), .5f));
 
         getGameManager()
                 .registerLoopAction(
