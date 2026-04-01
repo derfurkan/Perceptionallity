@@ -15,6 +15,6 @@ public class GameCampfire extends GameObject {
         setCollisionBoundaries(new Dimension(50, 70));
         setLightSource(new LightSource(worldLocation, 180, new Color(255, 180, 80), 0.9f));
         getLightSource().setFlickering(true);
-        getLightSource().setFlickerAmplitude(3);
+        getLightSource().setFlickerAmplitude(8);
     }
 }

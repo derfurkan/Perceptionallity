@@ -20,7 +20,7 @@ public class GameNPC extends GameEntity {
                 .setXY(
                         worldLocation.getX() + interactArrow.getDimension().width / 2,
                         (worldLocation.getY() - interactArrow.getDimension().height / 2) - 10);
-        interactArrow.initializeGameObject(1);
+        interactArrow.initializeGameObject(2);
         interactArrow.setOpacity(0.0f);
     }
 

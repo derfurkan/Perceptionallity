@@ -4,17 +4,22 @@ import de.furkan.perceptionallity.Perceptionallity;
 
 import javax.swing.*;
 import java.awt.*;
-import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class GameRenderer extends JLayeredPane {
 
     private final HashMap<GameObject, CompletableFuture<Boolean>> collisionCheck = new HashMap<>();
+    @lombok.Getter
+    private final GameDebugOverlay debugOverlay = new GameDebugOverlay();
 
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
+        debugOverlay.setBounds(0, 0, getWidth(), getHeight());
     }
 
     @Override
@@ -33,10 +38,15 @@ public class GameRenderer extends JLayeredPane {
     public void startRenderingLoop() {
         renderingActive = true;
         Thread renderThread = new Thread(() -> {
-            long lastFrameTime = 0;
-            double frameTime;
+            long lastFrameTime = System.currentTimeMillis();
             GameManager gameManager = getGameManager();
             while (renderingActive) {
+                long now = System.currentTimeMillis();
+                double frameTime = now - lastFrameTime;
+                lastFrameTime = now;
+                if (frameTime > 0) {
+                    debugOverlay.setLastFrameTimeMs(frameTime);
+                }
 
                 // Render Pass
                 gameManager.getGameObjects().forEach((gameObject) -> {
@@ -63,39 +73,23 @@ public class GameRenderer extends JLayeredPane {
                                                         (int) gameObject.getDimension().getWidth(),
                                                         (int) gameObject.getDimension().getHeight()));
 
-                // Update UI Labels
-                if (gameManager.getUpdatesPassed() % (100 / gameManager.getGAME_UPDATE_MS()) == 0 && Perceptionallity.getGame().isDebug()) {
-                    frameTime = System.currentTimeMillis() - lastFrameTime;
-
-                    if (frameTime > 0) {
-                        gameManager.getStatsLabel().setText(String.format("%.1f fps, %.1f ms", 1000 / frameTime, frameTime));
-                        gameManager.getStatsLabel().recalculateDimension();
-                        gameManager.getStatsLabel().buildComponent();
+                // Depth sort pass - Y-based ordering for 2.5D effect
+                List<GameObject> sortable = new ArrayList<>();
+                for (GameObject obj : gameManager.getGameObjects()) {
+                    if (obj.isDepthSortable()) {
+                        sortable.add(obj);
                     }
-
-                    gameManager.getObjectLabel().setText(
-                            gameManager.getGameObjects().size()
-                                    + " / "
-                                    + new DecimalFormat("#,###").format(gameManager.getGameObjects().size())
-                                    + " Objects");
-                    gameManager.getObjectLabel().recalculateDimension();
-                    gameManager.getObjectLabel().buildComponent();
-
-                    gameManager.getLocationLabel().setText(
-                            gameManager.getCurrentPlayer().getWorldLocation().getX()
-                                    + " X, "
-                                    + gameManager.getCurrentPlayer().getWorldLocation().getY()
-                                    + " Y");
-                    gameManager.getLocationLabel().recalculateDimension();
-                    gameManager.getLocationLabel().buildComponent();
+                }
+                sortable.sort(Comparator.comparingInt(GameObject::getDepthSortY));
+                for (int i = 0; i < sortable.size(); i++) {
+                    setPosition(sortable.get(sortable.size() - 1 - i).getComponent(), i);
                 }
 
                 // Lighting
                 gameManager.getLightingManager().getGlowComponent().setBounds(0, 0, getWidth(), getHeight());
                 gameManager.getLightingManager().getDarknessComponent().setBounds(0, 0, getWidth(), getHeight());
+                debugOverlay.setBounds(0, 0, getWidth(), getHeight());
                 repaint();
-
-                lastFrameTime = System.currentTimeMillis();
 
                 try {
                     Thread.sleep(6); // Minimal sleep to prevent 100% CPU usage

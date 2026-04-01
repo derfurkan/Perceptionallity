@@ -5,6 +5,7 @@ import de.furkan.perceptionallity.game.GameObject;
 import de.furkan.perceptionallity.game.WorldLocation;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.val;
 
 import java.awt.*;
 import java.util.concurrent.ThreadLocalRandom;
@@ -20,7 +21,7 @@ public class LightSource {
     private GameObject parentObject;
     private boolean flickering;
     private int flickerAmplitude;
-    private int flickerOffset;
+    private volatile int flickerOffset;
 
     public LightSource(WorldLocation worldLocation, int radius, Color color, float intensity) {
         this.worldLocation = worldLocation;
@@ -39,6 +40,7 @@ public class LightSource {
         }
     }
 
+    // Copy of method in Camera replace all calls.
     public int[] getScreenPosition(Camera camera) {
         if (parentObject != null && parentObject.getComponent() != null) {
             Rectangle bounds = parentObject.getComponent().getBounds();

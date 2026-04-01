@@ -30,7 +30,7 @@ public abstract class Menu {
                 new Timer(
                         msPerUpdate,
                         e -> {
-                            if (!Perceptionallity.getGame()
+                            if (Perceptionallity.getGame().getMenuManager().getCurrentMenu() != null &&!Perceptionallity.getGame()
                                     .getMenuManager()
                                     .getCurrentMenu()
                                     .getMenuName()
@@ -58,7 +58,7 @@ public abstract class Menu {
                             getGamePanel().revalidate();
                             updates++;
                         });
-        updateTimer.start();
+    
     }
 
     /**
@@ -100,6 +100,8 @@ public abstract class Menu {
             removeComponent(component);
         }
         initComponents();
+       if(updateTimer != null)
+         updateTimer.start();
         getLogger().info("Initialized components for menu (" + getMenuName() + ")");
 
         // Discord Pass

@@ -25,6 +25,8 @@ public abstract class GameObject {
     private Dimension collisionBoundaries;
     @Setter
     private GameAction onCollision;
+    @Setter
+    private boolean depthSortable = false;
     private LightSource lightSource;
     private Animation currentPlayingAnimation;
     private Animation lastPlayedAnimation;
@@ -63,6 +65,15 @@ public abstract class GameObject {
         if (lightSource != null) { // Why Claude why
             lightSource.setParentObject(this);
         }
+    }
+
+    public int getDepthSortY() {
+        return getWorldLocation().getY() + (int) getDimension().getHeight();
+    }
+
+    public void initializeGameObject(int layer, boolean depthSortable) {
+        this.depthSortable = depthSortable;
+        initializeGameObject(layer);
     }
 
     public void initializeGameObject(int layer) {
