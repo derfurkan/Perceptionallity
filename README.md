@@ -1,5 +1,9 @@
 # Perceptionallity
 
+![image](image.png)
+
+![image](image2.png)
+
 ## How to run
 Currently there is no compiled executable, you need to compile it yourself.
  </br>
