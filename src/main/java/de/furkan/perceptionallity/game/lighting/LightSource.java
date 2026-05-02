@@ -5,7 +5,6 @@ import de.furkan.perceptionallity.game.GameObject;
 import de.furkan.perceptionallity.game.WorldLocation;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.val;
 
 import java.awt.*;
 import java.util.concurrent.ThreadLocalRandom;
@@ -27,7 +26,7 @@ public class LightSource {
         this.worldLocation = worldLocation;
         this.baseRadius = radius;
         this.color = color;
-        this.intensity = Math.max(0f, Math.min(1f, intensity));
+        this.intensity = Math.clamp(intensity, 0f, 1f);
     }
 
     public int getRadius() {

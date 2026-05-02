@@ -34,7 +34,10 @@ public class Animation implements Cloneable {
     }
 
     public void resizeTo(Dimension dimension) {
-        animationSprites.forEachRemaining(sprite -> sprite.resize(dimension));
+        for (Sprite sprite : sprites) {
+            sprite.resize(dimension);
+        }
+        //     animationSprites.forEach(sprite -> sprite.resize(dimension));
     }
 
     public void nextFrame() {
@@ -55,6 +58,9 @@ public class Animation implements Cloneable {
 
     @Override
     public Animation clone() throws CloneNotSupportedException {
-        return (Animation) super.clone();
+        Animation cloned = (Animation) super.clone();
+        cloned.animationSprites = Arrays.asList(cloned.sprites).iterator();
+        cloned.currentFrame = cloned.animationSprites.next();
+        return cloned;
     }
 }

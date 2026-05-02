@@ -43,7 +43,7 @@ public class MenuLabel extends MenuComponent {
         FontMetrics rawFontMetrics = rawComponent.getFontMetrics(rawComponent.getFont());
         Dimension dimension =
                 new Dimension(
-                        rawFontMetrics.stringWidth(rawComponent.getText()) + 4, // +4 for some padding
+                        rawFontMetrics.stringWidth(rawComponent.getText()) + 16, // +4 for some padding
                         rawFontMetrics.getAscent() + rawFontMetrics.getDescent()); // Height includes ascent and descent
 
         setDimension(dimension);

@@ -2,7 +2,10 @@ package de.furkan.perceptionallity.game.entity.player;
 
 import de.furkan.perceptionallity.Perceptionallity;
 import de.furkan.perceptionallity.animation.Animation;
-import de.furkan.perceptionallity.game.*;
+import de.furkan.perceptionallity.game.GameKeyEvent;
+import de.furkan.perceptionallity.game.GameKeyListener;
+import de.furkan.perceptionallity.game.GameState;
+import de.furkan.perceptionallity.game.WorldLocation;
 import de.furkan.perceptionallity.game.entity.EntityAttributes;
 import de.furkan.perceptionallity.game.entity.GameEntity;
 import de.furkan.perceptionallity.game.entity.npc.GameNPC;
@@ -27,30 +30,24 @@ public class GamePlayer extends GameEntity {
     public GamePlayer(WorldLocation worldLocation, boolean passToCollisionCheck) {
         super(new Dimension(100, 110), worldLocation, passToCollisionCheck);
         playAnimation(getResourceManager().getResource("player_idle_down_animation", Animation.class));
-        setLightSource(new LightSource(worldLocation, 70, new Color(255,255,255), .5f));
+        setLightSource(new LightSource(worldLocation, 70, new Color(255, 255, 255), .5f));
 
         getGameManager()
                 .registerLoopAction(
-                        new GameAction() {
-                            @Override
-                            public void onAction() {
-
-                                getGameManager()
-                                        .getGameNPCs()
-                                        .forEach(
-                                                gameNPC -> {
-                                                    if (distanceTo(
-                                                            gameNPC
-                                                                    .getWorldLocation()
-                                                                    .toCenterLocation(gameNPC.getDimension()))
-                                                            < 75) {
-                                                        gameNPC.showInteractArrow();
-                                                    } else {
-                                                        gameNPC.hideInteractArrow();
-                                                    }
-                                                });
-                            }
-                        });
+                        () -> getGameManager()
+                                .getGameNPCs()
+                                .forEach(
+                                        gameNPC -> {
+                                            if (distanceTo(
+                                                    gameNPC
+                                                            .getWorldLocation()
+                                                            .toCenterLocation(gameNPC.getDimension()))
+                                                    < 75) {
+                                                gameNPC.showInteractArrow();
+                                            } else {
+                                                gameNPC.hideInteractArrow();
+                                            }
+                                        }));
     }
 
     public void registerKeyEvent() {
@@ -126,19 +123,25 @@ public class GamePlayer extends GameEntity {
                                                 if (keyEvent.getKeyCode() == successWalk) {
                                                     getCurrentVelocity().set(0, 0);
 
-                                                    ANIMATION_KEYS idleAnimation = null;
-
-                                                    switch (lastDirection) {
-                                                        case NORTH -> idleAnimation = ANIMATION_KEYS.IDLE_UP;
-                                                        case OST -> idleAnimation = ANIMATION_KEYS.IDLE_RIGHT;
-                                                        case SOUTH -> idleAnimation = ANIMATION_KEYS.IDLE_DOWN;
-                                                        case WEST -> idleAnimation = ANIMATION_KEYS.IDLE_LEFT;
-                                                    }
+                                                    ANIMATION_KEYS idleAnimation = getAnimationKeys();
 
                                                     playAnimation(
                                                             getResourceManager()
                                                                     .getResource(idleAnimation.animationKey, Animation.class));
+
                                                 }
+                                            }
+
+                                            private ANIMATION_KEYS getAnimationKeys() {
+                                                ANIMATION_KEYS idleAnimation = null;
+
+                                                switch (lastDirection) {
+                                                    case NORTH -> idleAnimation = ANIMATION_KEYS.IDLE_UP;
+                                                    case OST -> idleAnimation = ANIMATION_KEYS.IDLE_RIGHT;
+                                                    case SOUTH -> idleAnimation = ANIMATION_KEYS.IDLE_DOWN;
+                                                    case WEST -> idleAnimation = ANIMATION_KEYS.IDLE_LEFT;
+                                                }
+                                                return idleAnimation;
                                             }
                                         },
                                         VK_W,
