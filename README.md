@@ -14,3 +14,4 @@ Currently there is no compiled executable, you need to compile it yourself.
 * G = Reset to Entry Menu
 * X = Test Crash
 * P = Resume/Pause Game
+* 
