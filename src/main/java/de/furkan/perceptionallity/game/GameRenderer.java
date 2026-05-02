@@ -15,6 +15,7 @@ public class GameRenderer extends JLayeredPane {
     private final HashMap<GameObject, CompletableFuture<Boolean>> collisionCheck = new HashMap<>();
     @lombok.Getter
     private final GameDebugOverlay debugOverlay = new GameDebugOverlay();
+    private volatile boolean renderingActive = false;
 
     @Override
     public void paintComponent(Graphics g) {
@@ -32,8 +33,6 @@ public class GameRenderer extends JLayeredPane {
         }
         super.paint(g);
     }
-
-    private volatile boolean renderingActive = false;
 
     public void startRenderingLoop() {
         renderingActive = true;

@@ -21,12 +21,12 @@ import java.util.concurrent.ThreadLocalRandom;
 @Getter
 public class GameManager extends Manager {
 
+    public final List<GameNPC> gameNPCs = new ArrayList<>();
     private final Camera camera = new Camera();
     private final GameLightingManager lightingManager = new GameLightingManager();
     private final List<GameObject> gameObjects = Collections.synchronizedList(new ArrayList<>());
     private final List<GameKeyEvent> keyEvents = new ArrayList<>();
     private final List<GameAction> gameThreadLoopCalls = new ArrayList<>();
-    public final List<GameNPC> gameNPCs = new ArrayList<>();
     private final TimerTask gameLogicTimer;
     private final Timer gameLogicTimerExecutor;
     private final Set<Integer> pressedKeys = ConcurrentHashMap.newKeySet();
@@ -83,7 +83,7 @@ public class GameManager extends Manager {
 
                             @Override
                             public void keyReleased(KeyEvent e) {
-
+                                pressedKeys.remove(e.getKeyCode());
                                 keyEvents.stream()
                                         .filter(
                                                 gameKeyEvent ->
@@ -94,7 +94,8 @@ public class GameManager extends Manager {
                                                     gameKeyEvent.getPressedKeys().remove((Object) e.getKeyCode());
                                                     gameKeyEvent.getKeyListener().keyReleased(e);
                                                 });
-                                pressedKeys.remove(e.getKeyCode());
+
+
                             }
                         });
 
@@ -134,48 +135,45 @@ public class GameManager extends Manager {
 
         // Register Game Logic Actions
         registerLoopAction(
-                new GameAction() {
-                    @Override
-                    public void onAction() {
-                        if (gamePaused) return;
+                () -> {
+                    if (gamePaused) return;
 
-                        // Just in case if a player has no real-life:
-                        if (updatesPassed == Long.MAX_VALUE) updatesPassed = 0;
-                        updatesPassed += 1;
+                    // Just in case if a player has no real-life:
+                    if (updatesPassed == Long.MAX_VALUE) updatesPassed = 0;
+                    updatesPassed += 1;
 
-                        // KeyEvent Pass
-                        pressedKeys.forEach(
-                                integer ->
-                                        keyEvents.stream()
-                                                .filter(
-                                                        gameKeyEvent ->
-                                                                Arrays.asList(gameKeyEvent.getKeyRegister()).contains(integer))
-                                                .forEach(
-                                                        gameKeyEvent -> {
-                                                            if (!gameKeyEvent.getPressedKeys().contains(integer))
-                                                                gameKeyEvent.getPressedKeys().add(integer);
-                                                            gameKeyEvent.getKeyListener().whileKeyPressed(integer);
-                                                        }));
+                    // KeyEvent Pass
+                    pressedKeys.forEach(
+                            integer ->
+                                    keyEvents.stream()
+                                            .filter(
+                                                    gameKeyEvent ->
+                                                            Arrays.asList(gameKeyEvent.getKeyRegister()).contains(integer))
+                                            .forEach(
+                                                    gameKeyEvent -> {
+                                                        if (!gameKeyEvent.getPressedKeys().contains(integer))
+                                                            gameKeyEvent.getPressedKeys().add(integer);
+                                                        gameKeyEvent.getKeyListener().whileKeyPressed(integer);
+                                                    }));
 
-                        // Lighting Flicker Pass
-                        lightingManager.updateFlicker();
+                    // Lighting Flicker Pass
+                    lightingManager.updateFlicker();
 
-                        // GameObject Physics & Velocity Pass
-                        gameObjects.forEach(
-                                (gameObject) -> {
-                                    gameObject.getWorldLocation().applyVelocity(gameObject.getCurrentVelocity());
+                    // GameObject Physics & Velocity Pass
+                    gameObjects.forEach(
+                            (gameObject) -> {
+                                gameObject.getWorldLocation().applyVelocity(gameObject.getCurrentVelocity());
 
-                                    // GameObject Animation Pass (Fixed timestep based on GAME_UPDATE_MS)
-                                    if (gameObject.getCurrentPlayingAnimation() != null) {
-                                        if ((updatesPassed
-                                                % ((1000 / GAME_UPDATE_MS)
-                                                / gameObject.getCurrentPlayingAnimation().getFramesPerSecond())
-                                                == 0)) {
-                                            gameObject.getCurrentPlayingAnimation().nextFrame();
-                                        }
+                                // GameObject Animation Pass (Fixed timestep based on GAME_UPDATE_MS)
+                                if (gameObject.getCurrentPlayingAnimation() != null) {
+                                    if ((updatesPassed
+                                            % ((1000 / GAME_UPDATE_MS)
+                                            / gameObject.getCurrentPlayingAnimation().getFramesPerSecond())
+                                            == 0)) {
+                                        gameObject.getCurrentPlayingAnimation().nextFrame();
                                     }
-                                });
-                    }
+                                }
+                            });
                 });
 
         // When everything is loaded and in place we start the actual game loop
@@ -242,21 +240,4 @@ public class GameManager extends Manager {
         gameObjects.remove(gameObject);
     }
 
-    private <T> List<List<T>> splitArrayList(List<T> list, int chunkSize) {
-        List<List<T>> chunks = new ArrayList<>();
-
-        if (chunkSize == 0) {
-            chunks.add(list);
-            return chunks;
-        }
-
-        int listSize = list.size();
-
-        for (int i = 0; i < listSize; i += chunkSize) {
-            int end = Math.min(listSize, i + chunkSize);
-            chunks.add(new ArrayList<>(list.subList(i, end)));
-        }
-
-        return chunks;
-    }
 }

@@ -2,18 +2,17 @@ package de.furkan.perceptionallity.game;
 
 import de.furkan.perceptionallity.Perceptionallity;
 import de.furkan.perceptionallity.game.lighting.LightSource;
+import lombok.Setter;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
 
+@Setter
 public class GameDebugOverlay extends JComponent {
 
     public static final int DEBUG_LAYER = 5;
-
-    private volatile double lastFrameTimeMs;
-
     private static final Color BOUNDS_COLOR = new Color(0, 255, 0, 120);
     private static final Color BOUNDS_FILL_COLOR = new Color(0, 255, 0, 20);
     private static final Color COLLISION_COLOR = new Color(255, 100, 0, 150);
@@ -23,19 +22,15 @@ public class GameDebugOverlay extends JComponent {
     private static final Color TEXT_COLOR = new Color(255, 255, 255, 220);
     private static final Color LIGHT_RADIUS_COLOR = new Color(255, 255, 0, 80);
     private static final Color MENU_BOUNDS_COLOR = new Color(0, 200, 255, 100);
-
     private static final Font DEBUG_FONT = new Font("Monospaced", Font.PLAIN, 16);
     private static final Stroke DASHED_STROKE = new BasicStroke(1, BasicStroke.CAP_BUTT,
             BasicStroke.JOIN_MITER, 10, new float[]{4, 4}, 0);
     private static final Stroke SOLID_STROKE = new BasicStroke(1);
     private static final Stroke COLLISION_STROKE = new BasicStroke(1.5f);
+    private volatile double lastFrameTimeMs;
 
     public GameDebugOverlay() {
         setOpaque(false);
-    }
-
-    public void setLastFrameTimeMs(double ms) {
-        this.lastFrameTimeMs = ms;
     }
 
     @Override
@@ -47,7 +42,7 @@ public class GameDebugOverlay extends JComponent {
         g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
         g2d.setFont(DEBUG_FONT);
         FontMetrics fm = g2d.getFontMetrics();
-    
+
 
         GameManager gameManager = Perceptionallity.getGame().getGameManager();
 
@@ -74,10 +69,10 @@ public class GameDebugOverlay extends JComponent {
             drawCollisionBounds(g2d, obj, sx, sy, w, h);
             drawDepthSortLine(g2d, obj, sx, sy, w, h);
             drawLightRadius(g2d, obj, camera);
-            drawInfoLabel(g2d, fm, obj, sx, sy,snapshot);
+            drawInfoLabel(g2d, fm, obj, sx, sy, snapshot);
         }
 
-     
+
         drawGlobalDebugInfo(g2d, fm, gameManager, camera);
     }
 
@@ -123,7 +118,7 @@ public class GameDebugOverlay extends JComponent {
         g2d.setStroke(SOLID_STROKE);
     }
 
-    private void drawInfoLabel(Graphics2D g2d, FontMetrics fm, GameObject obj, int sx, int sy, HashMap<GameObject,int[]> snapshot) {
+    private void drawInfoLabel(Graphics2D g2d, FontMetrics fm, GameObject obj, int sx, int sy, HashMap<GameObject, int[]> snapshot) {
         String className = obj.getClass().getSimpleName();
         int[] objCameraLocation = snapshot.entrySet().stream().filter(t -> t.getKey() == obj).findFirst().get().getValue();
         String posStr = "Wl:" + obj.getWorldLocation().getX() + " " + obj.getWorldLocation().getY() + " Cl:" + objCameraLocation[0] + " " + objCameraLocation[1];
@@ -148,13 +143,12 @@ public class GameDebugOverlay extends JComponent {
         String text = info.toString();
         int textWidth = fm.stringWidth(text);
         int textHeight = fm.getHeight();
-        int textX = sx;
         int textY = sy - 4;
 
         g2d.setColor(TEXT_BG_COLOR);
-        g2d.fillRect(textX - 2, textY - textHeight, textWidth + 4, textHeight + 2);
+        g2d.fillRect(sx - 2, textY - textHeight, textWidth + 4, textHeight + 2);
         g2d.setColor(TEXT_COLOR);
-        g2d.drawString(text, textX, textY - fm.getDescent());
+        g2d.drawString(text, sx, textY - fm.getDescent());
     }
 
     private void drawGlobalDebugInfo(Graphics2D g2d, FontMetrics fm, GameManager gameManager, Camera camera) {
@@ -182,7 +176,7 @@ public class GameDebugOverlay extends JComponent {
         g2d.setColor(TEXT_BG_COLOR);
         g2d.fillRect(panelX, panelY, maxWidth + padding, panelH);
         g2d.setColor(TEXT_COLOR);
-    
+
         for (int i = 0; i < lines.length; i++) {
             g2d.drawString(lines[i], panelX + padding,
                     panelY + padding + fm.getAscent() + i * fm.getHeight());

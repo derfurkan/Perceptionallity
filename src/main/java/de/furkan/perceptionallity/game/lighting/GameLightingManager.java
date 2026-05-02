@@ -1,13 +1,10 @@
 package de.furkan.perceptionallity.game.lighting;
 
+import de.furkan.perceptionallity.game.Camera;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.val;
 
 import javax.swing.*;
-
-import de.furkan.perceptionallity.game.Camera;
-
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.List;
@@ -27,7 +24,8 @@ public class GameLightingManager {
     private BufferedImage darknessMap;
     private BufferedImage glowMap;
     private int lastWidth, lastHeight;
-    @Getter @Setter
+    @Getter
+    @Setter
     private float ambientDarkness = 0.8f;
     private Color cachedAmbientColor;
     private float cachedAmbientDarkness;
@@ -149,7 +147,7 @@ public class GameLightingManager {
         @Override
         protected void paintComponent(Graphics g) {
             if (darknessMap != null) {
-                ((Graphics2D) g).drawImage(darknessMap, 0, 0, getWidth(), getHeight(), null);
+                g.drawImage(darknessMap, 0, 0, getWidth(), getHeight(), null);
             }
         }
     }
@@ -162,7 +160,7 @@ public class GameLightingManager {
         @Override
         protected void paintComponent(Graphics g) {
             if (glowMap != null) {
-                ((Graphics2D) g).drawImage(glowMap, 0, 0, getWidth(), getHeight(), null);
+                g.drawImage(glowMap, 0, 0, getWidth(), getHeight(), null);
             }
         }
     }
