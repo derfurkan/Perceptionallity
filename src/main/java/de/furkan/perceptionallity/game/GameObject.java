@@ -16,7 +16,7 @@ import java.awt.*;
 public abstract class GameObject {
 
     private final WorldLocation worldLocation;
-    private final Dimension dimension;
+    private Dimension dimension;
     private final boolean passToCollisionCheck;
     private final GameVelocity currentVelocity;
     private final JLabel component = new JLabel();
@@ -47,7 +47,14 @@ public abstract class GameObject {
         } catch (Exception e) {
             Perceptionallity.handleFatalException(e);
         }
-        currentPlayingAnimation.resizeTo(getDimension());
+        var frame = currentPlayingAnimation.getCurrentFrame();
+        if (frame != null) {
+            int w = frame.getRawImage().getWidth(null);
+            int h = frame.getRawImage().getHeight(null);
+            if (w > 0 && h > 0) {
+                dimension = new Dimension(w, h);
+            }
+        }
     }
 
     public void playAnimation(Animation animation, int fps) {

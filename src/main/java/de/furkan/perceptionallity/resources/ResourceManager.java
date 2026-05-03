@@ -65,6 +65,15 @@ public class ResourceManager {
      * @throws IllegalArgumentException if the resource key is invalid or the resource is not loaded
      */
     @SuppressWarnings("unchecked")
+    public <T> T[] getResourceBatch(String resourceKey, int count, Class<T> type) {
+        T[] batch = (T[]) java.lang.reflect.Array.newInstance(type, count);
+        for (int i = 0; i < count; i++) {
+            batch[i] = getResource(resourceKey + "_" + i, type);
+        }
+        return batch;
+    }
+
+    @SuppressWarnings("unchecked")
     public <T> T getResource(String resourceKey, Class<T> type) {
         Resource<?> resource = resources.get(resourceKey);
         if (!type.isInstance(resource.data())) {

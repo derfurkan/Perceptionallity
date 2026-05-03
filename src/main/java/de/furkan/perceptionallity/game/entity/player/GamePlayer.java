@@ -10,6 +10,8 @@ import de.furkan.perceptionallity.game.entity.EntityAttributes;
 import de.furkan.perceptionallity.game.entity.GameEntity;
 import de.furkan.perceptionallity.game.entity.npc.GameNPC;
 import de.furkan.perceptionallity.game.lighting.LightSource;
+import de.furkan.perceptionallity.sound.GameSound;
+import lombok.Getter;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -27,8 +29,12 @@ public class GamePlayer extends GameEntity {
     private DIRECTION lastDirection = DIRECTION.SOUTH;
     private int successWalk;
 
+    @Getter
+    private final GameSound[] walkSound;
+
     public GamePlayer(WorldLocation worldLocation, boolean passToCollisionCheck) {
         super(new Dimension(100, 110), worldLocation, passToCollisionCheck);
+        walkSound = getResourceManager().getResourceBatch("sound_player_walk",9,GameSound.class);
         playAnimation(getResourceManager().getResource("player_idle_down_animation", Animation.class));
         setLightSource(new LightSource(worldLocation, 70, new Color(255, 255, 255), .5f));
 
@@ -102,6 +108,9 @@ public class GamePlayer extends GameEntity {
                                                             }
 
                                                             return;
+                                                        }
+                                                        case VK_ESCAPE -> {
+
                                                         }
                                                     }
 

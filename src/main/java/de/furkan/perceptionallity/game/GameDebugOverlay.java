@@ -8,6 +8,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Setter
 public class GameDebugOverlay extends JComponent {
@@ -55,7 +56,7 @@ public class GameDebugOverlay extends JComponent {
 
     private void drawInGameDebug(Graphics2D g2d, FontMetrics fm, GameManager gameManager) {
         Camera camera = gameManager.getCamera();
-        HashMap<GameObject, int[]> snapshot = new HashMap<>(camera.getCalculatedGameObjects());
+        ConcurrentHashMap<GameObject, int[]> snapshot = new ConcurrentHashMap<>(camera.getCalculatedGameObjects());
 
         for (Map.Entry<GameObject, int[]> entry : snapshot.entrySet()) {
             GameObject obj = entry.getKey();
@@ -118,7 +119,7 @@ public class GameDebugOverlay extends JComponent {
         g2d.setStroke(SOLID_STROKE);
     }
 
-    private void drawInfoLabel(Graphics2D g2d, FontMetrics fm, GameObject obj, int sx, int sy, HashMap<GameObject, int[]> snapshot) {
+    private void drawInfoLabel(Graphics2D g2d, FontMetrics fm, GameObject obj, int sx, int sy, ConcurrentHashMap<GameObject, int[]> snapshot) {
         String className = obj.getClass().getSimpleName();
         int[] objCameraLocation = snapshot.entrySet().stream().filter(t -> t.getKey() == obj).findFirst().get().getValue();
         String posStr = "Wl:" + obj.getWorldLocation().getX() + " " + obj.getWorldLocation().getY() + " Cl:" + objCameraLocation[0] + " " + objCameraLocation[1];

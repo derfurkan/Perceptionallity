@@ -8,6 +8,7 @@ import de.furkan.perceptionallity.menu.MenuManager;
 import de.furkan.perceptionallity.menu.menus.BootMenu;
 import de.furkan.perceptionallity.menu.menus.MainMenu;
 import de.furkan.perceptionallity.resources.ResourceManager;
+import de.furkan.perceptionallity.sound.GameSound;
 import de.furkan.perceptionallity.sound.SoundEngine;
 import de.furkan.perceptionallity.util.font.GameFont;
 import de.furkan.perceptionallity.util.sprite.Sprite;
@@ -148,6 +149,8 @@ public class Game {
      */
     private void loadResources() throws Exception {
 
+        registerSoundResourceBatch("sound_player_walk","player_walk",9,"game","sound","player");
+
         resourceManager.registerResource(
                 "menu_font", new GameFont(Font.TRUETYPE_FONT, "joystixmonospace.otf", "font"));
 
@@ -248,6 +251,13 @@ public class Game {
                 "campfire_animation", 4, 1, 12, true, "campfire_animation.png", "game", "campfire");
 
         registerAnimationResource("engine_animation_logo", 4, 1, 3, true, "engine_logo.png", "game");
+    }
+
+    private void registerSoundResourceBatch(String resourceKey,String soundKey,int sounds,String... soundPath)
+            throws Exception {
+        for(int i = 0; i < sounds; i++) {
+            resourceManager.registerResource(resourceKey+"_"+i, new GameSound(soundKey+"_"+i+".wav",soundPath));
+        }
     }
 
     private void registerAnimationResource(
