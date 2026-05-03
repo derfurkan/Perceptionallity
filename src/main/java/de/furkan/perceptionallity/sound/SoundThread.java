@@ -12,13 +12,14 @@ class SoundThread extends Thread {
     private final float volume;
     private final AudioFormat audioFormat;
     private SourceDataLine sourceDataLine;
-    private byte[] currentAudioData;
+    private byte[] currentAudioData,originalAudioData;
+    private final Runnable onFinish;
 
-    protected SoundThread(boolean loop, float volume, AudioFormat audioFormat) {
+    protected SoundThread(boolean loop, float volume, AudioFormat audioFormat,Runnable onFinish) {
         this.loop = loop;
         this.volume = volume;
         this.audioFormat = audioFormat;
-
+        this.onFinish = onFinish;
         start();
     }
 
@@ -32,27 +33,29 @@ class SoundThread extends Thread {
             setVolume(volume);
 
             sourceDataLine.start();
-            sourceDataLine.addLineListener(
-                    event -> {
-                        if (event.getType() == LineEvent.Type.STOP && loop) {
-                            // TODO: Close current Thread
-                            new SoundThread(true, volume, audioFormat);
-                        }
-                    });
 
-            while (true) {
-                if (currentAudioData == null) return; // Maybe break?
+            while (sourceDataLine.isOpen()) {
+                if (currentAudioData == null)
+                    return;
                 sourceDataLine.flush();
                 sourceDataLine.write(currentAudioData, 0, currentAudioData.length);
-                currentAudioData = null;
+                if (loop) {
+                    currentAudioData = originalAudioData;
+                } else {
+                    currentAudioData = null;
+                }
             }
+            Perceptionallity.getGame().getSoundEngine().getSoundThreads().remove(this);
         } catch (Exception e) {
             Perceptionallity.handleFatalException(e);
+        } finally {
+            onFinish.run();
         }
     }
 
     public void writeToLine(byte[] audioData) {
         currentAudioData = audioData;
+        originalAudioData = audioData;
     }
 
     public void setVolume(float volume) {

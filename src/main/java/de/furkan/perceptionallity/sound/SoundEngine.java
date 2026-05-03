@@ -4,11 +4,12 @@ import de.furkan.perceptionallity.Perceptionallity;
 import lombok.Getter;
 
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Getter
 public class SoundEngine {
 
-    private final HashMap<GameSound, SoundThread> soundThreads = new HashMap<>();
+    private final ConcurrentHashMap<GameSound, SoundThread> soundThreads = new ConcurrentHashMap<>();
 
     /**
      * Plays the specified sound with the given volume and looping preference. A new SoundThread is
@@ -19,7 +20,7 @@ public class SoundEngine {
      * @param loop      A boolean indicating whether the sound should loop continuously.
      */
     public void playAudio(GameSound gameSound, float volume, boolean loop) {
-        SoundThread soundThread = new SoundThread(loop, volume, gameSound.getAudioFormat());
+        SoundThread soundThread = new SoundThread(loop, volume, gameSound.getAudioFormat(),() -> soundThreads.remove(gameSound));
         soundThread.writeToLine(gameSound.getAudioBytes());
         soundThreads.put(gameSound, soundThread);
     }
@@ -34,6 +35,12 @@ public class SoundEngine {
                     soundThread.getSourceDataLine().flush();
                     soundThread.getSourceDataLine().close();
                 });
+    }
+
+    public void stopAudio(GameSound gameSound) {
+        SoundThread soundThread = soundThreads.get(gameSound);
+        soundThread.getSourceDataLine().flush();
+        soundThread.getSourceDataLine().close();
     }
 
     /**

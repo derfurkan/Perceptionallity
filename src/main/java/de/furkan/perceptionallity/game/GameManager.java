@@ -171,6 +171,14 @@ public class GameManager extends Manager {
                                             / gameObject.getCurrentPlayingAnimation().getFramesPerSecond())
                                             == 0)) {
                                         gameObject.getCurrentPlayingAnimation().nextFrame();
+                                        if(gameObject == currentPlayer && updatesPassed % ((1000 / GAME_UPDATE_MS) / gameObject.getCurrentPlayingAnimation().getFramesPerSecond() * 2) == 0
+                                                && (!currentPlayer.getCurrentVelocity().isZero())) {
+                                            int randomSound = ThreadLocalRandom.current().nextInt(0, 8);
+                                            if(!getSoundEngine().isAudioAlreadyPlaying(currentPlayer.getWalkSound()[randomSound])) {
+                                                getSoundEngine().playAudio(currentPlayer.getWalkSound()[randomSound],1,false);
+                                            }
+
+                                        }
                                     }
                                 }
                             });
